@@ -79,22 +79,9 @@
     </header>
 
     <!-- Cyan/Turquoise Banner Section -->
-    <section class="banner">
-        <div style="text-align: center; padding-top: 100px;">
-            <h1 style="color: white; font-size: 3em;">Welcome to the Resource Booking System</h1>
-            <p style="color: white; font-size: 1.2em; margin-top: 20px;">Please log in to book halls and reserve quarters.</p>
-            <a href="/login" style="display: inline-block; margin-top: 30px; padding: 15px 30px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 1.2em;">Login</a>
-        </div>
-    </section>
+    <section class="banner"></section>
 
     <!-- Black Footer Section -->
-    <footer class="footer" style="color: white; text-align: center; padding-top: 20px;">
-        <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
-        <p style="margin-top: 10px;">
-            <a href="/privacy" style="color: white; text-decoration: none; margin: 0 10px;">Privacy and Policy</a>
-            |
-            <a href="/agreement" style="color: white; text-decoration: none; margin: 0 10px;">User Agreement</a>
-        </p>
-    </footer>
+    <footer class="footer"></footer>
 </body>
 </html>
