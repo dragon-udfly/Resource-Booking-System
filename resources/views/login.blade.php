@@ -66,6 +66,12 @@
             height: 17vh;
             width: 100%;
         }
+
+        .login-button:hover:not(:disabled) {
+            background-color: #0056b3; /* Darker blue on hover */
+            transform: translateY(-1px); /* Slight lift effect */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+        }
     </style>
 </head>
 <body>
@@ -79,9 +85,50 @@
     </header>
 
     <!-- Cyan/Turquoise Banner Section -->
-    <section class="banner"></section>
+    <section class="banner" style="position: relative;">
+        <a href="/" style="position: absolute; top: 20px; left: 20px; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Back to Home</a>
+        <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+            <div style="background-color: white; padding: 40px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                <h1 style="text-align: center; margin-bottom: 20px;">Login</h1>
+                <form id="loginForm">
+                    <div style="margin-bottom: 20px;">
+                        <label for="username" style="display: block; margin-bottom: 5px;">Username</label>
+                        <input type="text" id="username" name="username" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label for="password" style="display: block; margin-bottom: 5px;">Password</label>
+                        <input type="password" id="password" name="password" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+                    <button type="submit" id="loginButton" disabled class="login-button" style="width: 100%; padding: 10px; background-color: #ff0000; color: white; border: none; border-radius: 5px; cursor: pointer;">Login</button>
+                </form>
+            </div>
+        </div>
+    </section>
 
     <!-- Black Footer Section -->
-    <footer class="footer"></footer>
+    <footer class="footer" style="color: white; text-align: center; padding-top: 20px;">
+        <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
+        <p style="margin-top: 10px;">
+            <a href="/privacy" style="color: white; text-decoration: none; margin: 0 10px;">Privacy and Policy</a>
+            |
+            <a href="/agreement" style="color: white; text-decoration: none; margin: 0 10px;">User Agreement</a>
+        </p>
+    </footer>
+    <script>
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginButton = document.getElementById('loginButton');
+
+        function validateForm() {
+            if (usernameInput.value.trim() !== '' && passwordInput.value.trim() !== '') {
+                loginButton.disabled = false;
+            } else {
+                loginButton.disabled = true;
+            }
+        }
+
+        usernameInput.addEventListener('input', validateForm);
+        passwordInput.addEventListener('input', validateForm);
+    </script>
 </body>
 </html>
