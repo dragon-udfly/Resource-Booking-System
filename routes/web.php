@@ -13,3 +13,7 @@ Route::get('/login', function () {
 Route::get('/admin', function() {
     return view('adminpanel');
 })->name('admin');
+
+Route::get('/createaccount', function() {
+    return view('createaccount');
+})->name('createacount');
