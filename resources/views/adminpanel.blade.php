@@ -79,7 +79,13 @@
     </header>
 
     <!-- Cyan/Turquoise Banner Section -->
-    <section class="banner"></section>
+    <section class="banner">
+        <div style="display: flex; justify-content: center; align-items: center; height: 100%; gap: 80px;">
+            <a href="/viewofficers" style="display: block; padding: 20px 40px; background-color: #007bff; color: white; text-decoration: none; border-radius: 8px; font-size: 1.5em; text-align: center; transition: background-color 0.3s ease;">Officers</a>
+            <a href="/viewquarters" style="display: block; padding: 20px 40px; background-color: #007bff; color: white; text-decoration: none; border-radius: 8px; font-size: 1.5em; text-align: center; transition: background-color 0.3s ease;">Quarters</a>
+            <a href="/viewhalls" style="display: block; padding: 20px 40px; background-color: #007bff; color: white; text-decoration: none; border-radius: 8px; font-size: 1.5em; text-align: center; transition: background-color 0.3s ease;">Halls</a>
+        </div>
+    </section>
 
     <!-- Black Footer Section -->
     <footer class="footer" style="color: white; text-align: center; padding-top: 20px;">
