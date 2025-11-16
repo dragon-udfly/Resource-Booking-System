@@ -157,7 +157,7 @@
             min-width: 280px; /* Ensure fields don't get too small */
         }
 
-        .form-group label {
+        .form-group label #p_p {
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
@@ -182,6 +182,25 @@
             border-color: #80bdff;
             outline: 0;
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            flex: 0 0 auto; /* Prevent checkboxes from stretching */
+            min-width: unset; /* Override min-width from form-group */
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto; /* Reset width */
+            margin-right: 10px;
+            transform: scale(1.2); /* Make checkbox slightly larger */
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0; /* Remove bottom margin */
+            font-weight: normal; /* Reset font-weight */
+            color: #555;
         }
 
         .required {
@@ -328,6 +347,53 @@
                             <option value="active" selected>Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
+                    </div>
+                </div>
+                <p id="p_p" style="color:#ff0000">Permissions</p><br />
+                <div id="permissions" class="form-row">
+                    <div id="permission1" class="form-group checkbox-group">
+                        <input type="checkbox" id="view_audit_log" name="permissions[]" value="view_audit_log">
+                        <label for="view_audit_log">View Audit Log</label>
+                    </div>
+                    <div id="permission2" class="form-group checkbox-group">
+                        <input type="checkbox" id="document_history" name="permissions[]" value="document_history">
+                        <label for="document_history">Document History</label>
+                    </div>
+                    <div id="permission3" class="form-group checkbox-group">
+                        <input type="checkbox" id="check_approval" name="permissions[]" value="check_approval">
+                        <label for="check_approval">Check Approval</label>
+                    </div>
+                    <div id="permission4" class="form-group checkbox-group">
+                        <input type="checkbox" id="submit_hall_booking" name="permissions[]" value="submit_hall_booking">
+                        <label for="submit_hall_booking">Submit Hall Booking Form</label>
+                    </div>
+                    <div id="permission5" class="form-group checkbox-group">
+                        <input type="checkbox" id="view_quarters" name="permissions[]" value="view_quarters">
+                        <label for="view_quarters">View Quarters</label>
+                    </div>
+                    <div id="permission6" class="form-group checkbox-group">
+                        <input type="checkbox" id="view_quarters_details" name="permissions[]" value="view_quarters_details">
+                        <label for="view_quarters_details">View Quarters Details</label>
+                    </div>
+                    <div id="permission7" class="form-group checkbox-group">
+                        <input type="checkbox" id="submit_quarter_reservation" name="permissions[]" value="submit_quarter_reservation">
+                        <label for="submit_quarter_reservation">Submit Quarter Reservation Form</label>
+                    </div>
+                    <div id="permission8" class="form-group checkbox-group">
+                        <input type="checkbox" id="view_halls" name="permissions[]" value="view_halls">
+                        <label for="view_halls">View Halls</label>
+                    </div>
+                    <div id="permission9" class="form-group checkbox-group">
+                        <input type="checkbox" id="view_hall_details" name="permissions[]" value="view_hall_details">
+                        <label for="view_hall_details">View Hall Details</label>
+                    </div>
+                    <div id="permission10" class="form-group checkbox-group">
+                        <input type="checkbox" id="view_officers" name="permissions[]" value="view_officers">
+                        <label for="view_officers">View Officers</label>
+                    </div>
+                    <div id="permission10" class="form-group checkbox-group">
+                        <input type="checkbox" id="view_officer_details" name="permissions[]" value="view_officer_details">
+                        <label for="view_officer_details">View Officer Details</label>
                     </div>
                 </div>
 
