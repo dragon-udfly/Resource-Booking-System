@@ -29,3 +29,11 @@ Route::get('/preference', function(){
 Route::get('/quarters', function(){
     return view('quarters');
 });
+
+Route::get('/addhall', function(){
+    return view('addhall');
+});
+
+Route::get('/addquarter', function(){
+    return view('addquarter');
+});
