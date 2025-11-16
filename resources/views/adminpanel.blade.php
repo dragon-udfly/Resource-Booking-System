@@ -126,7 +126,7 @@
         <nav class="navbar">
             <ul class="navbar-left">
                 <li><a href="/document-history">Document History</a></li>
-                <li><a href="/account-setting">Preference</a></li>
+                <li><a href="/preference">Preference</a></li>
             </ul>
             <ul class="navbar-right">
                 <li>Admin, Thanuharan V.</li>

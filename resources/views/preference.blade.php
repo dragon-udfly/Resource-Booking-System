@@ -73,7 +73,7 @@
         <img src="icons/left_logo.png" alt="Sri Lanka government logo" class="logo-left">
         <div class="header-content">
             <h1>District Secretariat - Vavuniya</h1>
-            <h2>Hall and Quarters Booking System</h2>
+            <h2>Hall and Quarters Booking System - Preference</h2>
         </div>
         <img src="icons/right_logo.png" alt="district Secretariat vavuniya logo" class="logo-right">
     </header>

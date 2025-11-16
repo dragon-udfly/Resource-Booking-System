@@ -21,3 +21,7 @@ Route::get('/createaccount', function() {
 Route::get('/officers', function(){
     return view('officers');
 });
+
+Route::get('/preference', function(){
+    return view('preference');
+});
