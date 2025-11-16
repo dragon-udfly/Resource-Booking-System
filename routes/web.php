@@ -25,3 +25,7 @@ Route::get('/officers', function(){
 Route::get('/preference', function(){
     return view('preference');
 });
+
+Route::get('/quarters', function(){
+    return view('quarters');
+});
