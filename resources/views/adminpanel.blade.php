@@ -17,11 +17,17 @@
 
         .header {
             background-color: #f8f9fa;
-            padding: 10px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-bottom: 3px solid #ddd;
+        }
+
+        .header-main {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 3px solid #ddd;
+            width: 100%;
         }
 
         .logo-left {
@@ -55,6 +61,45 @@
             margin-right: 70px;
         }
 
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 10px 20px;
+            background-color: #e9ecef; /* Light grey background for navbar */
+            border-top: 1px solid #dee2e6;
+        }
+
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar li {
+            margin-right: 20px;
+        }
+
+        .navbar li:last-child {
+            margin-right: 0;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .navbar a:hover {
+            color: #0056b3;
+        }
+
+        .navbar-right {
+            margin-left: auto; /* Pushes right items to the right */
+        }
+
         .banner {
             background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
             height: 58vh;
@@ -70,12 +115,24 @@
 </head>
 <body>
     <header class="header">
-        <img src="icons/left_logo.png" alt="Sri Lanka government logo" class="logo-left">
-        <div class="header-content">
-            <h1>District Secretariat - Vavuniya</h1>
-            <h2>Hall and Quarters Booking System - Administrator Panel</h2>
+        <div class="header-main">
+            <img src="icons/left_logo.png" alt="Sri Lanka government logo" class="logo-left">
+            <div class="header-content">
+                <h1>District Secretariat - Vavuniya</h1>
+                <h2>Hall and Quarters Booking System - Administrator Panel</h2>
+            </div>
+            <img src="icons/right_logo.png" alt="district Secretariat vavuniya logo" class="logo-right">
         </div>
-        <img src="icons/right_logo.png" alt="district Secretariat vavuniya logo" class="logo-right">
+        <nav class="navbar">
+            <ul class="navbar-left">
+                <li><a href="/document-history">Document History</a></li>
+                <li><a href="/account-setting">Account Setting</a></li>
+            </ul>
+            <ul class="navbar-right">
+                <li>Welcome, Administrator</li>
+                <li><a href="/logout">Log Out</a></li>
+            </ul>
+        </nav>
     </header>
 
     <!-- Cyan/Turquoise Banner Section -->
