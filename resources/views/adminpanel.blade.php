@@ -119,17 +119,17 @@
             <img src="icons/left_logo.png" alt="Sri Lanka government logo" class="logo-left">
             <div class="header-content">
                 <h1>District Secretariat - Vavuniya</h1>
-                <h2>Hall and Quarters Booking System - Administrator Panel</h2>
+                <h2>Hall and Quarters Booking System - Administrator</h2>
             </div>
             <img src="icons/right_logo.png" alt="district Secretariat vavuniya logo" class="logo-right">
         </div>
         <nav class="navbar">
             <ul class="navbar-left">
                 <li><a href="/document-history">Document History</a></li>
-                <li><a href="/account-setting">Account Setting</a></li>
+                <li><a href="/account-setting">Preference</a></li>
             </ul>
             <ul class="navbar-right">
-                <li>Welcome, Administrator</li>
+                <li>Admin, Thanuharan V.</li>
                 <li><a href="/logout">Log Out</a></li>
             </ul>
         </nav>

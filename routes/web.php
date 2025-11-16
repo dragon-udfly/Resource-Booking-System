@@ -17,3 +17,7 @@ Route::get('/admin', function() {
 Route::get('/createaccount', function() {
     return view('createaccount');
 })->name('createacount');
+
+Route::get('/officers', function(){
+    return view('officers');
+});
