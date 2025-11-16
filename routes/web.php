@@ -57,3 +57,9 @@ Route::get('/modifyhall', function(){
 Route::get('/auditlog', function(){
     return view('auditlog');
 });
+
+// for common user dashboard
+// for demonstration only
+Route::get('/dashboard', function(){
+    return view('dashboard');
+});
