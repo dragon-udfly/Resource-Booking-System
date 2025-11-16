@@ -37,3 +37,15 @@ Route::get('/addhall', function(){
 Route::get('/addquarter', function(){
     return view('addquarter');
 });
+
+Route::get('/modifyaccount', function(){
+    return view('modifyaccount');
+});
+
+Route::get('/modifyquarter', function(){
+    return view('modifyquarter');
+});
+
+Route::get('/modifyhall', function(){
+    return view('modifyhall');
+});
