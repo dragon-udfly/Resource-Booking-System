@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audit Log - District Secretariat Vavuniya</title>
+    <title>Halls - District Secretariat Vavuniya</title>
     <style>
         * {
             margin: 0;
@@ -211,16 +211,17 @@
             <img src="icons/left_logo.png" alt="Sri Lanka government logo" class="logo-left">
             <div class="header-content">
                 <h1>District Secretariat - Vavuniya</h1>
-                <h2>Hall and Quarters Booking System - Audit Log</h2>
+                <h2>Hall and Quarters Booking System - Administrator</h2>
             </div>
             <img src="icons/right_logo.png" alt="district Secretariat vavuniya logo" class="logo-right">
         </div>
         <nav class="navbar">
             <ul class="navbar-left">
+                <li><a href="/document-history">Document History</a></li>
                 <li><a href="/preference">Preference</a></li>
             </ul>
             <ul class="navbar-right">
-                <li style="color:#0b03ff">Government Agent - Mr. John Deo</li>
+                <li>Admin, Thanuharan V.</li>
                 <li><a href="/logout">Log Out</a></li>
             </ul>
         </nav>
@@ -229,36 +230,51 @@
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
         <div class="page-header">
-            <h2>Audit Log Records</h2>
-            <p>Viewing system audit log records as a list of changes and modifications done by users</p>
+            <h2>Halls List</h2>
+            <p>Manage Halls by modifying or deleting entries</p>
         </div>
+
+        <!-- Add Officer Button -->
+        <div style="text-align: center; margin-bottom: 20px;">
+            <a href="/admin-create-account.html" class="add-officer-btn">Add Officer</a>
+        </div>
+
         <!-- Officer Table -->
         <table>
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Log ID</th>
-                    <th>Log Title</th>
-                    <th>Performed By</th>
-                    <th>Performed Date</th>
-                    <th>Performed Time</th>
+                    <th>Hall ID</th>
+                    <th>Title</th>
+                    <th>Capacity</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>1</td>
-                    <td>ALOG_DS0001</td>
-                    <td>Created a new user account user id: V_DS0393</td>
-                    <td>Administrator</td>
-                    <td>2025-11-24</td>
-                    <td>09.04.23.09</td>
+                    <td>V_DSHC0001</td>
+                    <td>Nadun's Memorial Hall</td>
+                    <td>100</td>
+                    <td>Booked</td>
+                    <td>
+                        <button class="action-btn" onclick=viewHall()>View</button>
+                        <button class="action-btn" onclick="modifyHall()">Modify</button>
+                        <button class="action-btn" onclick="deleteHall()">Delete</button>
+                    </td>
                 </tr>
+                <tr>
                     <td>2</td>
-                    <td>ALOG_DS0301</td>
-                    <td>Removed a user account user id: V_DS0393</td>
-                    <td>Administrator</td>
-                    <td>2025-11-24</td>
-                    <td>10.04.23.09</td>
+                    <td>V_DSHC0004</td>
+                    <td>District Conference Hall</td>
+                    <td>150</td>
+                    <td>Available</td>
+                    <td>
+                        <button class="action-btn" onclick=viewHall()>View</button>
+                        <button class="action-btn" onclick="modifyHall()">Modify</button>
+                        <button class="action-btn" onclick="deleteHall()">Delete</button>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -273,5 +289,19 @@
             <a href="/agreement" style="color: white; text-decoration: none; margin: 0 10px;">User Agreement</a>
         </p>
     </footer>
+
+    <script>
+        function viewHall(){
+            window.location.href= "/viewofficer";
+        }
+
+        function modifyHall() {
+            // add code
+        }
+
+        function deleteHall() {
+            // add code
+        }
+    </script>
 </body>
 </html>

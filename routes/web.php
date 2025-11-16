@@ -30,6 +30,10 @@ Route::get('/quarters', function(){
     return view('quarters');
 });
 
+Route::get('/halls', function(){
+    return view('halls');
+});
+
 Route::get('/addhall', function(){
     return view('addhall');
 });
@@ -48,4 +52,8 @@ Route::get('/modifyquarter', function(){
 
 Route::get('/modifyhall', function(){
     return view('modifyhall');
+});
+
+Route::get('/auditlog', function(){
+    return view('auditlog');
 });
