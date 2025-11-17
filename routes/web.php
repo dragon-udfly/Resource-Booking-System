@@ -63,3 +63,20 @@ Route::get('/auditlog', function(){
 Route::get('/dashboard', function(){
     return view('dashboard');
 });
+
+Route::get('/halldashboard', function(){
+    return view('halldashboard');
+});
+
+Route::get('/quarterdashboard', function(){
+    return view('quarterdashboard');
+});
+
+// public content 
+Route::get('/privacy_notice', function(){
+    return view('privacy_notice');
+});
+
+Route::get('/user_agreement', function(){
+    return view('user_agreement');
+});

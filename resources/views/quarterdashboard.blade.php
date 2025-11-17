@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hall Details - District Secretariat Vavuniya</title>
+    <title>Quarter Details - District Secretariat Vavuniya</title>
     <style>
         * {
             margin: 0;
@@ -170,11 +170,9 @@
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
         <div id="hall-dashboard">
-            <h1 id="hall-title" style="color:#8c00ff;">Training Unit</h1> 
+            <h1 id="hall-title" style="color:#8c00ff;">Government Agent Quarter Area</h1> 
             <div id="hall-details">
-                <p><strong>Hall Type:</strong> <span id="hall-type">Training Hall</span></p>
-                <p><strong>Capacity:</strong> <span id="capacity">50</span> people</p>
-                <p><strong>Number of Chairs:</strong> <span id="chairs">50</span></p>
+                <!-- add availabel details -->
                 <p><strong>Description:</strong> <span id="description">A well-equipped training unit suitable for workshops and seminars. A well-equipped training unit suitable for workshops and seminars.</span></p>
                 <p><strong>Contact Person:</strong> <span id="person">Mr. S. Kumaran</span></p>
                 <p><strong>Contact Person Phone:</strong> <span id="contact-person-mobile">077-1234567</span></p>
