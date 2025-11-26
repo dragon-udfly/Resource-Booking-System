@@ -168,7 +168,7 @@
         .form-group input[type="text"],
         .form-group input[type="email"],
         .form-group input[type="tel"],
-        .form-group input[type="passcode"],
+        .form-group input[type="password"],
         .form-group select {
             width: 100%;
             padding: 10px 12px;
@@ -298,7 +298,8 @@
                 <p>Fields marked with <span style="color: #ff0000;">*</span> are required. Please ensure all information is accurate before submitting.</p>
             </div>
 
-            <form action="/admin/accounts/store" method="POST">
+            <form action="{{ route('createaccount.store') }}" method="POST">
+                @csrf
                 <div class="form-row">
                     <div class="form-group">
                         <label for="first_name">First Name <span class="required">*</span></label>
@@ -310,7 +311,7 @@
                         <input type="text" id="last_name" name="last_name" placeholder="Enter last name" required>
                     </div>
                     <div class="form-group">
-                        <label for="last_name">Designation <span class="required">*</span></label>
+                        <label for="designation">Designation <span class="required">*</span></label>
                         <input type="text" id="designation" name="designation" placeholder="Enter designation" required>
                     </div>
                 </div>
@@ -324,31 +325,20 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="phone">Phone Number <span class="required">*</span></label>
-                        <input type="tel" id="phone" name="phone" placeholder="Enter phone number" required>
+                        <label for="contact_number">Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="contact_number" name="contact_number" placeholder="Enter phone number" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="nic">NIC Number <span class="required">*</span></label>
-                        <input type="text" id="nic" name="nic" placeholder="Enter NIC number" required>
+                        <label for="nic_number">NIC Number <span class="required">*</span></label>
+                        <input type="text" id="nic_number" name="nic_number" placeholder="Enter NIC number" required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="passcode">Passcode <span class="required">*</span></label>
-                        <input type="passcode" id="passcode" name="passcode" placeholder="Enter passcode" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="status">Account Status <span class="required">*</span></label>
-                        <select id="status" name="status" required>
-                            <option value="active">Select status</option>
-                            <option value="active" selected>Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
+                        <input type="password" id="passcode" name="passcode" placeholder="Enter passcode" required>
                     </div>
                 </div>
                 <p id="p_p" style="color:#ff0000">Permissions</p><br />
@@ -366,24 +356,24 @@
                         <label for="view_quarters">View Quarters</label>
                     </div>
                     <div id="permission4" class="form-group checkbox-group">
-                        <input type="checkbox" id="view_auditlog" name="permissions[]" value="view_auditlog">
-                        <label for="view_auditlog">View Audit Log</label>
+                        <input type="checkbox" id="view_audit_log" name="permissions[]" value="view_audit_log">
+                        <label for="view_audit_log">View Audit Log</label>
                     </div>
                     <div id="permission5" class="form-group checkbox-group">
                         <input type="checkbox" id="administrative_officer_approval" name="permissions[]" value="administrative_officer_approval">
                         <label for="administrative_officer_approval">Administrative Officer Approval</label>
                     </div>
                     <div id="permission6" class="form-group checkbox-group">
-                        <input type="checkbox" id="aditional_government_agent_approval" name="permissions[]" value="aditional_government_agent_approval">
-                        <label for="aditional_government_agent_approval">Additional Government Agent Approval</label>
+                        <input type="checkbox" id="additional_government_agent_approval" name="permissions[]" value="additional_government_agent_approval">
+                        <label for="additional_government_agent_approval">Additional Government Agent Approval</label>
                     </div>
                     <div id="permission7" class="form-group checkbox-group">
                         <input type="checkbox" id="government_agent_approval" name="permissions[]" value="government_agent_approval">
                         <label for="government_agent_approval">Government Agent Approval</label>
                     </div>
                     <div id="permission8" class="form-group checkbox-group">
-                        <input type="checkbox" id="preference" name="permissions[]" value="preference">
-                        <label for="preference">Preference</label>
+                        <input type="checkbox" id="account_setting" name="permissions[]" value="account_setting">
+                        <label for="account_setting">Preference</label>
                     </div>
                 </div>
 
