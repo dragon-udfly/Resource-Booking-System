@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Account - District Secretariat Vavuniya</title>
+     <link href='icons/right_logo.png' rel='icon' type='image/png'>
     <style>
         * {
             margin: 0;
@@ -167,7 +168,7 @@
         .form-group input[type="text"],
         .form-group input[type="email"],
         .form-group input[type="tel"],
-        .form-group input[type="password"],
+        .form-group input[type="passcode"],
         .form-group select {
             width: 100%;
             padding: 10px 12px;
@@ -265,11 +266,22 @@
         <nav class="navbar">
             <ul class="navbar-left">
                 <li><a href="/document-history">Document History</a></li>
-                <li><a href="/account-setting">Preference</a></li>
+                <li><a href="/preference">Preference</a></li>
+                <li><a href="/admin">Panel</a></li>
             </ul>
-            <ul class="navbar-right">
-                <li>Admin, Thanuharan V.</li>
-                <li><a href="/logout">Log Out</a></li>
+             <ul class="navbar-right">
+                <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
+                    @auth
+                    <span id="designation">{{ Auth::user()->designation }}</span>, 
+                    <span id="first_name">{{ Auth::user()->first_name }}</span>
+                    @endauth
+                </li>
+                <li>
+                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" style="background: none; border: none; color: #007bff; font-weight: bold; cursor: pointer; font-size: 1em; padding: 0;">Log Out</button>
+                    </form>
+                </li>
             </ul>
         </nav>
     </header>
@@ -277,7 +289,7 @@
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
         <div class="page-header">
-            <h2>Create New Account</h2>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Create New Account</h2>
             <p>Fill in the details below to create a new user account</p>
         </div>
 
@@ -305,11 +317,6 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="username">Username <span class="required">*</span></label>
-                        <input type="text" id="username" name="username" placeholder="Enter username" required>
-                    </div>
-
-                    <div class="form-group">
                         <label for="email">Email Address <span class="required">*</span></label>
                         <input type="email" id="email" name="email" placeholder="Enter email address" required>
                     </div>
@@ -329,13 +336,8 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="password">Password <span class="required">*</span></label>
-                        <input type="password" id="password" name="password" placeholder="Enter password" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="confirm_password">Confirm Password <span class="required">*</span></label>
-                        <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter password" required>
+                        <label for="passcode">Passcode <span class="required">*</span></label>
+                        <input type="passcode" id="passcode" name="passcode" placeholder="Enter passcode" required>
                     </div>
                 </div>
 
@@ -352,48 +354,36 @@
                 <p id="p_p" style="color:#ff0000">Permissions</p><br />
                 <div id="permissions" class="form-row">
                     <div id="permission1" class="form-group checkbox-group">
-                        <input type="checkbox" id="view_audit_log" name="permissions[]" value="view_audit_log">
-                        <label for="view_audit_log">View Audit Log</label>
-                    </div>
-                    <div id="permission2" class="form-group checkbox-group">
-                        <input type="checkbox" id="document_history" name="permissions[]" value="document_history">
-                        <label for="document_history">Document History</label>
-                    </div>
-                    <div id="permission3" class="form-group checkbox-group">
-                        <input type="checkbox" id="check_approval" name="permissions[]" value="check_approval">
-                        <label for="check_approval">Check Approval</label>
-                    </div>
-                    <div id="permission4" class="form-group checkbox-group">
-                        <input type="checkbox" id="submit_hall_booking" name="permissions[]" value="submit_hall_booking">
-                        <label for="submit_hall_booking">Submit Hall Booking Form</label>
-                    </div>
-                    <div id="permission5" class="form-group checkbox-group">
-                        <input type="checkbox" id="view_quarters" name="permissions[]" value="view_quarters">
-                        <label for="view_quarters">View Quarters</label>
-                    </div>
-                    <div id="permission6" class="form-group checkbox-group">
-                        <input type="checkbox" id="view_quarters_details" name="permissions[]" value="view_quarters_details">
-                        <label for="view_quarters_details">View Quarters Details</label>
-                    </div>
-                    <div id="permission7" class="form-group checkbox-group">
-                        <input type="checkbox" id="submit_quarter_reservation" name="permissions[]" value="submit_quarter_reservation">
-                        <label for="submit_quarter_reservation">Submit Quarter Reservation Form</label>
-                    </div>
-                    <div id="permission8" class="form-group checkbox-group">
-                        <input type="checkbox" id="view_halls" name="permissions[]" value="view_halls">
-                        <label for="view_halls">View Halls</label>
-                    </div>
-                    <div id="permission9" class="form-group checkbox-group">
-                        <input type="checkbox" id="view_hall_details" name="permissions[]" value="view_hall_details">
-                        <label for="view_hall_details">View Hall Details</label>
-                    </div>
-                    <div id="permission10" class="form-group checkbox-group">
                         <input type="checkbox" id="view_officers" name="permissions[]" value="view_officers">
                         <label for="view_officers">View Officers</label>
                     </div>
-                    <div id="permission10" class="form-group checkbox-group">
-                        <input type="checkbox" id="view_officer_details" name="permissions[]" value="view_officer_details">
-                        <label for="view_officer_details">View Officer Details</label>
+                    <div id="permission2" class="form-group checkbox-group">
+                        <input type="checkbox" id="view_halls" name="permissions[]" value="view_halls">
+                        <label for="view_halls">View Halls</label>
+                    </div>
+                    <div id="permission3" class="form-group checkbox-group">
+                        <input type="checkbox" id="view_quarters" name="permissions[]" value="view_quarters">
+                        <label for="view_quarters">View Quarters</label>
+                    </div>
+                    <div id="permission4" class="form-group checkbox-group">
+                        <input type="checkbox" id="view_auditlog" name="permissions[]" value="view_auditlog">
+                        <label for="view_auditlog">View Audit Log</label>
+                    </div>
+                    <div id="permission5" class="form-group checkbox-group">
+                        <input type="checkbox" id="administrative_officer_approval" name="permissions[]" value="administrative_officer_approval">
+                        <label for="administrative_officer_approval">Administrative Officer Approval</label>
+                    </div>
+                    <div id="permission6" class="form-group checkbox-group">
+                        <input type="checkbox" id="aditional_government_agent_approval" name="permissions[]" value="aditional_government_agent_approval">
+                        <label for="aditional_government_agent_approval">Additional Government Agent Approval</label>
+                    </div>
+                    <div id="permission7" class="form-group checkbox-group">
+                        <input type="checkbox" id="government_agent_approval" name="permissions[]" value="government_agent_approval">
+                        <label for="government_agent_approval">Government Agent Approval</label>
+                    </div>
+                    <div id="permission8" class="form-group checkbox-group">
+                        <input type="checkbox" id="preference" name="permissions[]" value="preference">
+                        <label for="preference">Preference</label>
                     </div>
                 </div>
 
