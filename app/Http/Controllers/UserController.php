@@ -44,5 +44,11 @@ class UserController extends Controller
 
         return redirect('/');
     }
+
+    public function index()
+    {
+        $users = User::where('role', 'user')->get();
+        return view('officers', ['users' => $users]);
+    }
 }
 
