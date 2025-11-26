@@ -93,12 +93,12 @@
                 <h1 style="text-align: center; margin-bottom: 20px;">Login</h1>
                 <form id="loginForm">
                     <div style="margin-bottom: 20px;">
-                        <label for="username" style="display: block; margin-bottom: 5px;">Username</label>
-                        <input type="text" id="username" name="username" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                        <label for="username" style="display: block; margin-bottom: 5px;">NIC</label>
+                        <input type="text" id="username" name="username" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" required>
                     </div>
                     <div style="margin-bottom: 20px;">
-                        <label for="password" style="display: block; margin-bottom: 5px;">Password</label>
-                        <input type="password" id="password" name="password" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                        <label for="password" style="display: block; margin-bottom: 5px;">Passcode</label>
+                        <input type="password" id="password" name="password" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" required>
                     </div>
                     <button type="submit" id="loginButton" disabled class="login-button" style="width: 100%; padding: 10px; background-color: #ff0000; color: white; border: none; border-radius: 5px; cursor: pointer;">Login</button>
                 </form>
