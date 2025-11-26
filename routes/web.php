@@ -18,9 +18,8 @@ Route::get('/admin', function() {
     return view('adminpanel');
 })->name('admin');
 
-Route::get('/createaccount', function() {
-    return view('createaccount');
-})->name('createacount');
+Route::get('/createaccount', [UserController::class, 'create'])->name('createaccount');
+Route::post('/createaccount', [UserController::class, 'store'])->name('createaccount.store');
 
 Route::get('/officers', [UserController::class, 'index'])->name('officers');
 
