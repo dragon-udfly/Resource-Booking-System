@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('email', 200)->unique(); // Assuming email must be unique
             $table->string('contact_number', 10)->unique();
             $table->string('role', 10); 
+            $table->string('passcode', 10);
             $table->datetime('created_datetime');
             $table->datetime('modified_datatime')->nullable();
         });
