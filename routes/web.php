@@ -22,9 +22,7 @@ Route::get('/createaccount', function() {
     return view('createaccount');
 })->name('createacount');
 
-Route::get('/officers', function(){
-    return view('officers');
-});
+Route::get('/officers', [UserController::class, 'index'])->name('officers');
 
 Route::get('/preference', function(){
     return view('preference');
