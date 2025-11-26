@@ -17,7 +17,7 @@ class AdminUserSeeder extends Seeder
         $now = Carbon::now();
 
         // 1. Insert the specific admin user data
-        DB::table('users')->insert([
+        DB::table('user')->insert([
             'user_id' => 'admin001',
             'first_name' => 'Isuru',
             'last_name' => 'Perera',
@@ -31,8 +31,8 @@ class AdminUserSeeder extends Seeder
             // 2. Automatically populate the timestamps 
             // (Assuming your migration uses created_at and updated_at, 
             // as Laravel converts these to DATETIME types.)
-            'created_at' => $now,
-            'updated_at' => $now,
+            'created_datetime' => $now,
+            'modified_datatime' => $now,
             
             // NOTE: If you are strictly using 'created_datetime' and 
             // 'modified_datatime', you would need to use those column names here instead.
