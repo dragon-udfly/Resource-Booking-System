@@ -16,6 +16,7 @@ class User extends Authenticatable
     protected $primaryKey = 'user_id';
     public $incrementing = false;
     protected $keyType = 'string';
+    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.
@@ -24,16 +25,16 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'user_id',
-        'name',
-        'nic_number',
-        'passcode',
-        'role',
-        'email',
-        'phone',
+        'first_name',
+        'last_name',
         'designation',
-        'work_location',
-        'is_archived',
-        'officer_id',
+        'nic_number',
+        'email',
+        'contact_number',
+        'role',
+        'passcode',
+        'created_datetime',
+        'modified_datatime',
     ];
 
     /**
