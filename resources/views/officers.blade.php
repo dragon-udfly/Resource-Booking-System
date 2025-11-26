@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Officers - District Secretariat Vavuniya</title>
+    <link href='icons/right_logo.png' rel='icon' type='image/png'>
     <style>
         * {
             margin: 0;
@@ -219,10 +220,21 @@
             <ul class="navbar-left">
                 <li><a href="/document-history">Document History</a></li>
                 <li><a href="/preference">Preference</a></li>
+                <li><a href="/admin">Panel</a></li>
             </ul>
-            <ul class="navbar-right">
-                <li>Admin, Thanuharan V.</li>
-                <li><a href="/logout">Log Out</a></li>
+             <ul class="navbar-right">
+                <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
+                    @auth
+                    <span id="designation">{{ Auth::user()->designation }}</span>, 
+                    <span id="first_name">{{ Auth::user()->first_name }}</span>
+                    @endauth
+                </li>
+                <li>
+                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" style="background: none; border: none; color: #007bff; font-weight: bold; cursor: pointer; font-size: 1em; padding: 0;">Log Out</button>
+                    </form>
+                </li>
             </ul>
         </nav>
     </header>
@@ -230,13 +242,13 @@
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
         <div class="page-header">
-            <h2>Officers List</h2>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Officers List</h2>
             <p>Manage officers by modifying or deleting entries</p>
         </div>
 
         <!-- Add Officer Button -->
         <div style="text-align: center; margin-bottom: 20px;">
-            <a href="/admin-create-account.html" class="add-officer-btn">Add Officer</a>
+            <a href="createaccount" class="add-officer-btn">Add Officer</a>
         </div>
 
         <!-- Officer Table -->
@@ -251,28 +263,19 @@
                 </tr>
             </thead>
             <tbody>
+                @foreach ($users as $user)
                 <tr>
-                    <td>1</td>
-                    <td>V_DS0001</td>
-                    <td>Mr. Isuru Udakara</td>
-                    <td>Goverment Agent</td>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $user->user_id }}</td>
+                    <td>{{ $user->name }}</td>
+                    <td>{{ $user->designation }}</td>
                     <td>
-                        <button class="action-btn" onclick=viewOfficer()>View</button>
-                        <button class="action-btn" onclick="modifyOfficer()">Modify</button>
-                        <button class="action-btn" onclick="deleteOfficer()">Delete</button>
+                        <button class="action-btn" onclick="viewOfficer('{{ $user->user_id }}')">View</button>
+                        <button class="action-btn" onclick="modifyOfficer('{{ $user->user_id }}')">Modify</button>
+                        <button class="action-btn" onclick="deleteOfficer('{{ $user->user_id }}')">Delete</button>
                     </td>
                 </tr>
-                <tr>
-                    <td>2</td>
-                    <td>V_DS0003</td>
-                    <td>Mr. Tharusha Dewmith John Deo Deo</td>
-                    <td>Administrative Officer</td>
-                    <td>
-                        <button class="action-btn" onclick=viewOfficer()>View</button>
-                        <button class="action-btn" onclick="modifyOfficer()">Modify</button>
-                        <button class="action-btn" onclick="deleteOfficer()">Delete</button>
-                    </td>
-                </tr>
+                @endforeach
             </tbody>
         </table>
     </section>
