@@ -12,8 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->string('user_id', 100)->primary(); 
+            $table->string('first_name', 200);
+            $table->string('last_name', 200);
+            $table->string('designation', 200);
+            $table->string('nic_number', 50)->unique(); // Assuming NIC must be unique
+            $table->string('email', 200)->unique(); // Assuming email must be unique
+            $table->string('contact_number', 10)->unique();
+            $table->string('role', 10); 
+            $table->datetime('created_datetime');
+            $table->datetime('modified_datatime')->nullable();
         });
     }
 
