@@ -129,7 +129,12 @@
                 <li><a href="/preference">Preference</a></li>
             </ul>
             <ul class="navbar-right">
-                <li id="loggedin_user">@auth<span id="designation">{{ Auth::user()->role }}</span>, <span id="first_name">{{ Auth::user()->first_name }}</span>@endauth</li>
+                <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
+                    @auth
+                    <span id="designation">{{ Auth::user()->designation }}</span>, 
+                    <span id="first_name">{{ Auth::user()->first_name }}</span>
+                    @endauth
+                </li>
                 <li>
                     <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                         @csrf
