@@ -14,17 +14,44 @@ Route::get('/login', function () {
 Route::post('/login', [UserController::class, 'login'])->name('login.submit');
 Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
-Route::get('/admin', function() {
-    return view('adminpanel');
-})->name('admin');
 
-Route::get('/createaccount', [UserController::class, 'create'])->name('createaccount');
-Route::post('/createaccount', [UserController::class, 'store'])->name('createaccount.store');
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin', function() {
+        return view('adminpanel');
+    })->name('admin');
 
-Route::get('/officers', [UserController::class, 'index'])->name('officers');
+    Route::get('/createaccount', [UserController::class, 'create'])->name('createaccount');
+    Route::post('/createaccount', [UserController::class, 'store'])->name('createaccount.store');
 
-Route::get('/preference', function(){
-    return view('preference');
+    Route::get('/officers', [UserController::class, 'index'])->name('officers');
+
+    Route::get('/preference', function(){
+        return view('preference');
+    });
+
+    Route::get('/addhall', function(){
+        return view('addhall');
+    });
+
+    Route::get('/addquarter', function(){
+        return view('addquarter');
+    });
+
+    Route::get('/modifyaccount', function(){
+        return view('modifyaccount');
+    });
+
+    Route::get('/modifyquarter', function(){
+        return view('modifyquarter');
+    });
+
+    Route::get('/modifyhall', function(){
+        return view('modifyhall');
+    });
+
+    Route::get('/auditlog', function(){
+        return view('auditlog');
+    });
 });
 
 Route::get('/quarters', function(){
@@ -33,30 +60,6 @@ Route::get('/quarters', function(){
 
 Route::get('/halls', function(){
     return view('halls');
-});
-
-Route::get('/addhall', function(){
-    return view('addhall');
-});
-
-Route::get('/addquarter', function(){
-    return view('addquarter');
-});
-
-Route::get('/modifyaccount', function(){
-    return view('modifyaccount');
-});
-
-Route::get('/modifyquarter', function(){
-    return view('modifyquarter');
-});
-
-Route::get('/modifyhall', function(){
-    return view('modifyhall');
-});
-
-Route::get('/auditlog', function(){
-    return view('auditlog');
 });
 
 // for common user dashboard
