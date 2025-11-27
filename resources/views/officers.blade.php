@@ -267,7 +267,7 @@
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $user->user_id }}</td>
-                    <td>{{ $user->name }}</td>
+                    <td>{{ "{$user->first_name} {$user->last_name}" }}</td>
                     <td>{{ $user->designation }}</td>
                     <td>
                         <button class="action-btn" onclick="viewOfficer('{{ $user->user_id }}')">View</button>
