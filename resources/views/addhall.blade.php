@@ -256,19 +256,29 @@
         <nav class="navbar">
             <ul class="navbar-left">
                 <li><a href="/document-history">Document History</a></li>
-                <li><a href="/account-setting">Preference</a></li>
+                <li><a href="/preference">Preference</a></li>
+                <li><a href="/admin">Panel</a></li>
             </ul>
             <ul class="navbar-right">
-                <li>Admin, Thanuharan V.</li>
-                <li><a href="/logout">Log Out</a></li>
+                <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
+                    @auth
+                    <span id="designation">{{ Auth::user()->designation }}</span>, 
+                    <span id="first_name">{{ Auth::user()->first_name }}</span>
+                    @endauth
+                </li>
+                <li>
+                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" style="background: none; border: none; color: #007bff; font-weight: bold; cursor: pointer; font-size: 1em; padding: 0;">Log Out</button>
+                    </form>
+                </li>
             </ul>
         </nav>
     </header>
-
-    <!-- Cyan/Turquoise Banner Section -->
+    
     <section class="banner">
         <div class="page-header">
-            <h2>Add New Hall</h2>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Add New Hall</h2>
             <p>Fill in the details below to add a new hall to the system</p>
         </div>
 
@@ -280,25 +290,11 @@
             <form action="/admin/accounts/store" method="POST">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="hall_title">Hall Title <span class="required">*</span></label>
-                        <input type="text" id="hall_title" name="hall_title" placeholder="Enter hall title" required>
-                    </div>
-
-                    <div class="form-group">
                         <label for="hall_type">Hall Type <span class="required">*</span></label>
-                        <select id="hall_type" name="hall_type" required>
-                            <option value="">Select hall type</option>
-                            <option value="auditorium">Auditorium</option>
-                            <option value="conference">Conference Hall</option>
-                            <option value="training">Training Unit</option>
-                        </select>
+                        <input type="text" id="hall_type" name="hall_type" placeholder="Enter hall type" required>
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="location">Hall Location <span class="required">*</span></label>
-                        <input type="text" id="location" name="location" placeholder="Enter location" required>
-                    </div>
                     <div class="form-group">
                         <label for="capacity">Capacity (People) <span class="required">*</span></label>
                         <input type="text" id="capacity" name="capacity" placeholder="Enter seating capacity" required>
@@ -310,23 +306,22 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="chairs">Available Chairs <span class="required">*</span></label>
-                        <input type="text" id="chairs" name="chairs" placeholder="Enter available chairs" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="contact_person">Contact Person <span class="required">*</span></label>
-                        <input type="text" id="contact_person" name="contact_person" placeholder="Enter person to contact" required>
+                        <label for="booking_status">Booking Status <span class="required">*</span></label>
+                        <select id="booking_status" name="booking_status" required>
+                            <option value="available">Select status</option>
+                            <option value="available" selected>Available</option>
+                            <option value="booked">Booked</option>
+                        </select>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="status">Hall Status <span class="required">*</span></label>
-                        <select id="status" name="status" required>
+                        <label for="hall_status">Hall Status <span class="required">*</span></label>
+                        <select id="hall_status" name="hall_status" required>
                             <option value="available">Select status</option>
                             <option value="available" selected>Available</option>
                             <option value="unavailable">Unavailable</option>
-                            <option value="booked">Booked</option>
                         </select>
                     </div>
                 </div>
