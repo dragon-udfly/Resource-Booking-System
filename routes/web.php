@@ -82,6 +82,10 @@ Route::get('/bookhall', function(){
     return view('bookhall');
 })->name('halls.book');
 
+Route::get('/hallschedule', function(){
+    return view('hallschedule');
+})->name('halls.schedule');
+
 Route::get('/privacy_notice', function(){
     return view('privacy_notice');
 });
