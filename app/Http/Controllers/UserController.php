@@ -137,6 +137,57 @@ class UserController extends Controller
         return redirect()->route('officers')->with('success', 'User created successfully.');
     }
 
+    public function edit(User $user)
+    {
+        return view('modifyaccount', ['user' => $user]);
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'first_name' => 'required|string|max:200',
+            'last_name' => 'required|string|max:200',
+            'designation' => 'nullable|string|max:200',
+            'email' => 'required|string|email|max:200|unique:user,email,' . $user->user_id . ',user_id',
+            'contact_number' => 'nullable|string|max:10|unique:user,contact_number,' . $user->user_id . ',user_id',
+        ]);
+
+        $user->update([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'designation' => $request->designation,
+            'email' => $request->email,
+            'contact_number' => $request->contact_number,
+            'modified_datatime' => Carbon::now(),
+        ]);
+
+        AuditLog::create([
+            'log_title' => 'Modified account ' . $user->user_id,
+            'performed_by' => Auth::id(), // The admin performing the action
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('officers')->with('success', 'Officer account updated successfully!');
+    }
+
+    public function destroy(User $user)
+    {
+        // The 'onDelete('cascade')' on the user_permissions table's foreign key 
+        // will handle deleting the associated permissions automatically.
+        $userId = $user->user_id;
+        $user->delete();
+
+        AuditLog::create([
+            'log_title' => 'Deleted account ' . $userId,
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('officers')->with('success', 'Officer account deleted successfully!');
+    }
+
     public function changePassword(Request $request)
     {
         $request->validate([

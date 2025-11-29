@@ -186,16 +186,12 @@
             opacity: 0.9;
         }
 
-        .action-btn:nth-of-type(1) { /* View button */
-            background-color: #007bff;
-        }
-
-        .action-btn:nth-of-type(2) { /* Modify button */
+        .action-btn:nth-of-type(1) { /* Modify button */
             background-color: #ffc107;
             color: #333;
         }
 
-        .action-btn:nth-of-type(3) { /* Delete button */
+        .action-btn:nth-of-type(2) { /* Delete button */
             background-color: #dc3545;
         }
 
@@ -241,6 +237,11 @@
 
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
+        @if(session('success'))
+            <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px; width: 90%; max-width: 900px;">
+                {{ session('success') }}
+            </div>
+        @endif
         <div class="page-header">
             <h2 style="color: rgb(6, 4, 60); font-weight: bold">Officers List</h2>
             <p>Manage officers by modifying or deleting entries</p>
@@ -290,16 +291,31 @@
     </footer>
 
     <script>
-        function viewOfficer(){
-            window.location.href= "/viewofficer";
+        function modifyOfficer(userId) {
+            window.location.href = '/users/' + userId + '/edit';
         }
 
-        function modifyOfficer() {
-            // add code
-        }
+        function deleteOfficer(userId) {
+            if (confirm('Are you sure you want to delete this officer? This action cannot be undone.')) {
+                let form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/users/' + userId;
 
-        function deleteOfficer() {
-            // add code
+                let csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                form.appendChild(csrfToken);
+
+                let methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'DELETE';
+                form.appendChild(methodInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
         }
     </script>
 </body>

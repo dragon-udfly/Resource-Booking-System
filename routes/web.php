@@ -23,6 +23,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/createaccount', [UserController::class, 'create'])->name('createaccount');
     Route::post('/createaccount', [UserController::class, 'store'])->name('createaccount.store');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
     Route::get('/officers', [UserController::class, 'index'])->name('officers');
 
