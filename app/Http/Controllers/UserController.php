@@ -120,5 +120,19 @@ class UserController extends Controller
 
         return redirect()->route('officers')->with('success', 'User created successfully.');
     }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'new_passcode' => 'required|string|min:4|max:10|confirmed',
+        ]);
+
+        $user = Auth::user();
+        $user->passcode = $request->new_passcode;
+        $user->modified_datatime = Carbon::now();
+        $user->save();
+
+        return back()->with('success', 'Passcode changed successfully.');
+    }
 }
 

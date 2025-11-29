@@ -25,10 +25,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/officers', [UserController::class, 'index'])->name('officers');
 
-    Route::get('/preference', function(){
-        return view('preference');
-    });
-
     Route::get('/addhall', function(){
         return view('addhall');
     });
@@ -52,6 +48,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/auditlog', function(){
         return view('auditlog');
     });
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/preference', function(){
+        return view('preference');
+    })->name('preference');
+    Route::post('/password/change', [UserController::class, 'changePassword'])->name('password.change');
 });
 
 Route::get('/quarters', function(){
