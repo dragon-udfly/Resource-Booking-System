@@ -82,6 +82,6 @@ class HallBookingController extends Controller
             'time_performed' => Carbon::now()->toTimeString(),
         ]);
 
-        return redirect()->route('halls.book')->with('success', 'Hall booking request submitted successfully!');
+        return redirect()->route('halls.schedule')->with('success', 'Hall booking request submitted successfully!');
     }
 }
