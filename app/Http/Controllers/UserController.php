@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserPermission;
+use App\Models\AuditLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -25,6 +26,13 @@ class UserController extends Controller
         if ($user && Hash::check($credentials['passcode'], $user->passcode)) {
             Auth::login($user);
             $request->session()->regenerate();
+
+            AuditLog::create([
+                'log_title' => $user->user_id . ' logged into the system',
+                'performed_by' => $user->user_id,
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
 
             if ($user->role == 'admin') {
                 return redirect()->intended('admin');
@@ -119,6 +127,13 @@ class UserController extends Controller
 
         UserPermission::create(array_merge(['user_id' => $user->user_id], $permissions));
 
+        AuditLog::create([
+            'log_title' => 'Created new account ' . $newUserId,
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
         return redirect()->route('officers')->with('success', 'User created successfully.');
     }
 
@@ -132,6 +147,13 @@ class UserController extends Controller
         $user->passcode = Hash::make($request->new_passcode);
         $user->modified_datatime = Carbon::now();
         $user->save();
+
+        AuditLog::create([
+            'log_title' => 'Modified account ' . $user->user_id,
+            'performed_by' => $user->user_id,
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
 
         return back()->with('success', 'Passcode changed successfully.');
     }
