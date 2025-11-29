@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>District Secretariat - Vavuniya</title>
+    <title>Hall Schedule - District Secretariat - Vavuniya</title>
     <link href='icons/right_logo.png' rel='icon' type='image/png'>
     <style>
         * {
