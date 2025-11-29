@@ -77,7 +77,11 @@ Route::get('/quarterdashboard', function(){
     return view('quarterdashboard');
 });
 
-// public content 
+// Public content
+Route::get('/bookhall', function(){
+    return view('bookhall');
+})->name('halls.book');
+
 Route::get('/privacy_notice', function(){
     return view('privacy_notice');
 });
