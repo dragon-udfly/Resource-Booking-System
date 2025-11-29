@@ -255,15 +255,25 @@
         <nav class="navbar">
             <ul class="navbar-left">
                 <li><a href="/document-history">Document History</a></li>
-                <li><a href="/account-setting">Preference</a></li>
+                <li><a href="/preference">Preference</a></li>
+                <li><a href="/auditlog">Audit Log</a></li>
             </ul>
             <ul class="navbar-right">
-                <li>Admin, Thanuharan V.</li>
-                <li><a href="/logout">Log Out</a></li>
+                <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
+                    @auth
+                    <span id="designation">{{ Auth::user()->designation }}</span>, 
+                    <span id="first_name">{{ Auth::user()->first_name }}</span>
+                    @endauth
+                </li>
+                <li>
+                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" style="background: none; border: none; color: #007bff; font-weight: bold; cursor: pointer; font-size: 1em; padding: 0;">Log Out</button>
+                    </form>
+                </li>
             </ul>
         </nav>
     </header>
-
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
         <div class="page-header">
