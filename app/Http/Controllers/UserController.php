@@ -67,7 +67,7 @@ class UserController extends Controller
             'nic_number' => 'required|string|max:50|unique:user',
             'passcode' => 'required|string|max:10',
             'email' => 'required|string|email|max:200|unique:user',
-            'contact_number' => 'nullable|string|max:10',
+            'contact_number' => 'required|string|max:10|unique:user',
             'designation' => 'nullable|string|max:200',
             'permissions' => 'nullable|array'
         ]);

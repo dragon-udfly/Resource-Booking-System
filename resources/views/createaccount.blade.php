@@ -298,6 +298,17 @@
                 <p>Fields marked with <span style="color: #ff0000;">*</span> are required. Please ensure all information is accurate before submitting.</p>
             </div>
 
+            @if ($errors->any())
+                <div class="alert alert-danger" style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 4px; border: 1px solid transparent;">
+                    <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <form action="{{ route('createaccount.store') }}" method="POST">
                 @csrf
                 <div class="form-row">
@@ -319,19 +330,28 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="email">Email Address <span class="required">*</span></label>
-                        <input type="email" id="email" name="email" placeholder="Enter email address" required>
+                        <input type="email" id="email" name="email" placeholder="Enter email address" required value="{{ old('email') }}">
+                        @error('email')
+                            <div style="color: #dc3545; font-size: 0.875em; margin-top: 5px;">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="contact_number">Phone Number <span class="required">*</span></label>
-                        <input type="tel" id="contact_number" name="contact_number" placeholder="Enter phone number" required>
+                        <input type="tel" id="contact_number" name="contact_number" placeholder="Enter phone number" required value="{{ old('contact_number') }}">
+                        @error('contact_number')
+                            <div style="color: #dc3545; font-size: 0.875em; margin-top: 5px;">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="form-group">
                         <label for="nic_number">NIC Number <span class="required">*</span></label>
-                        <input type="text" id="nic_number" name="nic_number" placeholder="Enter NIC number" required>
+                        <input type="text" id="nic_number" name="nic_number" placeholder="Enter NIC number" required value="{{ old('nic_number') }}">
+                        @error('nic_number')
+                            <div style="color: #dc3545; font-size: 0.875em; margin-top: 5px;">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
 
