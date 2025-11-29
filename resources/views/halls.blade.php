@@ -239,55 +239,60 @@
         </nav>
     </header>
 
-    <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
+        @if(session('success'))
+            <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px; width: 90%; max-width: 900px;">
+                {{ session('success') }}
+            </div>
+        @endif
         <div class="page-header">
             <h2 style="color: rgb(6, 4, 60); font-weight: bold">Halls List</h2>
             <p>Manage Halls by modifying or deleting entries</p>
         </div>
 
-        <!-- Add Officer Button -->
         <div style="text-align: center; margin-bottom: 20px;">
-            <a href="/addhall" class="add-officer-btn">Add Hall</a>
+            <a href="{{ route('halls.create') }}" class="add-officer-btn">Add Hall</a>
         </div>
 
-        <!-- Officer Table -->
-        <table>
+        <table id="hall-details">
             <thead>
                 <tr>
-                    <th>No</th>
-                    <th>Hall ID</th>
-                    <th>Title</th>
-                    <th>Capacity</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th id="item_number">No</th>
+                    <th id="hall_id">Hall ID</th>
+                    <th id="hall_type">Hall Type</th>
+                    <th id="capacity">Capacity</th>
+                    <th id="description">Description</th>
+                    <th id="current_state">Hall Status</th>
+                    <th id="booking_state">Booking Status</th>
+                    <th id="date_created">Date Created</th>
+                    <th id="date_modified">Date Modified</th>
+                    <th id="actions">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>V_DSHC0001</td>
-                    <td>Nadun's Memorial Hall</td>
-                    <td>100</td>
-                    <td>Booked</td>
-                    <td>
-                        <button class="action-btn" onclick=viewHall()>View</button>
-                        <button class="action-btn" onclick="modifyHall()">Modify</button>
-                        <button class="action-btn" onclick="deleteHall()">Delete</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>V_DSHC0004</td>
-                    <td>District Conference Hall</td>
-                    <td>150</td>
-                    <td>Available</td>
-                    <td>
-                        <button class="action-btn" onclick=viewHall()>View</button>
-                        <button class="action-btn" onclick="modifyHall()">Modify</button>
-                        <button class="action-btn" onclick="deleteHall()">Delete</button>
-                    </td>
-                </tr>
+                @if($halls->isEmpty())
+                    <tr>
+                        <td colspan="10" style="text-align: center;">No halls found.</td>
+                    </tr>
+                @else
+                    @foreach($halls as $index => $hall)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $hall->hall_id }}</td>
+                            <td>{{ $hall->hall_type }}</td>
+                            <td>{{ $hall->capacity }}</td>
+                            <td>{{ $hall->description }}</td>
+                            <td>{{ $hall->current_state }}</td>
+                            <td>{{ $hall->booking_state }}</td>
+                            <td>{{ $hall->date_created }}</td>
+                            <td>{{ $hall->date_modified }}</td>
+                            <td>
+                                <button class="action-btn" onclick="modifyHall('{{ $hall->hall_id }}')">Modify</button>
+                                <button class="action-btn" onclick="deleteHall('{{ $hall->hall_id }}')">Delete</button>
+                            </td>
+                        </tr>
+                    @endforeach
+                @endif
             </tbody>
         </table>
     </section>
@@ -303,16 +308,36 @@
     </footer>
 
     <script>
-        function viewHall(){
-            window.location.href= "/viewofficer";
+        function modifyHall(hallId) {
+            // Placeholder for modify functionality
+            // Example: window.location.href = '/halls/' + hallId + '/edit';
         }
 
-        function modifyHall() {
-            // add code
-        }
+        function deleteHall(hallId) {
+            if (confirm('Are you sure you want to delete this hall? This action cannot be undone.')) {
+                // Create a new form element
+                let form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/halls/' + hallId; // The route will be /halls/{hall}
 
-        function deleteHall() {
-            // add code
+                // Add CSRF token
+                let csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                form.appendChild(csrfToken);
+
+                // Add method spoofing for DELETE
+                let methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'DELETE';
+                form.appendChild(methodInput);
+
+                // Append form to the body and submit
+                document.body.appendChild(form);
+                form.submit();
+            }
         }
     </script>
 </body>

@@ -28,6 +28,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/addhall', [HallController::class, 'create'])->name('halls.create');
     Route::post('/addhall', [HallController::class, 'store'])->name('halls.store');
+    Route::delete('/halls/{hall}', [HallController::class, 'destroy'])->name('halls.destroy');
 
     Route::get('/addquarter', function(){
         return view('addquarter');

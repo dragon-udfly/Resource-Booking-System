@@ -77,4 +77,25 @@ class HallController extends Controller
         $halls = Hall::all();
         return view('halls', ['halls' => $halls]);
     }
+
+    /**
+     * Remove the specified hall from storage.
+     *
+     * @param  \App\Models\Hall  $hall
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy(Hall $hall)
+    {
+        $hallId = $hall->hall_id;
+        $hall->delete();
+
+        AuditLog::create([
+            'log_title' => 'Deleted Hall ' . $hallId,
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('halls.index')->with('success', 'Hall deleted successfully!');
+    }
 }
