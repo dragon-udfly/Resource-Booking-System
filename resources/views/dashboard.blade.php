@@ -131,6 +131,10 @@
         <nav class="navbar">
             <ul class="navbar-left">
                 <li><a href="/preference">Preference</a></li>
+                <li><a href="#">Officers</a></li>
+                <li><a href="#">Halls</a></li>
+                <li><a href="#">Quarters</a></li>
+                <li><a href="#">Audit Log</a></li>
             </ul>
             <ul class="navbar-right">
                 <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
@@ -151,9 +155,9 @@
 
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
-        <p style="text-align:center; color:#ff0000">
-            * Given permissions and features will be shown here after creating account.
-        </p>
+        <h1 style="text-align:center; color:rgb(6, 4, 60)">
+           Select form availabe for approval
+        </h1>
     </section>
 
     <!-- Black Footer Section -->
