@@ -130,7 +130,7 @@
         </div>
         <nav class="navbar">
             <ul class="navbar-left">
-                <li><a href="/account-setting">Preference</a></li>
+                <li><a href="/preference">Preference</a></li>
             </ul>
             <ul class="navbar-right">
                 <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
