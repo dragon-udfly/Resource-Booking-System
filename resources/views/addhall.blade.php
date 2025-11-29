@@ -331,7 +331,6 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label for="hall_status">Hall Status <span class="required">*</span></label>
@@ -341,7 +340,6 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="button-group">
                     <button type="submit" class="submit-btn">Add Hall</button>
                     <button type="reset" class="reset-btn">Reset Form</button>
