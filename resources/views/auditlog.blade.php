@@ -241,9 +241,17 @@
 
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
+        @if(session('success'))
+            <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px; width: 90%; max-width: 900px;">
+                {{ session('success') }}
+            </div>
+        @endif
         <div class="page-header">
             <h2 style="color: rgb(6, 4, 60); font-weight: bold">Audit Log Records</h2>
             <p>Viewing system audit log records as a list of changes and modifications done by users</p>
+        </div>
+        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+            <button class="action-btn" style="background-color: #dc3545;" onclick="clearAuditLogs()">Clear Records</button>
         </div>
        <!-- Audit log table -->
         <table id="audit-log">
@@ -287,5 +295,29 @@
             <a href="/agreement" style="color: white; text-decoration: none; margin: 0 10px;">User Agreement</a>
         </p>
     </footer>
+    <script>
+        function clearAuditLogs() {
+            if (confirm('Are you sure you want to clear all audit log records? This action cannot be undone.')) {
+                let form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route("auditlog.clear") }}';
+
+                let csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                form.appendChild(csrfToken);
+
+                let methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'DELETE';
+                form.appendChild(methodInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
 </body>
 </html>

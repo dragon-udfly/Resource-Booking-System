@@ -163,5 +163,19 @@ class UserController extends Controller
         $auditLogs = AuditLog::orderBy('audit_log_id', 'desc')->get();
         return view('auditlog', ['auditLogs' => $auditLogs]);
     }
+
+    public function clearAuditLog()
+    {
+        AuditLog::truncate();
+
+        AuditLog::create([
+            'log_title' => 'Audit log records deleted',
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('auditlog')->with('success', 'Audit log has been cleared successfully.');
+    }
 }
 
