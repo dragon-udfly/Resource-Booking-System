@@ -270,7 +270,6 @@
                     <td>{{ "{$user->first_name} {$user->last_name}" }}</td>
                     <td>{{ $user->designation }}</td>
                     <td>
-                        <button class="action-btn" onclick="viewOfficer('{{ $user->user_id }}')">View</button>
                         <button class="action-btn" onclick="modifyOfficer('{{ $user->user_id }}')">Modify</button>
                         <button class="action-btn" onclick="deleteOfficer('{{ $user->user_id }}')">Delete</button>
                     </td>
