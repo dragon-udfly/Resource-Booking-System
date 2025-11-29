@@ -15,6 +15,7 @@ class AuditLog extends Model
 
     protected $fillable = [
         'log_title',
+        'details',
         'performed_by',
         'date_performed',
         'time_performed',

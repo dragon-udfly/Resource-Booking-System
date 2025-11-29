@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\HallController;
+use App\Http\Controllers\HallBookingController;
 
 Route::get('/', function () {
     return view('home');
@@ -78,9 +79,8 @@ Route::get('/quarterdashboard', function(){
 });
 
 // Public content
-Route::get('/bookhall', function(){
-    return view('bookhall');
-})->name('halls.book');
+Route::get('/bookhall', [HallBookingController::class, 'create'])->name('halls.book');
+Route::post('/bookhall', [HallBookingController::class, 'store'])->name('hall_bookings.store');
 
 Route::get('/hallschedule', function(){
     return view('hallschedule');
