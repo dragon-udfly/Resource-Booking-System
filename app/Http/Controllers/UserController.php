@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -21,7 +22,7 @@ class UserController extends Controller
 
         $user = User::where('nic_number', $credentials['nic_number'])->first();
 
-        if ($user && $user->passcode == $credentials['passcode']) {
+        if ($user && Hash::check($credentials['passcode'], $user->passcode)) {
             Auth::login($user);
             $request->session()->regenerate();
 
@@ -65,7 +66,7 @@ class UserController extends Controller
             'first_name' => 'required|string|max:200',
             'last_name' => 'required|string|max:200',
             'nic_number' => 'required|string|max:50|unique:user',
-            'passcode' => 'required|string|max:10',
+            'passcode' => 'required|string|min:4|max:255',
             'email' => 'required|string|email|max:200|unique:user',
             'contact_number' => 'required|string|max:10|unique:user',
             'designation' => 'nullable|string|max:200',
@@ -85,7 +86,7 @@ class UserController extends Controller
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'nic_number' => $request->nic_number,
-            'passcode' => $request->passcode, // Storing plain text as per existing structure.
+            'passcode' => Hash::make($request->passcode),
             'role' => 'user',
             'email' => $request->email,
             'contact_number' => $request->contact_number,
@@ -124,11 +125,11 @@ class UserController extends Controller
     public function changePassword(Request $request)
     {
         $request->validate([
-            'new_passcode' => 'required|string|min:4|max:10|confirmed',
+            'new_passcode' => 'required|string|min:4|confirmed',
         ]);
 
         $user = Auth::user();
-        $user->passcode = $request->new_passcode;
+        $user->passcode = Hash::make($request->new_passcode);
         $user->modified_datatime = Carbon::now();
         $user->save();
 

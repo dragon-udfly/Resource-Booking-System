@@ -162,12 +162,23 @@
             color: #333;
         }
 
-        .form-group input[type="password"] {
+        .form-group input[type="password"],
+        .form-group input[type="text"] {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid #ced4da;
             border-radius: 4px;
             font-size: 1em;
+        }
+
+        .input-with-button {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Space between input and button */
+        }
+        
+        .input-with-button input {
+            flex-grow: 1; /* Allow input to take available space */
         }
 
         .submit-btn {
@@ -223,13 +234,6 @@
             <div class="info-group">
                 <h3>Name: <span id="show-name">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span></h3>
             </div>
-            <div class="info-group">
-                <div class="passcode-wrapper">
-                    <label>Passcode:</label>
-                    <span id="passcode-display"></span>
-                    <button id="toggle-passcode" class="btn btn-back">Show</button>
-                </div>
-            </div>
 
             <div class="form-container">
                 <h3>Change Passcode</h3>
@@ -237,11 +241,17 @@
                     @csrf
                     <div class="form-group">
                         <label for="new_passcode">New Passcode</label>
-                        <input type="password" id="new_passcode" name="new_passcode" required>
+                        <div class="input-with-button">
+                            <input type="password" id="new_passcode" name="new_passcode" required>
+                            <button type="button" class="btn btn-back toggle-passcode-visibility" data-target="new_passcode">Show</button>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="new_passcode_confirmation">Confirm New Passcode</label>
-                        <input type="password" id="new_passcode_confirmation" name="new_passcode_confirmation" required>
+                        <div class="input-with-button">
+                            <input type="password" id="new_passcode_confirmation" name="new_passcode_confirmation" required>
+                            <button type="button" class="btn btn-back toggle-passcode-visibility" data-target="new_passcode_confirmation">Show</button>
+                        </div>
                     </div>
                     <button type="submit" class="btn submit-btn">Save Changes</button>
                 </form>
@@ -259,24 +269,21 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const realPasscode = "{{ Auth::user()->passcode }}";
-            const passcodeDisplay = document.getElementById('passcode-display');
-            const toggleButton = document.getElementById('toggle-passcode');
+            const toggleButtons = document.querySelectorAll('.toggle-passcode-visibility');
 
-            const maskedPasscode = '*'.repeat(realPasscode.length);
-            let isPasscodeVisible = false;
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const targetId = this.dataset.target;
+                    const targetInput = document.getElementById(targetId);
 
-            passcodeDisplay.textContent = maskedPasscode;
-
-            toggleButton.addEventListener('click', function () {
-                isPasscodeVisible = !isPasscodeVisible;
-                if (isPasscodeVisible) {
-                    passcodeDisplay.textContent = realPasscode;
-                    toggleButton.textContent = 'Hide';
-                } else {
-                    passcodeDisplay.textContent = maskedPasscode;
-                    toggleButton.textContent = 'Show';
-                }
+                    if (targetInput.type === 'password') {
+                        targetInput.type = 'text';
+                        this.textContent = 'Hide';
+                    } else {
+                        targetInput.type = 'password';
+                        this.textContent = 'Show';
+                    }
+                });
             });
         });
     </script>
