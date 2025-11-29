@@ -309,8 +309,7 @@
 
     <script>
         function modifyHall(hallId) {
-            // Placeholder for modify functionality
-            // Example: window.location.href = '/halls/' + hallId + '/edit';
+            window.location.href = '/halls/' + hallId + '/edit';
         }
 
         function deleteHall(hallId) {

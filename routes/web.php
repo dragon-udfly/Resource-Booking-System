@@ -28,6 +28,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/addhall', [HallController::class, 'create'])->name('halls.create');
     Route::post('/addhall', [HallController::class, 'store'])->name('halls.store');
+    Route::get('/halls/{hall}/edit', [HallController::class, 'edit'])->name('halls.edit');
+    Route::patch('/halls/{hall}', [HallController::class, 'update'])->name('halls.update');
     Route::delete('/halls/{hall}', [HallController::class, 'destroy'])->name('halls.destroy');
 
     Route::get('/addquarter', function(){

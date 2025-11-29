@@ -79,6 +79,53 @@ class HallController extends Controller
     }
 
     /**
+     * Show the form for editing the specified hall.
+     *
+     * @param  \App\Models\Hall  $hall
+     * @return \Illuminate\View\View
+     */
+    public function edit(Hall $hall)
+    {
+        return view('modifyhall', ['hall' => $hall]);
+    }
+
+    /**
+     * Update the specified hall in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Hall  $hall
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(Request $request, Hall $hall)
+    {
+        $request->validate([
+            'hall_type' => 'required|string|max:200',
+            'capacity' => 'required|integer',
+            'description' => 'required|string|max:400',
+            'booking_state' => 'required|string',
+            'current_state' => 'required|string',
+        ]);
+
+        $hall->update([
+            'hall_type' => $request->hall_type,
+            'capacity' => $request->capacity,
+            'description' => $request->description,
+            'current_state' => $request->current_state,
+            'booking_state' => $request->booking_state,
+            'date_modified' => Carbon::now(),
+        ]);
+
+        AuditLog::create([
+            'log_title' => 'Modified Hall ' . $hall->hall_id,
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('halls.index')->with('success', 'Hall updated successfully!');
+    }
+
+    /**
      * Remove the specified hall from storage.
      *
      * @param  \App\Models\Hall  $hall
