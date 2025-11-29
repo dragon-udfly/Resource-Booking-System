@@ -166,7 +166,7 @@
         }
 
         .form-group input[type="text"],
-        .form-group input[type="tel"],
+        .form-group input[type="number"],
         .form-group select,
         .form-group textarea {
             width: 100%;
@@ -297,7 +297,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="capacity">Capacity (People) <span class="required">*</span></label>
-                        <input type="text" id="capacity" name="capacity" placeholder="Enter seating capacity" required>
+                        <input type="number" id="capacity" name="capacity" placeholder="Enter seating capacity" required>
                     </div>
                     <div class="form-group full-width">
                         <label for="description">Description <span class="required">*</span></label>
