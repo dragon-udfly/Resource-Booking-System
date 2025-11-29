@@ -84,4 +84,15 @@ class HallBookingController extends Controller
 
         return redirect()->route('halls.schedule')->with('success', 'Hall booking request submitted successfully!');
     }
+
+    /**
+     * Display the hall booking schedule.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function showSchedule()
+    {
+        $bookings = HallBooking::with('hall')->get();
+        return view('hallschedule', ['bookings' => $bookings]);
+    }
 }
