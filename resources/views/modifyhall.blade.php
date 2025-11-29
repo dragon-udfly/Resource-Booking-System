@@ -36,7 +36,7 @@
         .form-group.full-width { flex: 1 1 100%; }
         .required { color: #dc3545; margin-left: 5px; }
         .button-group { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
-        .submit-btn, .reset-btn { padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; }
+        .submit-btn, .reset-btn, .btn { padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; text-decoration: none; }
         .submit-btn { background-color: #007bff; color: white; }
         .reset-btn { background-color: #6c757d; color: white; }
         .footer { background-color: #000; height: 17vh; width: 100%; color: white; text-align: center; padding-top: 20px; }
@@ -75,6 +75,9 @@
     </header>
 
     <section class="banner">
+        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+            <a href="#" onclick="history.back(); return false;" class="btn submit-btn" style="background-color: #6c757d;">Back</a>
+        </div>
         <div class="page-header">
             <h2 style="color: rgb(6, 4, 60); font-weight: bold">Modify Hall ({{ $hall->hall_id }})</h2>
             <p>Update the details for the selected hall</p>
