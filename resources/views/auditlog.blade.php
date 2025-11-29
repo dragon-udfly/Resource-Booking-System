@@ -245,34 +245,35 @@
             <h2 style="color: rgb(6, 4, 60); font-weight: bold">Audit Log Records</h2>
             <p>Viewing system audit log records as a list of changes and modifications done by users</p>
         </div>
-        <!-- Officer Table -->
-        <table>
+       <!-- Audit log table -->
+        <table id="audit-log">
             <thead>
                 <tr>
-                    <th>No</th>
-                    <th>Log ID</th>
-                    <th>Log Title</th>
-                    <th>Performed By</th>
-                    <th>Performed Date</th>
-                    <th>Performed Time</th>
+                    <th id="log-number">No</th>
+                    <th id="log-id">Log ID</th>
+                    <th id="log-title">Log Title</th>
+                    <th id="log-performed-by">Performed By</th>
+                    <th id="log-performed-date">Performed Date</th>
+                    <th id="log-performed-time">Performed Time</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>ALOG_DS0001</td>
-                    <td>Created a new user account user id: V_DS0393</td>
-                    <td>Administrator</td>
-                    <td>2025-11-24</td>
-                    <td>09.04.23.09</td>
-                </tr>
-                    <td>2</td>
-                    <td>ALOG_DS0301</td>
-                    <td>Removed a user account user id: V_DS0393</td>
-                    <td>Administrator</td>
-                    <td>2025-11-24</td>
-                    <td>10.04.23.09</td>
-                </tr>
+                @if($auditLogs->isEmpty())
+                    <tr>
+                        <td colspan="6" style="text-align: center;">No audit log records found.</td>
+                    </tr>
+                @else
+                    @foreach($auditLogs as $index => $log)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $log->audit_log_id }}</td>
+                            <td>{{ $log->log_title }}</td>
+                            <td>{{ $log->performed_by }}</td>
+                            <td>{{ $log->date_performed }}</td>
+                            <td>{{ $log->time_performed }}</td>
+                        </tr>
+                    @endforeach
+                @endif
             </tbody>
         </table>
     </section>

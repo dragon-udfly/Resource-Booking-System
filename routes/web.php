@@ -45,9 +45,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         return view('modifyhall');
     });
 
-    Route::get('/auditlog', function(){
-        return view('auditlog');
-    });
+    Route::get('/auditlog', [UserController::class, 'showAuditLog'])->name('auditlog');
 });
 
 Route::middleware(['auth'])->group(function () {

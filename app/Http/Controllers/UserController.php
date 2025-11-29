@@ -157,5 +157,11 @@ class UserController extends Controller
 
         return back()->with('success', 'Passcode changed successfully.');
     }
+
+    public function showAuditLog()
+    {
+        $auditLogs = AuditLog::orderBy('audit_log_id', 'desc')->get();
+        return view('auditlog', ['auditLogs' => $auditLogs]);
+    }
 }
 
