@@ -12,7 +12,7 @@ class UserPermission extends Model
     protected $table = 'user_permissions';
     protected $primaryKey = 'permission_id';
 
-    public $timestamps = false;
+
 
     protected $fillable = [
         'user_id',
