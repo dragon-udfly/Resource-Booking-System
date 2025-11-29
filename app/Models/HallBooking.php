@@ -37,4 +37,12 @@ class HallBooking extends Model
         'date_created',
         'date_modified',
     ];
+
+    /**
+     * Get the hall associated with the booking.
+     */
+    public function hall()
+    {
+        return $this->belongsTo(Hall::class, 'hall_id', 'hall_id');
+    }
 }
