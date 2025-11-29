@@ -283,34 +283,51 @@
         </div>
 
         <div class="form-container">
+            @if(session('success'))
+                <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-danger" style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                    <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <div class="form-info">
                 <p>Fields marked with <span style="color: #ff0000;">*</span> are required. Please ensure all information is accurate before submitting.</p>
             </div>
 
-            <form action="/admin/accounts/store" method="POST">
+            <form action="{{ route('halls.store') }}" method="POST">
+                @csrf
                 <div class="form-row">
                     <div class="form-group">
                         <label for="hall_type">Hall Type <span class="required">*</span></label>
-                        <input type="text" id="hall_type" name="hall_type" placeholder="Enter hall type" required>
+                        <input type="text" id="hall_type" name="hall_type" placeholder="Enter hall type" value="{{ old('hall_type') }}" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="capacity">Capacity (People) <span class="required">*</span></label>
-                        <input type="number" id="capacity" name="capacity" placeholder="Enter seating capacity" required>
+                        <input type="number" id="capacity" name="capacity" placeholder="Enter seating capacity" value="{{ old('capacity') }}" required>
                     </div>
                     <div class="form-group full-width">
                         <label for="description">Description <span class="required">*</span></label>
-                        <textarea id="description" name="description" placeholder="Enter detailed description of the hall" required></textarea>
+                        <textarea id="description" name="description" placeholder="Enter detailed description of the hall" required>{{ old('description') }}</textarea>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="booking_status">Booking Status <span class="required">*</span></label>
                         <select id="booking_status" name="booking_status" required>
-                            <option value="available">Select status</option>
-                            <option value="available" selected>Available</option>
-                            <option value="booked">Booked</option>
+                            <option value="available" @if(old('booking_status') == 'available') selected @endif>Available</option>
+                            <option value="booked" @if(old('booking_status') == 'booked') selected @endif>Booked</option>
                         </select>
                     </div>
                 </div>
@@ -319,9 +336,8 @@
                     <div class="form-group">
                         <label for="hall_status">Hall Status <span class="required">*</span></label>
                         <select id="hall_status" name="hall_status" required>
-                            <option value="available">Select status</option>
-                            <option value="available" selected>Available</option>
-                            <option value="unavailable">Unavailable</option>
+                            <option value="available" @if(old('hall_status') == 'available') selected @endif>Available</option>
+                            <option value="unavailable" @if(old('hall_status') == 'unavailable') selected @endif>Unavailable</option>
                         </select>
                     </div>
                 </div>
