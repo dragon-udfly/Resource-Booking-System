@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon; // Used for modern date/time handling
+use Illuminate\Support\Facades\Hash;
 
 class AdminUserSeeder extends Seeder
 {
@@ -26,7 +27,7 @@ class AdminUserSeeder extends Seeder
             'email' => 'johndeo@stu.vau.ac.lk',
             'contact_number' => '0720000000',
             'role' => 'admin',
-            'passcode'=>'Abc@3210',
+            'passcode'=> Hash::make('Abc@3210'),
             
             // 2. Automatically populate the timestamps 
             // (Assuming your migration uses created_at and updated_at, 

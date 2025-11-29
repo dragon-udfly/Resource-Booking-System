@@ -212,17 +212,29 @@
             <img src="icons/left_logo.png" alt="Sri Lanka government logo" class="logo-left">
             <div class="header-content">
                 <h1>District Secretariat - Vavuniya</h1>
-                <h2>Hall and Quarters Booking System - Audit Log</h2>
+                <h2>Hall and Quarters Booking System - Administrator</h2>
             </div>
             <img src="icons/right_logo.png" alt="district Secretariat vavuniya logo" class="logo-right">
         </div>
         <nav class="navbar">
             <ul class="navbar-left">
+                <li><a href="/document-history">Document History</a></li>
                 <li><a href="/preference">Preference</a></li>
+                <li><a href="/admin">Panel</a></li>
             </ul>
             <ul class="navbar-right">
-                <li style="color:#0b03ff">Government Agent - Mr. John Deo</li>
-                <li><a href="/logout">Log Out</a></li>
+                <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
+                    @auth
+                    <span id="designation">{{ Auth::user()->designation }}</span>, 
+                    <span id="first_name">{{ Auth::user()->first_name }}</span>
+                    @endauth
+                </li>
+                <li>
+                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" style="background: none; border: none; color: #007bff; font-weight: bold; cursor: pointer; font-size: 1em; padding: 0;">Log Out</button>
+                    </form>
+                </li>
             </ul>
         </nav>
     </header>
@@ -230,7 +242,7 @@
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
         <div class="page-header">
-            <h2>Audit Log Records</h2>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Audit Log Records</h2>
             <p>Viewing system audit log records as a list of changes and modifications done by users</p>
         </div>
         <!-- Officer Table -->
