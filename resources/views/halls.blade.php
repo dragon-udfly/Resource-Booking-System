@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Halls - District Secretariat Vavuniya</title>
+    <link href='icons/right_logo.png' rel='icon' type='image/png'>
     <style>
         * {
             margin: 0;
@@ -230,13 +231,13 @@
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
         <div class="page-header">
-            <h2>Halls List</h2>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Halls List</h2>
             <p>Manage Halls by modifying or deleting entries</p>
         </div>
 
         <!-- Add Officer Button -->
         <div style="text-align: center; margin-bottom: 20px;">
-            <a href="/admin-create-account.html" class="add-officer-btn">Add Officer</a>
+            <a href="/addhall" class="add-officer-btn">Add Hall</a>
         </div>
 
         <!-- Officer Table -->
