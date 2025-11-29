@@ -82,9 +82,7 @@ Route::get('/quarterdashboard', function(){
 Route::get('/bookhall', [HallBookingController::class, 'create'])->name('halls.book');
 Route::post('/bookhall', [HallBookingController::class, 'store'])->name('hall_bookings.store');
 
-Route::get('/hallschedule', function(){
-    return view('hallschedule');
-})->name('halls.schedule');
+Route::get('/hallschedule', [HallBookingController::class, 'showSchedule'])->name('halls.schedule');
 
 Route::get('/privacy_notice', function(){
     return view('privacy_notice');
