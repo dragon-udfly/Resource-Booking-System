@@ -56,4 +56,12 @@ class User extends Authenticatable
     {
         return [];
     }
+
+    /**
+     * Get the permissions associated with the user.
+     */
+    public function permissions()
+    {
+        return $this->hasOne(UserPermission::class, 'user_id', 'user_id');
+    }
 }
