@@ -64,10 +64,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Hall routes
     Route::get('/halls', [HallController::class, 'index'])->name('halls.index');
-});
 
-Route::get('/dashboard', function(){
-    return view('dashboard');
+    Route::get('/dashboard', [UserController::class, 'showDashboard'])->name('dashboard');
 });
 
 Route::get('/halldashboard', function(){
