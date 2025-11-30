@@ -201,9 +201,9 @@
             <ul class="navbar-left">
                 <li id="nav-preference"><a href="/preference">Preference</a></li>
                 <li id="nav-officers"><a href="#">Officers</a></li>
-                <li id="nav-halls"><a href="{{ route('halls.index') }}">Halls</a></li>
+                <li id="nav-halls"><a href="#">Halls</a></li>
                 <li id="nav-quarter"><a href="#">Quarters</a></li>
-                <li id="nav-audit-log"><a href="{{ route('auditlog') }}">Audit Log</a></li>
+                <li id="nav-audit-log"><a href="#">Audit Log</a></li>
             </ul>
             <ul class="navbar-right">
                 <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
