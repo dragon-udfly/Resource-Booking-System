@@ -199,8 +199,10 @@
         </div>
         <nav class="navbar">
             <ul class="navbar-left">
-                <li id="nav-preference"><a href="/preference">Preference</a></li>
-                <li id="nav-officers"><a href="#">Officers</a></li>
+                <li id="nav-preference"><a href="{{ route('preference') }}">Preference</a></li>
+                @if(Auth::user()->hasPermissionTo('view_officers'))
+                    <li id="nav-officers"><a href="{{ route('seeofficers') }}">Officers</a></li>
+                @endif
                 <li id="nav-halls"><a href="#">Halls</a></li>
                 <li id="nav-quarter"><a href="#">Quarters</a></li>
                 <li id="nav-audit-log"><a href="#">Audit Log</a></li>
