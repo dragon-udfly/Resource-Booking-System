@@ -130,7 +130,7 @@
         <nav class="navbar">
             <ul class="navbar-left">
                 <li id="nav-preference"><a href="/preference">Preference</a></li>
-                <il id="nav-dashboard"><a href="/dashboard">Dashboard</a></il>
+                <li id="nav-dashboard"><a href="/dashboard">Dashboard</a></li>
                 <li id="nav-halls"><a href="#">Halls</a></li>
                 <li id="nav-quarter"><a href="#">Quarters</a></li>
                 <li id="nav-audit-log"><a href="#">Audit Log</a></li>
