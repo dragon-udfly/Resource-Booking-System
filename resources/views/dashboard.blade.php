@@ -100,41 +100,25 @@
         .navbar-right {
             margin-left: auto; /* Pushes right items to the right */
         }
+        .disabled-link {
+            color: #6c757d !important;
+            pointer-events: none;
+            cursor: default;
+        }
 
         .banner {
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 58vh; /* Use min-height instead of fixed height */
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .footer {
-            background-color: #000;
-            height: 17vh;
-            width: 100%;
-        }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <div class="header-main">
-            <img src="icons/left_logo.png" alt="Sri Lanka government logo" class="logo-left">
-            <div class="header-content">
-                <h1>District Secretariat - Vavuniya</h1>
-                <h2>Hall and Quarters Booking System</h2>
-            </div>
-            <img src="icons/right_logo.png" alt="district Secretariat vavuniya logo" class="logo-right">
-        </div>
+...
         <nav class="navbar">
             <ul class="navbar-left">
-                <li><a href="/preference">Preference</a></li>
-                <li><a href="#">Officers</a></li>
-                <li><a href="#">Halls</a></li>
-                <li><a href="#">Quarters</a></li>
-                <li><a href="#">Audit Log</a></li>
+                <li id="nav-preference"><a href="/preference">Preference</a></li>
+                @if(Auth::user()->permissions && Auth::user()->permissions->view_officers)
+                    <li id="nav-officers"><a href="{{ route('officers.index') }}">Officers</a></li>
+                @else
+                    <li id="nav-officers" class="disabled-link"><a href="#" class="disabled-link">Officers</a></li>
+                @endif
+                <li id="nav-halls"><a href="#">Halls</a></li>
+                <li id="nav-quarter"><a href="#">Quarters</a></li>
+                <li id="nav-audit-log"><a href="#">Audit Log</a></li>
             </ul>
             <ul class="navbar-right">
                 <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
@@ -155,9 +139,46 @@
 
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
-        <h1 style="text-align:center; color:rgb(6, 4, 60)">
-           Select form availabe for approval
-        </h1>
+        <div class="page-header">
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Pending Hall Booking Approvals</h2>
+            <p>Review and approve or reject pending hall booking requests.</p>
+        </div>
+
+        <table style="width: 90%; margin: 20px auto; border-collapse: collapse; box-shadow: 0 0 15px rgba(0,0,0,0.1); background-color: #fff;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">Booking ID</th>
+                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">Applicant Name</th>
+                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">Hall Type</th>
+                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">Event Date</th>
+                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">AO Approval</th>
+                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">AGA Approval</th>
+                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">GA Approval</th>
+                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($bookings as $booking)
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 12px 15px;">{{ $booking->booking_id }}</td>
+                        <td style="border: 1px solid #ddd; padding: 12px 15px;">{{ $booking->applicant_name }}</td>
+                        <td style="border: 1px solid #ddd; padding: 12px 15px;">{{ $booking->requested_hall_type }}</td>
+                        <td style="border: 1px solid #ddd; padding: 12px 15px;">{{ $booking->event_date }}</td>
+                        <td style="border: 1px solid #ddd; padding: 12px 15px;">{{ ucfirst($booking->administrative_officer_approved) }}</td>
+                        <td style="border: 1px solid #ddd; padding: 12px 15px;">{{ ucfirst($booking->additional_government_agent_approved) }}</td>
+                        <td style="border: 1px solid #ddd; padding: 12px 15px;">{{ ucfirst($booking->government_agent_approved) }}</td>
+                        <td style="border: 1px solid #ddd; padding: 12px 15px;">
+                            <button>Approve</button>
+                            <button>Reject</button>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 12px 15px;">No pending bookings found.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </section>
 
     <!-- Black Footer Section -->
