@@ -100,25 +100,112 @@
         .navbar-right {
             margin-left: auto; /* Pushes right items to the right */
         }
-        .disabled-link {
-            color: #6c757d !important;
-            pointer-events: none;
-            cursor: default;
-        }
 
         .banner {
-...
+            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
+            min-height: 58vh; /* Use min-height instead of fixed height */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .page-header h2 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        table {
+            width: 90%; /* Adjust table width */
+            margin: 20px auto;
+            border-collapse: collapse;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            background-color: #fff;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: #333;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            margin: 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+
+        .action-btn.approve {
+            background-color: #28a745;
+        }
+        .action-btn.approve:hover {
+            background-color: #218838;
+        }
+        .action-btn.reject {
+            background-color: #dc3545;
+        }
+        .action-btn.reject:hover {
+            background-color: #c82333;
+        }
+
+
+        .footer {
+            background-color: #000;
+            height: 17vh;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-main">
+            <img src="{{ asset('icons/left_logo.png') }}" alt="Sri Lanka government logo" class="logo-left">
+            <div class="header-content">
+                <h1>District Secretariat - Vavuniya</h1>
+                <h2>Hall and Quarters Booking System</h2>
+            </div>
+            <img src="{{ asset('icons/right_logo.png') }}" alt="district Secretariat vavuniya logo" class="logo-right">
+        </div>
         <nav class="navbar">
             <ul class="navbar-left">
                 <li id="nav-preference"><a href="/preference">Preference</a></li>
                 @if(Auth::user()->permissions && Auth::user()->permissions->view_officers)
-                    <li id="nav-officers"><a href="{{ route('officers.index') }}">Officers</a></li>
-                @else
-                    <li id="nav-officers" class="disabled-link"><a href="#" class="disabled-link">Officers</a></li>
+                    <li id="nav-officers"><a href="{{ route('seeofficers') }}">Officers</a></li>
                 @endif
-                <li id="nav-halls"><a href="#">Halls</a></li>
+                <li id="nav-halls"><a href="{{ route('halls.index') }}">Halls</a></li>
                 <li id="nav-quarter"><a href="#">Quarters</a></li>
-                <li id="nav-audit-log"><a href="#">Audit Log</a></li>
+                <li id="nav-audit-log"><a href="{{ route('auditlog') }}">Audit Log</a></li>
             </ul>
             <ul class="navbar-right">
                 <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
@@ -140,41 +227,39 @@
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
         <div class="page-header">
-            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Pending Hall Booking Approvals</h2>
-            <p>Review and approve or reject pending hall booking requests.</p>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Pending Booking Approvals</h2>
+            <p>Review the pending applications.</p>
         </div>
 
-        <table style="width: 90%; margin: 20px auto; border-collapse: collapse; box-shadow: 0 0 15px rgba(0,0,0,0.1); background-color: #fff;">
+        <table id="approval-details">
             <thead>
-                <tr style="background-color: #f2f2f2;">
-                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">Booking ID</th>
-                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">Applicant Name</th>
-                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">Hall Type</th>
-                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">Event Date</th>
-                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">AO Approval</th>
-                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">AGA Approval</th>
-                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">GA Approval</th>
-                    <th style="border: 1px solid #ddd; padding: 12px 15px; text-align: left;">Actions</th>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Applicant Name</th>
+                    <th>Application Type</th>
+                    <th>AO Approval</th>
+                    <th>AGA Approval</th>
+                    <th>GA Approval</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($bookings as $booking)
                     <tr>
-                        <td style="border: 1px solid #ddd; padding: 12px 15px;">{{ $booking->booking_id }}</td>
-                        <td style="border: 1px solid #ddd; padding: 12px 15px;">{{ $booking->applicant_name }}</td>
-                        <td style="border: 1px solid #ddd; padding: 12px 15px;">{{ $booking->requested_hall_type }}</td>
-                        <td style="border: 1px solid #ddd; padding: 12px 15px;">{{ $booking->event_date }}</td>
-                        <td style="border: 1px solid #ddd; padding: 12px 15px;">{{ ucfirst($booking->administrative_officer_approved) }}</td>
-                        <td style="border: 1px solid #ddd; padding: 12px 15px;">{{ ucfirst($booking->additional_government_agent_approved) }}</td>
-                        <td style="border: 1px solid #ddd; padding: 12px 15px;">{{ ucfirst($booking->government_agent_approved) }}</td>
-                        <td style="border: 1px solid #ddd; padding: 12px 15px;">
-                            <button>Approve</button>
-                            <button>Reject</button>
+                        <td>{{ $booking->booking_id }}</td>
+                        <td>{{ $booking->applicant_name }}</td>
+                        <td>Hall Booking</td>
+                        <td>{{ ucfirst($booking->administrative_officer_approved) }}</td>
+                        <td>{{ ucfirst($booking->additional_government_agent_approved) }}</td>
+                        <td>{{ ucfirst($booking->government_agent_approved) }}</td>
+                        <td>
+                            <button class="action-btn approve">Approve</button>
+                            <button class="action-btn reject">Reject</button>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" style="text-align: center; padding: 12px 15px;">No pending bookings found.</td>
+                        <td colspan="7" style="text-align: center; padding: 12px 15px;">No pending bookings found.</td>
                     </tr>
                 @endforelse
             </tbody>
