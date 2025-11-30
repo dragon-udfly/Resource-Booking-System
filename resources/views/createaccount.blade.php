@@ -322,7 +322,7 @@
                         <input type="text" id="last_name" name="last_name" placeholder="Enter last name" required>
                     </div>
                     <div class="form-group">
-                        <label for="designation">Designation <span class="required">*</span></label>
+                        <label for="designation">Designation(Type designation correctly) <span class="required">*</span></label>
                         <input type="text" id="designation" name="designation" placeholder="Enter designation" required>
                     </div>
                 </div>
