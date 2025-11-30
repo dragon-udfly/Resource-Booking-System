@@ -104,7 +104,7 @@
                 <a href="{{ route('halls.book') }}" class="btn" style="background-color: #007bff;">New Event</a>
             </div>
             <div class="event-list-container">
-                <h2 style="color: rgb(6, 4, 60); font-weight: bold; padding: 10px">Scheduled Events/Programms</h2>
+                <h2 style="color: rgb(6, 4, 60); font-weight: bold; padding: 10px">Upcoming Events/Programms</h2>
                 @forelse($bookings as $booking)
                     <div class="event-item">
                         <strong>Programme: {{ $booking->programme }}</strong>
@@ -113,7 +113,7 @@
                         <p>Hall: {{ $booking->hall->hall_type ?? 'N/A' }}</p>
                         <p>Participants: {{ $booking->participants }}</p>
                         <p>Duration: {{ $booking->event_duration }} hours</p>
-                        <p>Status: {{ ucfirst($booking->final_approval) }}</p>
+                        <p style="color: {{ $booking->final_approval == 'approved' ? 'green' : ($booking->final_approval == 'pending' ? 'blue' : 'red') }}; font-weight: bold;">Status: {{ ucfirst($booking->final_approval) }}</p>
                     </div>
                 @empty
                     <p>No scheduled events found.</p>
