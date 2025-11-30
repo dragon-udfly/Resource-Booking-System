@@ -28,7 +28,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
-    Route::get('/officers', [UserController::class, 'index'])->name('officers');
+    Route::get('/officers', [UserController::class, 'index'])->name('officers.index');
+    Route::get('/seeofficers', [UserController::class, 'seeOfficers'])->name('seeofficers');
 
     Route::get('/addhall', [HallController::class, 'create'])->name('halls.create');
     Route::post('/addhall', [HallController::class, 'store'])->name('halls.store');
@@ -76,7 +77,6 @@ Route::get('/quarterdashboard', function(){
     return view('quarterdashboard');
 });
 
-// Public content
 Route::get('/bookhall', [HallBookingController::class, 'create'])->name('halls.book');
 Route::post('/bookhall', [HallBookingController::class, 'store'])->name('hall_bookings.store');
 
