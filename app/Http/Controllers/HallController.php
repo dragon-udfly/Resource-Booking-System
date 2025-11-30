@@ -101,7 +101,7 @@ class HallController extends Controller
         $request->validate([
             'hall_type' => 'required|string|max:200',
             'capacity' => 'required|integer',
-            'description' => 'required|string|max:400',
+            'description' => 'required|string|max:1200',
             'booking_state' => 'required|string',
             'current_state' => 'required|string',
         ]);

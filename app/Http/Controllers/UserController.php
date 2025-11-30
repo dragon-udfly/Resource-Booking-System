@@ -159,21 +159,55 @@ class UserController extends Controller
             'last_name' => 'required|string|max:200',
             'designation' => 'nullable|string|max:200',
             'email' => 'required|string|email|max:200|unique:user,email,' . $user->user_id . ',user_id',
-            'contact_number' => 'nullable|string|max:10|unique:user,contact_number,' . $user->user_id . ',user_id',
+            'contact_number' => 'required|string|max:10|unique:user,contact_number,' . $user->user_id . ',user_id',
+            'passcode' => 'nullable|string|min:4|confirmed',
+            'permissions' => 'nullable|array',
         ]);
 
-        $user->update([
+        $updateData = [
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'designation' => $request->designation,
             'email' => $request->email,
             'contact_number' => $request->contact_number,
             'modified_datatime' => Carbon::now(),
-        ]);
+        ];
+
+        if ($request->filled('passcode')) {
+            $updateData['passcode'] = Hash::make($request->passcode);
+        }
+
+        $user->update($updateData);
+
+        // Reset all permissions to 0
+        $allPermissions = [
+            'view_officers' => 0, 'view_officer_details' => 0, 'view_halls' => 0,
+            'view_hall_details' => 0, 'view_quarters' => 0, 'view_quarter_details' => 0,
+            'view_audit_log' => 0, 'administrative_officer_approval' => 0,
+            'additional_government_agent_approval' => 0, 'government_agent_approval' => 0,
+            'form_history' => 0, 'account_setting' => 0,
+        ];
+
+        // Set submitted permissions to 1
+        if ($request->has('permissions')) {
+            foreach ($request->permissions as $permission) {
+                if (array_key_exists($permission, $allPermissions)) {
+                    $allPermissions[$permission] = 1;
+                }
+            }
+        }
+
+        // Update the permissions
+        if ($user->permissions) {
+            $user->permissions()->update($allPermissions);
+        } else {
+            // If for some reason user has no permissions record, create one
+            $user->permissions()->create($allPermissions);
+        }
 
         AuditLog::create([
             'log_title' => 'Modified account ' . $user->user_id,
-            'performed_by' => Auth::id(),
+            'performed_by' => Auth::id(), // The admin performing the action
             'date_performed' => Carbon::now()->toDateString(),
             'time_performed' => Carbon::now()->toTimeString(),
         ]);

@@ -319,7 +319,7 @@
                     </div>
                     <div class="form-group full-width">
                         <label for="description">Description <span class="required">*</span></label>
-                        <textarea id="description" name="description" placeholder="Enter detailed description of the hall" required>{{ old('description') }}</textarea>
+                        <textarea id="description" name="description" placeholder="Enter detailed description of the hall" required maxlength="1200">{{ old('description') }}</textarea>
                     </div>
                 </div>
                 <div class="form-row">
