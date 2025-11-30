@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserPermission;
 use App\Models\AuditLog;
+use App\Models\HallBooking;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -49,18 +50,27 @@ class UserController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
-
         return redirect('/');
+    }
+
+    public function showDashboard()
+    {
+        $user = Auth::user()->load('permissions');
+        $bookings = HallBooking::with('hall')->orderBy('date_created', 'desc')->get();
+        return view('dashboard', ['user' => $user, 'bookings' => $bookings]);
     }
 
     public function index()
     {
         $users = User::where('role', 'user')->get();
         return view('officers', ['users' => $users]);
+    }
+
+    public function seeOfficers()
+    {
+        return view('seeofficers');
     }
 
     public function create()
@@ -134,7 +144,7 @@ class UserController extends Controller
             'time_performed' => Carbon::now()->toTimeString(),
         ]);
 
-        return redirect()->route('officers')->with('success', 'User created successfully.');
+        return redirect()->route('officers.index')->with('success', 'User created successfully.');
     }
 
     public function edit(User $user)
@@ -163,18 +173,16 @@ class UserController extends Controller
 
         AuditLog::create([
             'log_title' => 'Modified account ' . $user->user_id,
-            'performed_by' => Auth::id(), // The admin performing the action
+            'performed_by' => Auth::id(),
             'date_performed' => Carbon::now()->toDateString(),
             'time_performed' => Carbon::now()->toTimeString(),
         ]);
 
-        return redirect()->route('officers')->with('success', 'Officer account updated successfully!');
+        return redirect()->route('officers.index')->with('success', 'Officer account updated successfully!');
     }
 
     public function destroy(User $user)
     {
-        // The 'onDelete('cascade')' on the user_permissions table's foreign key 
-        // will handle deleting the associated permissions automatically.
         $userId = $user->user_id;
         $user->delete();
 
@@ -185,7 +193,7 @@ class UserController extends Controller
             'time_performed' => Carbon::now()->toTimeString(),
         ]);
 
-        return redirect()->route('officers')->with('success', 'Officer account deleted successfully!');
+        return redirect()->route('officers.index')->with('success', 'Officer account deleted successfully!');
     }
 
     public function changePassword(Request $request)
@@ -229,4 +237,3 @@ class UserController extends Controller
         return redirect()->route('auditlog')->with('success', 'Audit log has been cleared successfully.');
     }
 }
-
