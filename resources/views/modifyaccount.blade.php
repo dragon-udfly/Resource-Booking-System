@@ -30,7 +30,7 @@
         .form-row { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
         .form-group { flex: 1; min-width: 280px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
-        .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="tel"] { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em; }
+        .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="tel"], .form-group input[type="password"] { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em; }
         .form-group input[readonly] { background-color: #e9ecef; }
         .required { color: #dc3545; margin-left: 5px; }
         .checkbox-group {
@@ -46,6 +46,14 @@
         .checkbox-group label {
             margin-bottom: 0;
             font-weight: normal;
+        }
+        .input-with-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .input-with-toggle input {
+            flex-grow: 1;
         }
         .button-group { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
         .submit-btn { padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; background-color: #007bff; color: white; text-decoration: none; }
@@ -130,8 +138,32 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
+                        <label for="contact_number">Phone Number</label>
+                        <input type="tel" id="contact_number" name="contact_number" value="{{ old('contact_number', $user->contact_number) }}">
+                    </div>
+                    <div class="form-group">
                         <label for="nic_number">NIC Number (Read Only)</label>
                         <input type="text" id="nic_number" name="nic_number" value="{{ $user->nic_number }}" readonly>
+                    </div>
+                </div>
+
+                <hr style="margin: 30px 0;">
+
+                <h4 style="margin-bottom: 15px;">Change Passcode</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="passcode">New Passcode</label>
+                        <div class="input-with-toggle">
+                            <input type="password" id="passcode" name="passcode">
+                            <button type="button" class="btn submit-btn" style="background-color: #6c757d;" data-target="passcode">Show</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="passcode_confirmation">Confirm New Passcode</label>
+                        <div class="input-with-toggle">
+                            <input type="password" id="passcode_confirmation" name="passcode_confirmation">
+                            <button type="button" class="btn submit-btn" style="background-color: #6c757d;" data-target="passcode_confirmation">Show</button>
+                        </div>
                     </div>
                 </div>
 
@@ -190,6 +222,25 @@
             if (!confirm('Are you sure you want to save these changes?')) {
                 event.preventDefault();
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleButtons = document.querySelectorAll('.input-with-toggle .btn');
+
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const targetId = this.dataset.target;
+                    const targetInput = document.getElementById(targetId);
+
+                    if (targetInput.type === 'password') {
+                        targetInput.type = 'text';
+                        this.textContent = 'Hide';
+                    } else {
+                        targetInput.type = 'password';
+                        this.textContent = 'Show';
+                    }
+                });
+            });
         });
     </script>
 </body>
