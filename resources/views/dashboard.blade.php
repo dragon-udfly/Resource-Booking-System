@@ -200,9 +200,7 @@
         <nav class="navbar">
             <ul class="navbar-left">
                 <li id="nav-preference"><a href="/preference">Preference</a></li>
-                @if(Auth::user()->permissions && Auth::user()->permissions->view_officers)
-                    <li id="nav-officers"><a href="{{ route('seeofficers') }}">Officers</a></li>
-                @endif
+                <li id="nav-officers"><a href="#">Officers</a></li>
                 <li id="nav-halls"><a href="{{ route('halls.index') }}">Halls</a></li>
                 <li id="nav-quarter"><a href="#">Quarters</a></li>
                 <li id="nav-audit-log"><a href="{{ route('auditlog') }}">Audit Log</a></li>
