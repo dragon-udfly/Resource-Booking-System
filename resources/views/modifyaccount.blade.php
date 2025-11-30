@@ -33,6 +33,20 @@
         .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="tel"] { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em; }
         .form-group input[readonly] { background-color: #e9ecef; }
         .required { color: #dc3545; margin-left: 5px; }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            flex: 0 0 auto;
+            min-width: unset;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: normal;
+        }
         .button-group { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
         .submit-btn { padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; background-color: #007bff; color: white; text-decoration: none; }
         .footer { background-color: #000; height: 17vh; width: 100%; color: white; text-align: center; padding-top: 20px; }
@@ -106,8 +120,8 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="designation">Designation</label>
-                        <input type="text" id="designation" name="designation" value="{{ old('designation', $user->designation) }}">
+                        <label for="designation">Designation(Read Only)</label>
+                        <input type="text" id="designation" name="designation" value="{{ old('designation', $user->designation) }}" readonly>
                     </div>
                     <div class="form-group">
                         <label for="email">Email Address <span class="required">*</span></label>
@@ -116,15 +130,51 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="contact_number">Phone Number</label>
-                        <input type="tel" id="contact_number" name="contact_number" value="{{ old('contact_number', $user->contact_number) }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="nic_number">NIC Number (Read-only)</label>
+                        <label for="nic_number">NIC Number (Read Only)</label>
                         <input type="text" id="nic_number" name="nic_number" value="{{ $user->nic_number }}" readonly>
                     </div>
                 </div>
+
+                <hr style="margin: 30px 0;">
+                
+                <h4 style="margin-bottom: 15px;">Permissions</h4>
+                <div id="permissions" class="form-row">
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="view_officers" name="permissions[]" value="view_officers" @if($user->permissions && $user->permissions->view_officers) checked @endif>
+                        <label for="view_officers">View Officers</label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="view_halls" name="permissions[]" value="view_halls" @if($user->permissions && $user->permissions->view_halls) checked @endif>
+                        <label for="view_halls">View Halls</label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="view_quarters" name="permissions[]" value="view_quarters" @if($user->permissions && $user->permissions->view_quarters) checked @endif>
+                        <label for="view_quarters">View Quarters</label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="view_audit_log" name="permissions[]" value="view_audit_log" @if($user->permissions && $user->permissions->view_audit_log) checked @endif>
+                        <label for="view_audit_log">View Audit Log</label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="administrative_officer_approval" name="permissions[]" value="administrative_officer_approval" @if($user->permissions && $user->permissions->administrative_officer_approval) checked @endif>
+                        <label for="administrative_officer_approval">Administrative Officer Approval</label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="additional_government_agent_approval" name="permissions[]" value="additional_government_agent_approval" @if($user->permissions && $user->permissions->additional_government_agent_approval) checked @endif>
+                        <label for="additional_government_agent_approval">Additional Government Agent Approval</label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="government_agent_approval" name="permissions[]" value="government_agent_approval" @if($user->permissions && $user->permissions->government_agent_approval) checked @endif>
+                        <label for="government_agent_approval">Government Agent Approval</label>
+                    </div>
+                     <div class="form-group checkbox-group">
+                        <input type="checkbox" id="account_setting" name="permissions[]" value="account_setting" @if($user->permissions && $user->permissions->account_setting) checked @endif>
+                        <label for="account_setting">Preference</label>
+                    </div>
+                </div>
+
                 <div class="button-group">
+
                     <button type="submit" class="submit-btn">Save Changes</button>
                 </div>
             </form>
