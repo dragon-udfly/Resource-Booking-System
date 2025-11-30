@@ -120,21 +120,34 @@
 <body>
     <header class="header">
         <div class="header-main">
-            <img src="icons/left_logo.png" alt="Sri Lanka government logo" class="logo-left">
+            <img src="{{ asset('icons/left_logo.png') }}" alt="Sri Lanka government logo" class="logo-left">
             <div class="header-content">
                 <h1>District Secretariat - Vavuniya</h1>
                 <h2>Hall and Quarters Booking System</h2>
             </div>
-            <img src="icons/right_logo.png" alt="district Secretariat vavuniya logo" class="logo-right">
+            <img src="{{ asset('icons/right_logo.png') }}" alt="district Secretariat vavuniya logo" class="logo-right">
         </div>
         <nav class="navbar">
             <ul class="navbar-left">
-                <li><a href="/document-history">Document History</a></li>
-                <li><a href="/account-setting">Preference</a></li>
+                <li id="nav-preference"><a href="/preference">Preference</a></li>
+                <il id="nav-dashboard"><a href="/dashboard">Dashboard</a></il>
+                <li id="nav-halls"><a href="#">Halls</a></li>
+                <li id="nav-quarter"><a href="#">Quarters</a></li>
+                <li id="nav-audit-log"><a href="#">Audit Log</a></li>
             </ul>
             <ul class="navbar-right">
-                <li style="color:#0800ff">Government Agent - Mr. Isuru Udakara</li>
-                <li><a href="/logout">Log Out</a></li>
+                <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
+                    @auth
+                    <span id="designation">{{ Auth::user()->designation }}</span>, 
+                    <span id="first_name">{{ Auth::user()->first_name }}</span>
+                    @endauth
+                </li>
+                <li>
+                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" style="background: none; border: none; color: #007bff; font-weight: bold; cursor: pointer; font-size: 1em; padding: 0;">Log Out</button>
+                    </form>
+                </li>
             </ul>
         </nav>
     </header>
