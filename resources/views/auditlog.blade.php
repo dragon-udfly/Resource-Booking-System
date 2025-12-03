@@ -276,7 +276,7 @@
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $log->audit_log_id }}</td>
                             <td>{{ $log->log_title }}</td>
-                            <td>{{ $log->performed_by }}</td>
+                            <td>{{ $log->performed_by ?? $log->details }}</td>
                             <td>{{ $log->date_performed }}</td>
                             <td>{{ $log->time_performed }}</td>
                         </tr>
