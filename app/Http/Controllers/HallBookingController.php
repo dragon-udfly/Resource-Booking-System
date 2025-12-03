@@ -9,6 +9,7 @@ use App\Models\AuditLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 
 class HallBookingController extends Controller
 {
@@ -34,10 +35,23 @@ class HallBookingController extends Controller
         $request->validate([
             'applicant_name' => 'required|string|max:200',
             'applicant_type' => 'required|string',
-            'hall_id' => 'required|string|exists:hall,hall_id',
+            'hall_id' => [
+                'required',
+                'string',
+                Rule::exists('hall', 'hall_id'),
+            ],
             'programme' => 'required|string|max:200',
             'event_date' => 'required|date',
-            'participants' => 'required|integer',
+            'participants' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) use ($request) {
+                    $hall = Hall::find($request->hall_id);
+                    if ($hall && $value > $hall->capacity) {
+                        $fail('The number of participants exceeds the capacity of the selected hall (' . $hall->capacity . ').');
+                    }
+                },
+            ],
             'event_duration' => 'required|numeric',
             'paid_status' => 'required|string',
             'is_emergency_booking' => 'required|boolean',

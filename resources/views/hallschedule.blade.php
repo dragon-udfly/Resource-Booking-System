@@ -100,7 +100,7 @@
     <section class="banner">
         <div class="left-content-area">
             <div class="button-bar">
-                <a href="#" onclick="history.back(); return false;" class="btn" style="background-color: #6c757d;">Back</a>
+                <a href="/" style="background-color: #6c757d;" class="btn">Back to Home</a>
                 <a href="{{ route('halls.book') }}" class="btn" style="background-color: #007bff;">New Event</a>
             </div>
             <div class="event-list-container">
