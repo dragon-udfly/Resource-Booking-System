@@ -20,7 +20,7 @@ class HallBookingController extends Controller
      */
     public function create()
     {
-        $halls = Hall::all();
+        $halls = Hall::where('current_state', 'available')->get();
         return view('bookhall', ['halls' => $halls]);
     }
 
