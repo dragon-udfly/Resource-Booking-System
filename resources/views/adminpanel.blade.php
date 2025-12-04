@@ -1,27 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>District Secretariat - Vavuniya</title>
-    <link href='icons/right_logo.png' rel='icon' type='image/png'>
+@extends('layouts.admin_body_layout')
+
+@section('title', 'District Secretariat - Vavuniya')
+
+@section('page_styles')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        .banner {
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 65vh; /* Use min-height instead of fixed height */
-            width: 100%;
-        }
-
         div a {
             display: block; 
             padding: 20px 40px; 
@@ -34,7 +16,7 @@
             transition: background-color 0.3s ease;
         }
 
-        .banner div {
+        .btn-row {
             display: flex; 
             justify-content: center; 
             align-items: center; 
@@ -44,20 +26,22 @@
             flex-direction: row; 
             padding: 20px;
         }
+
+        .btn-reset a {
+            background-color: #6917dc;
+        }
     </style>
-</head>
-<body>
-    @include('partials.header_nav')
-    
-    <!-- Cyan/Turquoise Banner Section -->
+@endsection
+
+@section('content')
     <section class="banner">
-        <div>
+        <div class="btn-row">
             <a href="/officers">Officers</a>
             <a href="/quarters">Quarters</a>
             <a href="/halls">Halls</a>
         </div>
+        <div class="btn-row btn-reset">
+            <a href="/systemsetting">System Setting</a>
+        </div>
     </section>
-
-    @include('partials.footer')
-</body>
-</html>
+@endsection
