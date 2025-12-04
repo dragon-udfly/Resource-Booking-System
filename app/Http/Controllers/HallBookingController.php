@@ -106,7 +106,9 @@ class HallBookingController extends Controller
      */
     public function showSchedule()
     {
-        $bookings = HallBooking::with('hall')->get();
+        $bookings = HallBooking::whereHas('hall', function ($query) {
+            $query->where('current_state', 'available');
+        })->with('hall')->get();
         return view('hallschedule', ['bookings' => $bookings]);
     }
 }
