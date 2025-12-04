@@ -18,9 +18,12 @@
 
         .banner {
             background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            height: 66vh;
+            min-height: 65vh; /* Use min-height instead of fixed height */
             width: 100%;
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
         }
 
         .login-button:hover:not(:disabled) {
@@ -35,7 +38,8 @@
 
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
-        <a href="/" style="position: absolute; top: 20px; left: 20px; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Back to Home</a>
+        <a href="/" style="top: 20px; left: 20px; padding: 15px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 5px;">Home</a>
+        <br />
         <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
             <div style="background-color: white; padding: 40px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
                 <h1 style="color: rgb(6, 4, 60); text-align: center; margin-bottom: 20px;">Login</h1>
