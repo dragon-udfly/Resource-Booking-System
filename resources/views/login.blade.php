@@ -66,6 +66,9 @@
             background-color: #000;
             height: 10vh;
             width: 100%;
+            color: white;
+            text-align: center; 
+            padding-top: 20px;
         }
 
         .login-button:hover:not(:disabled) {
@@ -108,10 +111,8 @@
     </section>
 
     <!-- Black Footer Section -->
-   <footer class="footer" style="color: white; text-align: center; padding-top: 20px;">
+   <footer class="footer" style=" ">
         <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
-        <p style="margin-top: 10px;">
-        </p>
         <br />
     </footer>
     <script>
