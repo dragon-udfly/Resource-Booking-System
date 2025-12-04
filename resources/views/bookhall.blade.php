@@ -49,6 +49,7 @@
     <section class="banner">
         <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
             <a href="#" onclick="history.back(); return false;" class="submit-btn" style="text-decoration: none; background-color: #6c757d;">Back</a>
+            <a href="/" style="text-decoration: none; background-color: #6c757d;" class="submit-btn">Home</a>
         </div>
         <div class="page-header">
             <h2 style="color: rgb(6, 4, 60); font-weight: bold">Hall Booking Form</h2>
