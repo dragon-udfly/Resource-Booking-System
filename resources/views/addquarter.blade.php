@@ -1,115 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Quarter - District Secretariat Vavuniya</title>
+@extends('layouts.admin_body_layout')
+
+@section('title', 'Add Quarter - District Secretariat Vavuniya')
+
+@section('page_styles')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        .header {
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border-bottom: 3px solid #ddd;
-        }
-
-        .header-main {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-
-        .logo-left {
-            width: 110px;
-            height: 22vh;
-            margin-left: 70px;
-        }
-
-        .header-content {
-            flex: 1;
-            text-align: center;
-            padding: 0 10px;
-        }
-
-        .header-content h1 {
-            font-size: 40px;
-            font-weight: bold;
-            color: #000;
-            padding-bottom: 20px;
-        }
-
-        .header-content h2 {
-            font-size: 25px;
-            font-weight: normal;
-            color: #333;
-        }
-
-        .logo-right {
-            width: 130px;
-            height: 22vh;
-            margin-right: 70px;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 10px 20px;
-            background-color: #e9ecef; /* Light grey background for navbar */
-            border-top: 1px solid #dee2e6;
-        }
-
-        .navbar ul {
-            list-style: none;
-            display: flex;
-            margin: 0;
-            padding: 0;
-        }
-
-        .navbar li {
-            margin-right: 20px;
-        }
-
-        .navbar li:last-child {
-            margin-right: 0;
-        }
-
-        .navbar a {
-            text-decoration: none;
-            color: #007bff;
-            font-weight: bold;
-        }
-
-        .navbar a:hover {
-            color: #0056b3;
-        }
-
-        .navbar-right {
-            margin-left: auto; /* Pushes right items to the right */
-        }
-
-        .banner {
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 65vh; /* Use min-height instead of fixed height */
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
         .page-header {
             text-align: center;
             margin-bottom: 30px;
@@ -229,217 +123,86 @@
             background-color: #6c757d;
             color: white;
         }
+    </style>
+@endsection
 
-            </style>
+@section('content')
+    <section class="banner">
+        <div class="page-header">
+            <h2>Add New Quarter</h2>
+            <p>Fill in the details below to add a new quarter to the system</p>
+        </div>
 
-        </head>
+        <div class="form-container">
+            <div class="form-info">
+                <p>Fields marked with <span style="color: #ff0000;">*</span> are required. Please ensure all information is accurate before submitting.</p>
+            </div>
 
-        <body>
-
-            <header class="header">
-
-                <div class="header-main">
-
-                    <img src="icons/left_logo.png" alt="Sri Lanka government logo" class="logo-left">
-
-                    <div class="header-content">
-
-                        <h1>District Secretariat - Vavuniya</h1>
-
-                        <h2>Hall and Quarters Booking System - Administrator</h2>
-
+            <form action="/admin/accounts/store" method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="quarter_title">Quarter Title <span class="required">*</span></label>
+                        <input type="text" id="quarter_title" name="quarter_title" placeholder="Enter quarter title" required>
                     </div>
-
-                    <img src="icons/right_logo.png" alt="district Secretariat vavuniya logo" class="logo-right">
-
-                </div>
-
-                <nav class="navbar">
-
-                    <ul class="navbar-left">
-
-                        <li><a href="/document-history">Document History</a></li>
-
-                        <li><a href="/account-setting">Preference</a></li>
-
-                    </ul>
-
-                    <ul class="navbar-right">
-
-                        <li>Admin, Thanuharan V.</li>
-
-                        <li><a href="/logout">Log Out</a></li>
-
-                    </ul>
-
-                </nav>
-
-            </header>
-
-        
-
-            <!-- Cyan/Turquoise Banner Section -->
-
-            <section class="banner">
-
-                <div class="page-header">
-
-                    <h2>Add New Quarter</h2>
-
-                    <p>Fill in the details below to add a new quarter to the system</p>
-
-                </div>
-
-        
-
-                <div class="form-container">
-
-                    <div class="form-info">
-
-                        <p>Fields marked with <span style="color: #ff0000;">*</span> are required. Please ensure all information is accurate before submitting.</p>
-
+                    <div class="form-group">
+                        <label for="quarter_address">Quarter Address <span class="required">*</span></label>
+                        <input type="text" id="quarter_address" name="quarter_address" placeholder="Enter quarter address" required>
                     </div>
-
-        
-
-                    <form action="/admin/accounts/store" method="POST">
-
-                        <div class="form-row">
-
-                            <div class="form-group">
-
-                                <label for="quarter_title">Quarter Title <span class="required">*</span></label>
-
-                                <input type="text" id="quarter_title" name="quarter_title" placeholder="Enter quarter title" required>
-
-                            </div>
-
-                            <div class="form-group">
-
-                                <label for="quarter_address">Quarter Address <span class="required">*</span></label>
-
-                                <input type="text" id="quarter_address" name="quarter_address" placeholder="Enter quarter address" required>
-
-                            </div>
-
-                        </div>
-
-                        <div class="form-row">
-
-                            <div class="form-group">
-
-                                <label for="grade">Quarter Grade <span class="required">*</span></label>
-
-                                <input type="text" id="grade" name="grade" placeholder="Enter quarter grade" required>
-
-                            </div>
-
-                            <div class="form-group">
-
-                                <label for="department">Department (Quarter belongs) <span class="required">*</span></label>
-
-                                <input type="text" id="department" name="department" placeholder="Enter department of quarter" required>
-
-                            </div>
-
-                        </div>
-
-                        <div class="form-row">
-
-                            <div class="form-group">
-
-                                <label for="land_size">Land Size <span class="required">*</span></label>
-
-                                <input type="text" id="land_size" name="land_size" placeholder="Enter land size of the quarter" required>
-
-                            </div>
-
-                            <div class="form-group">
-
-                                <label for="eligible_salary">Eligibility Salary <span class="required">*</span></label>
-
-                                <input type="text" id="eligible_salary" name="eligible_salary" placeholder="Enter eligible salary" required>
-
-                            </div>
-
-                        </div>
-
-                        <div class="form-row">
-
-                            <div class="form-group">
-
-                                <label for="distance">Distance (to office)<span class="required">*</span></label>
-
-                                <input type="text" id="distance" name="distance" placeholder="Enter distance to main office" required>
-
-                            </div>
-
-                            <div class="form-group">
-
-                                <label for="occupants">Expected Occupants <span class="required">*</span></label>
-
-                                <input type="text" id="occupants" name="occupants" placeholder="Enter expected occupants" required>
-
-                            </div>
-
-                            <div class="form-group">
-
-                                <label for="contact_person">Contact Person <span class="required">*</span></label>
-
-                                <input type="text" id="contact_person" name="contact_person" placeholder="Enter person to contact about quarter" required>
-
-                            </div>
-
-                            <div class="form-group full-width">
-
-                                <label for="description">Description <span class="required">*</span></label>
-
-                                <textarea id="description" name="description" placeholder="Enter detailed description of the quarter" required></textarea>
-
-                            </div>
-
-                        </div>
-
-                        <div class="form-row">
-
-                            <div class="form-group">
-
-                                <label for="status">Quarter Status <span class="required">*</span></label>
-
-                                <select id="status" name="status" required>
-
-                                    <option value="available">Select status</option>
-
-                                    <option value="available" selected>Available</option>
-
-                                    <option value="unavailable">Unavailable</option>
-
-                                    <option value="occupied">Occupied</option>
-
-                                </select>
-
-                            </div>
-
-                        </div>
-
-                        <div class="button-group">
-
-                            <button type="submit" class="submit-btn">Add Quarter</button>
-
-                            <button type="reset" class="reset-btn">Reset Form</button>
-
-                        </div>
-
-                    </form>
-
                 </div>
-
-            </section>
-
-        
-
-            @include('partials.footer')
-
-        </body>
-
-        </html>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="grade">Quarter Grade <span class="required">*</span></label>
+                        <input type="text" id="grade" name="grade" placeholder="Enter quarter grade" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Department (Quarter belongs) <span class="required">*</span></label>
+                        <input type="text" id="department" name="department" placeholder="Enter department of quarter" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="land_size">Land Size <span class="required">*</span></label>
+                        <input type="text" id="land_size" name="land_size" placeholder="Enter land size of the quarter" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eligible_salary">Eligibility Salary <span class="required">*</span></label>
+                        <input type="text" id="eligible_salary" name="eligible_salary" placeholder="Enter eligible salary" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="distance">Distance (to office)<span class="required">*</span></label>
+                        <input type="text" id="distance" name="distance" placeholder="Enter distance to main office" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="occupants">Expected Occupants <span class="required">*</span></label>
+                        <input type="text" id="occupants" name="occupants" placeholder="Enter expected occupants" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact_person">Contact Person <span class="required">*</span></label>
+                        <input type="text" id="contact_person" name="contact_person" placeholder="Enter person to contact about quarter" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="description">Description <span class="required">*</span></label>
+                        <textarea id="description" name="description" placeholder="Enter detailed description of the quarter" required></textarea>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="status">Quarter Status <span class="required">*</span></label>
+                        <select id="status" name="status" required>
+                            <option value="available">Select status</option>
+                            <option value="available" selected>Available</option>
+                            <option value="unavailable">Unavailable</option>
+                            <option value="occupied">Occupied</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="submit-btn">Add Quarter</button>
+                    <button type="reset" class="reset-btn">Reset Form</button>
+                </div>
+            </form>
+        </div>
+    </section>
+@endsection
