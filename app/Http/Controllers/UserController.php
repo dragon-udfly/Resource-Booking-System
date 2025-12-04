@@ -261,6 +261,15 @@ class UserController extends Controller
         return view('auditlog', ['auditLogs' => $auditLogs]);
     }
 
+    public function seeAuditLog()
+    {
+        if (Auth::check() && Auth::user()->hasPermissionTo('view_audit_log')) {
+            $auditLogs = AuditLog::orderBy('audit_log_id', 'desc')->get();
+            return view('seeaudtilog', ['auditLogs' => $auditLogs]);
+        }
+        return redirect()->back()->with('error', 'You do not have permission to view the audit log.');
+    }
+
     public function clearAuditLog()
     {
         AuditLog::truncate();
