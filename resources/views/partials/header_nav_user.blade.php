@@ -94,7 +94,7 @@
         <img src="{{ asset('icons/left_logo.png') }}" alt="Sri Lanka government logo" class="logo-left">
         <div class="header-content">
             <h1>District Secretariat - Vavuniya</h1>
-            <h2>Hall and Quarters Booking System - Administrator</h2>
+            <h2>Hall and Quarters Booking System - Officer</h2>
         </div>
         <img src="{{ asset('icons/right_logo.png') }}" alt="district Secretariat vavuniya logo" class="logo-right">
     </div>
