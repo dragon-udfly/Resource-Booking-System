@@ -7,19 +7,78 @@
     <link href="{{ asset('icons/right_logo.png') }}" rel='icon' type='image/png'>
     <style>
         /* Reusing styles for consistency */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; }
-        .banner { background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%); min-height: 58vh; width: 100%; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .page-header { text-align: center; margin-bottom: 30px; color: #333; }
-        .page-header h2 { font-size: 2.5em; margin-bottom: 10px; }
-        .page-header p { font-size: 1.1em; color: #555; }
-        .form-container { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); width: 90%; max-width: 900px; margin-top: 20px; }
-        .form-row { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
-        .form-group { flex: 1; min-width: 280px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
-        .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="tel"], .form-group input[type="password"] { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em; }
-        .form-group input[readonly] { background-color: #e9ecef; }
-        .required { color: #dc3545; margin-left: 5px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .banner {
+            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
+            min-height: 65vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .page-header h2 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .page-header p {
+            font-size: 1.1em;
+            color: #555;
+        }
+        .form-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 900px;
+            margin-top: 20px;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 280px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        .form-group input[readonly] {
+            background-color: #e9ecef;
+        }
+        .required {
+            color: #dc3545;
+            margin-left: 5px;
+        }
         .checkbox-group {
             display: flex;
             align-items: center;
@@ -42,8 +101,23 @@
         .input-with-toggle input {
             flex-grow: 1;
         }
-        .button-group { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
-        .submit-btn { padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; background-color: #007bff; color: white; text-decoration: none; }
+        .button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .submit-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
