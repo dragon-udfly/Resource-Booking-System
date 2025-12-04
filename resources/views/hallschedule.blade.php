@@ -6,23 +6,23 @@
     <title>Hall Schedule - District Secretariat - Vavuniya</title>
     <link href='{{ asset('icons/right_logo.png') }}' rel='icon' type='image/png'>
     <style>
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        body { 
-            font-family: Arial, sans-serif; 
+        body {
+            font-family: Arial, sans-serif;
         }
-        .banner { 
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%); 
-            min-height: 58vh; 
-            width: 100%; 
-            display: flex; 
-            flex-direction: row; 
-            align-items: flex-start; 
-            padding: 20px; 
-            gap: 20px; 
+        .banner {
+            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
+            min-height: 65vh;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            padding: 20px;
+            gap: 20px;
         }
         /* Styles for hall schedule page */
         .left-content-area {
@@ -60,10 +60,16 @@
             padding-bottom: 10px;
             margin-bottom: 10px;
         }
-        .event-item:last-child { border-bottom: none; }
-        .event-item strong { color: #0056b3; }
-        .event-item p { font-size: 0.9em; color: #555; }
-
+        .event-item:last-child {
+            border-bottom: none;
+        }
+        .event-item strong {
+            color: #0056b3;
+        }
+        .event-item p {
+            font-size: 0.9em;
+            color: #555;
+        }
         .calendar-section {
             width: 70%;
             background: #fff;
@@ -72,9 +78,18 @@
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
             overflow-y: auto;
         }
-        .calendar-month { margin-bottom: 20px; }
-        .calendar-month h3 { text-align: center; font-size: 1.5em; margin-bottom: 10px; }
-        .calendar-grid { width: 100%; border-collapse: collapse; }
+        .calendar-month {
+            margin-bottom: 20px;
+        }
+        .calendar-month h3 {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .calendar-grid {
+            width: 100%;
+            border-collapse: collapse;
+        }
         .calendar-grid th, .calendar-grid td {
             border: 1px solid #ddd;
             text-align: center;
@@ -83,11 +98,30 @@
             vertical-align: top;
             font-size: 0.8em;
         }
-        .calendar-grid th { background-color: #f2f2f2; font-weight: bold; }
-        .day-number { font-weight: bold; font-size: 1em; }
-        .today .day-number { color: #fff; background-color: #007bff; border-radius: 50%; padding: 4px; display: inline-block; width: 25px; height: 25px; line-height: 18px; }
-        .other-month { color: #ccc; }
-        .booked-date { background-color: #05fd01; }
+        .calendar-grid th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .day-number {
+            font-weight: bold;
+            font-size: 1em;
+        }
+        .today .day-number {
+            color: #fff;
+            background-color: #007bff;
+            border-radius: 50%;
+            padding: 4px;
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            line-height: 18px;
+        }
+        .other-month {
+            color: #ccc;
+        }
+        .booked-date {
+            background-color: #05fd01;
+        }
     </style>
 </head>
 <body>
