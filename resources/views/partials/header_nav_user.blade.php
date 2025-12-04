@@ -105,7 +105,7 @@
             @if(Auth::user()->hasPermissionTo('view_officers'))
                 <li id="nav-officers"><a href="{{ route('seeofficers') }}">Officers</a></li>
             @endif
-            <li id="nav-halls"><a href="#">Halls</a></li>
+            <li id="nav-halls"><a href="/seehalls">Halls</a></li>
             <li id="nav-quarter"><a href="#">Quarters</a></li>
             <li id="nav-audit-log"><a href="#">Audit Log</a></li>
         </ul>
