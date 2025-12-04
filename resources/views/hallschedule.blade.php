@@ -6,19 +6,24 @@
     <title>Hall Schedule - District Secretariat - Vavuniya</title>
     <link href='{{ asset('icons/right_logo.png') }}' rel='icon' type='image/png'>
     <style>
-        /* Copied from bookhall.blade.php */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; }
-        .header { background-color: #f8f9fa; display: flex; flex-direction: column; align-items: center; border-bottom: 3px solid #ddd; }
-        .header-main { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-        .logo-left { width: 110px; height: 22vh; margin-left: 70px; }
-        .header-content { flex: 1; text-align: center; padding: 0 10px; }
-        .header-content h1 { font-size: 40px; font-weight: bold; color: #000; padding-bottom: 20px; }
-        .header-content h2 { font-size: 25px; font-weight: normal; color: #333; }
-        .logo-right { width: 130px; height: 22vh; margin-right: 70px; }
-        .banner { background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%); min-height: 58vh; width: 100%; display: flex; flex-direction: row; align-items: flex-start; padding: 20px; gap: 20px; }
-        .footer { background-color: #000; height: 17vh; width: 100%; color: white; text-align: center; padding-top: 20px; }
-
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        body { 
+            font-family: Arial, sans-serif; 
+        }
+        .banner { 
+            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%); 
+            min-height: 58vh; 
+            width: 100%; 
+            display: flex; 
+            flex-direction: row; 
+            align-items: flex-start; 
+            padding: 20px; 
+            gap: 20px; 
+        }
         /* Styles for hall schedule page */
         .left-content-area {
             width: 30%;
@@ -86,16 +91,7 @@
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-main">
-            <img src="{{ asset('icons/left_logo.png') }}" alt="Sri Lanka government logo" class="logo-left">
-            <div class="header-content">
-                <h1>District Secretariat - Vavuniya</h1>
-                <h2>Hall and Quarters Booking System</h2>
-            </div>
-            <img src="{{ asset('icons/right_logo.png') }}" alt="district Secretariat vavuniya logo" class="logo-right">
-        </div>
-    </header>
+    @include('partials.header')
 
     <section class="banner">
         <div class="left-content-area">
