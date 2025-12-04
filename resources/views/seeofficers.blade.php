@@ -1,39 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Officers - District Secretariat Vavuniya</title>
+@extends('layouts.user_body_layout')
+
+@section('title', 'Officers - District Secretariat Vavuniya')
+
+@section('page_styles')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        .banner {
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 65vh; /* Use min-height instead of fixed height */
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
+        /* No page-specific styles needed as of now */
     </style>
-</head>
-<body>
-     @include('partials.header_nav_user')
+@endsection
 
+@section('content')
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
-        
+        {{-- Content for seeing officers goes here --}}
     </section>
-
-    @include('partials.footer')
-</body>
-</html>
+@endsection
