@@ -18,8 +18,31 @@
 
         .banner {
             background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            height: 65vh;
+            min-height: 65vh; /* Use min-height instead of fixed height */
             width: 100%;
+        }
+
+        div a {
+            display: block; 
+            padding: 20px 40px; 
+            background-color: #007bff; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            font-size: 1.5em; 
+            text-align: center; 
+            transition: background-color 0.3s ease;
+        }
+
+        .banner div {
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100%; 
+            gap: 80px; 
+            display: flex; 
+            flex-direction: row; 
+            padding: 20px;
         }
     </style>
 </head>
@@ -28,10 +51,10 @@
     
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
-        <div style="display: flex; justify-content: center; align-items: center; height: 100%; gap: 80px;">
-            <a href="/officers" style="display: block; padding: 20px 40px; background-color: #007bff; color: white; text-decoration: none; border-radius: 8px; font-size: 1.5em; text-align: center; transition: background-color 0.3s ease;">Officers</a>
-            <a href="/quarters" style="display: block; padding: 20px 40px; background-color: #007bff; color: white; text-decoration: none; border-radius: 8px; font-size: 1.5em; text-align: center; transition: background-color 0.3s ease;">Quarters</a>
-            <a href="/halls" style="display: block; padding: 20px 40px; background-color: #007bff; color: white; text-decoration: none; border-radius: 8px; font-size: 1.5em; text-align: center; transition: background-color 0.3s ease;">Halls</a>
+        <div>
+            <a href="/officers">Officers</a>
+            <a href="/quarters">Quarters</a>
+            <a href="/halls">Halls</a>
         </div>
     </section>
 
