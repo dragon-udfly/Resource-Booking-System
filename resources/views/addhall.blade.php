@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Hall - District Secretariat Vavuniya</title>
+    <link href='icons/right_logo.png' rel='icon' type='image/png'>
     <style>
         * {
             margin: 0;
@@ -102,7 +103,7 @@
 
         .banner {
             background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 58vh; /* Use min-height instead of fixed height */
+            min-height: 65vh; /* Use min-height instead of fixed height */
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -165,7 +166,7 @@
         }
 
         .form-group input[type="text"],
-        .form-group input[type="tel"],
+        .form-group input[type="number"],
         .form-group select,
         .form-group textarea {
             width: 100%;
@@ -234,12 +235,6 @@
             background-color: #5a6268;
             transform: translateY(-1px);
         }
-
-        .footer {
-            background-color: #000;
-            height: 17vh;
-            width: 100%;
-        }
     </style>
 </head>
 <body>
@@ -255,81 +250,90 @@
         <nav class="navbar">
             <ul class="navbar-left">
                 <li><a href="/document-history">Document History</a></li>
-                <li><a href="/account-setting">Preference</a></li>
+                <li><a href="/preference">Preference</a></li>
+                <li><a href="/admin">Panel</a></li>
             </ul>
             <ul class="navbar-right">
-                <li>Admin, Thanuharan V.</li>
-                <li><a href="/logout">Log Out</a></li>
+                <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
+                    @auth
+                    <span id="designation">{{ Auth::user()->designation }}</span>, 
+                    <span id="first_name">{{ Auth::user()->first_name }}</span>
+                    @endauth
+                </li>
+                <li>
+                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" style="background: none; border: none; color: #007bff; font-weight: bold; cursor: pointer; font-size: 1em; padding: 0;">Log Out</button>
+                    </form>
+                </li>
             </ul>
         </nav>
     </header>
-
-    <!-- Cyan/Turquoise Banner Section -->
+    
     <section class="banner">
         <div class="page-header">
-            <h2>Add New Hall</h2>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Add New Hall</h2>
             <p>Fill in the details below to add a new hall to the system</p>
         </div>
 
         <div class="form-container">
+            @if(session('success'))
+                <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-danger" style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                    <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <div class="form-info">
                 <p>Fields marked with <span style="color: #ff0000;">*</span> are required. Please ensure all information is accurate before submitting.</p>
             </div>
 
-            <form action="/admin/accounts/store" method="POST">
+            <form action="{{ route('halls.store') }}" method="POST">
+                @csrf
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="hall_title">Hall Title <span class="required">*</span></label>
-                        <input type="text" id="hall_title" name="hall_title" placeholder="Enter hall title" required>
-                    </div>
-
-                    <div class="form-group">
                         <label for="hall_type">Hall Type <span class="required">*</span></label>
-                        <select id="hall_type" name="hall_type" required>
-                            <option value="">Select hall type</option>
-                            <option value="auditorium">Auditorium</option>
-                            <option value="conference">Conference Hall</option>
-                            <option value="training">Training Unit</option>
-                        </select>
+                        <input type="text" id="hall_type" name="hall_type" placeholder="Enter hall type" value="{{ old('hall_type') }}" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="location">Hall Location <span class="required">*</span></label>
-                        <input type="text" id="location" name="location" placeholder="Enter location" required>
-                    </div>
-                    <div class="form-group">
                         <label for="capacity">Capacity (People) <span class="required">*</span></label>
-                        <input type="text" id="capacity" name="capacity" placeholder="Enter seating capacity" required>
+                        <input type="number" id="capacity" name="capacity" placeholder="Enter seating capacity" value="{{ old('capacity') }}" required>
                     </div>
                     <div class="form-group full-width">
                         <label for="description">Description <span class="required">*</span></label>
-                        <textarea id="description" name="description" placeholder="Enter detailed description of the hall" required></textarea>
+                        <textarea id="description" name="description" placeholder="Enter detailed description of the hall" required maxlength="1200">{{ old('description') }}</textarea>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="chairs">Available Chairs <span class="required">*</span></label>
-                        <input type="text" id="chairs" name="chairs" placeholder="Enter available chairs" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="contact_person">Contact Person <span class="required">*</span></label>
-                        <input type="text" id="contact_person" name="contact_person" placeholder="Enter person to contact" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="status">Hall Status <span class="required">*</span></label>
-                        <select id="status" name="status" required>
-                            <option value="available">Select status</option>
-                            <option value="available" selected>Available</option>
-                            <option value="unavailable">Unavailable</option>
-                            <option value="booked">Booked</option>
+                        <label for="booking_status">Booking Status <span class="required">*</span></label>
+                        <select id="booking_status" name="booking_status" required>
+                            <option value="available" @if(old('booking_status') == 'available') selected @endif>Available</option>
+                            <option value="booked" @if(old('booking_status') == 'booked') selected @endif>Booked</option>
                         </select>
                     </div>
                 </div>
-
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hall_status">Hall Status <span class="required">*</span></label>
+                        <select id="hall_status" name="hall_status" required>
+                            <option value="available" @if(old('hall_status') == 'available') selected @endif>Available</option>
+                            <option value="unavailable" @if(old('hall_status') == 'unavailable') selected @endif>Unavailable</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="button-group">
                     <button type="submit" class="submit-btn">Add Hall</button>
                     <button type="reset" class="reset-btn">Reset Form</button>
@@ -338,14 +342,6 @@
         </div>
     </section>
 
-    <!-- Black Footer Section -->
-    <footer class="footer" style="color: white; text-align: center; padding-top: 20px;">
-        <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
-        <p style="margin-top: 10px;">
-            <a href="/privacy" style="color: white; text-decoration: none; margin: 0 10px;">Privacy and Policy</a>
-            |
-            <a href="/agreement" style="color: white; text-decoration: none; margin: 0 10px;">User Agreement</a>
-        </p>
-    </footer>
+    @include('partials.footer')
 </body>
 </html>
