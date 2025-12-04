@@ -1,41 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>District Secretariat - Vavuniya</title>
-    <link href='icons/right_logo.png' rel='icon' type='image/png'>
+@extends('layouts.normal_body_layout')
+
+@section('title', 'District Secretariat - Vavuniya')
+
+@section('page_styles')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        .banner {
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 65vh; /* Use min-height instead of fixed height */
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
         .login-button:hover:not(:disabled) {
             background-color: #0056b3; /* Darker blue on hover */
             transform: translateY(-1px); /* Slight lift effect */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
         }
     </style>
-</head>
-<body>
-    @include('partials.header')
+@endsection
 
+@section('content')
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
         <a href="/" style="top: 20px; left: 20px; padding: 15px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 5px;">Home</a>
@@ -84,9 +61,9 @@
             </div>
         </div>
     </section>
+@endsection
 
-   @include('partials.footer')
-
+@push('scripts')
     <script>
         const usernameInput = document.getElementById('nic_number');
         const passwordInput = document.getElementById('passcode');
@@ -103,5 +80,4 @@
         usernameInput.addEventListener('input', validateForm);
         passwordInput.addEventListener('input', validateForm);
     </script>
-</body>
-</html>
+@endpush
