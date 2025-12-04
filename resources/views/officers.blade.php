@@ -18,7 +18,7 @@
 
         .banner {
             background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 58vh; /* Use min-height instead of fixed height */
+            min-height: 65vh; /* Use min-height instead of fixed height */
             width: 100%;
             display: flex;
             flex-direction: column;
