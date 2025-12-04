@@ -79,6 +79,17 @@ class HallController extends Controller
     }
 
     /**
+     * Display a listing of the halls for viewing by users.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function seeHalls()
+    {
+        $halls = Hall::all();
+        return view('seehalls', ['halls' => $halls]);
+    }
+
+    /**
      * Show the form for editing the specified hall.
      *
      * @param  \App\Models\Hall  $hall
