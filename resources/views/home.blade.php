@@ -24,8 +24,11 @@
         /* BANNER STYLES */
         .banner {
             background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            flex-grow: 1; /* Allows the banner to fill the remaining vertical space */
+            min-height: 65vh; /* Use min-height instead of fixed height */
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             padding: 20px;
         }
 
