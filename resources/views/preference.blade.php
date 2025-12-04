@@ -19,52 +19,6 @@
             min-height: 100vh;
         }
 
-        .header {
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border-bottom: 3px solid #ddd;
-        }
-
-        .header-main {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-        
-        .logo-left {
-            width: 110px;
-            height: 22vh;
-            margin-left: 70px;
-        }
-
-        .header-content {
-            flex: 1;
-            text-align: center;
-            padding: 0 10px;
-        }
-
-        .header-content h1 {
-            font-size: 40px;
-            font-weight: bold;
-            color: #000;
-            padding-bottom: 20px;
-        }
-
-        .header-content h2 {
-            font-size: 25px;
-            font-weight: normal;
-            color: #333;
-        }
-
-        .logo-right {
-            width: 130px;
-            height: 22vh;
-            margin-right: 70px;
-        }
-
         .banner {
             background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
             flex-grow: 1;
@@ -204,16 +158,7 @@
 </head>
 <body>
     @auth
-    <header class="header">
-        <div class="header-main">
-            <img src="{{ asset('icons/left_logo.png') }}" alt="Sri Lanka government logo" class="logo-left">
-            <div class="header-content">
-                <h1>District Secretariat - Vavuniya</h1>
-                <h2>Hall and Quarters Booking System - Preference</h2>
-            </div>
-            <img src="{{ asset('icons/right_logo.png') }}" alt="district Secretariat vavuniya logo" class="logo-right">
-        </div>
-    </header>
+    @include('partials.header')
 
     <section class="banner">
         <div class="top-buttons">
