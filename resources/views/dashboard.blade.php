@@ -1,30 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - District Secretariat Vavuniya</title>
-    <link href='icons/right_logo.png' rel='icon' type='image/png'>
+@extends('layouts.user_body_layout')
+
+@section('title', 'Dashboard - District Secretariat Vavuniya')
+
+@section('page_styles')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .banner {
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 65vh; /* Use min-height instead of fixed height */
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
         .page-header {
             text-align: center;
             margin-bottom: 30px;
@@ -93,10 +72,9 @@
             background-color: #c82333;
         }
     </style>
-</head>
-<body>
-    @include('partials.header_nav_user')
+@endsection
 
+@section('content')
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
         <div class="page-header">
@@ -138,7 +116,4 @@
             </tbody>
         </table>
     </section>
-
-    @include('partials.footer')
-</body>
-</html>
+@endsection
