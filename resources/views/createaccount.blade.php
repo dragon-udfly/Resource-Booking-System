@@ -18,7 +18,7 @@
 
         .banner {
             background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 58vh; /* Use min-height instead of fixed height */
+            min-height: 65vh; /* Use min-height instead of fixed height */
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -167,6 +167,9 @@
 
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
+         <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+            <a href="#" onclick="history.back(); return false;" class="submit-btn" style="background-color: #6c757d; text-decoration: none">Back</a>
+        </div>
         <div class="page-header">
             <h2 style="color: rgb(6, 4, 60); font-weight: bold">Create New Account</h2>
             <p>Fill in the details below to create a new user account</p>
