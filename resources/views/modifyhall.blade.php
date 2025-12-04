@@ -39,7 +39,6 @@
         .submit-btn, .reset-btn, .btn { padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; text-decoration: none; }
         .submit-btn { background-color: #007bff; color: white; }
         .reset-btn { background-color: #6c757d; color: white; }
-        .footer { background-color: #000; height: 17vh; width: 100%; color: white; text-align: center; padding-top: 20px; }
     </style>
 </head>
 <body>
@@ -139,9 +138,7 @@
         </div>
     </section>
 
-    <footer class="footer">
-        <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
-    </footer>
+    @include('partials.footer')
 
     <script>
         document.getElementById('modify-hall-form').addEventListener('submit', function(event) {
