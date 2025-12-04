@@ -235,15 +235,6 @@
             background-color: #5a6268;
             transform: translateY(-1px);
         }
-
-        .footer {
-            background-color: #000;
-            height: 10vh;
-            width: 100%;
-            color: white;
-            text-align: center; 
-            padding-top: 20px;
-        }
     </style>
 </head>
 <body>
@@ -351,10 +342,6 @@
         </div>
     </section>
 
-    <!-- Black Footer Section -->
-    <footer class="footer">
-        <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
-        <br />
-    </footer>
+    @include('partials.footer')
 </body>
 </html>
