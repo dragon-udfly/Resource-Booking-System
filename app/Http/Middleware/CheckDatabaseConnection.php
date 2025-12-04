@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckDatabaseConnection
@@ -17,14 +16,11 @@ class CheckDatabaseConnection
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $dbConnectionStatus = true;
         try {
             DB::connection()->getPdo();
         } catch (\Exception $e) {
-            $dbConnectionStatus = false;
+            return response()->view('errors.db_error', [], 503);
         }
-
-        View::share('db_connection_status', $dbConnectionStatus);
 
         return $next($request);
     }
