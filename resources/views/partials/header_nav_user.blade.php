@@ -101,6 +101,7 @@
     <nav class="navbar">
         <ul class="navbar-left">
            <li id="nav-preference"><a href="{{ route('preference') }}">Preference</a></li>
+           <li id="nav-dashboard"><a href="/dashboard">Dashboard</a></li>
             @if(Auth::user()->hasPermissionTo('view_officers'))
                 <li id="nav-officers"><a href="{{ route('seeofficers') }}">Officers</a></li>
             @endif
