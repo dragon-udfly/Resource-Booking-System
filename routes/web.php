@@ -50,10 +50,13 @@ Route::middleware(['db-access'])->group(function () {
             return view('modifyquarter');
         });
 
-        Route::get('/modifyhall', function(){
-            return view('modifyhall');
-        });
-
+            Route::get('/modifyhall', function(){
+                return view('modifyhall');
+            });
+        
+            Route::get('/systemsetting', function(){
+                return view('systemsetting');
+            })->name('systemsetting');
         Route::get('/auditlog', [UserController::class, 'showAuditLog'])->name('auditlog');
         Route::delete('/auditlog/clear', [UserController::class, 'clearAuditLog'])->name('auditlog.clear');
     });
