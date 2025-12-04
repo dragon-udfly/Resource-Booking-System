@@ -58,17 +58,8 @@
 
         .banner {
             background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            height: 65vh;
+            height: 66vh;
             width: 100%;
-        }
-
-        .footer {
-            background-color: #000;
-            height: 10vh;
-            width: 100%;
-            color: white;
-            text-align: center; 
-            padding-top: 20px;
         }
 
         .login-button:hover:not(:disabled) {
@@ -110,11 +101,8 @@
         </div>
     </section>
 
-    <!-- Black Footer Section -->
-   <footer class="footer" style=" ">
-        <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
-        <br />
-    </footer>
+   @include('partials.footer')
+
     <script>
         const usernameInput = document.getElementById('username');
         const passwordInput = document.getElementById('password');

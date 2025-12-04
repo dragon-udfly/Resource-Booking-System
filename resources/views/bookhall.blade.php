@@ -31,7 +31,6 @@
         .required { color: #dc3545; margin-left: 5px; }
         .button-group { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
         .submit-btn { padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; background-color: #007bff; color: white; }
-        .footer { background-color: #000; height: 17vh; width: 100%; color: white; text-align: center; padding-top: 20px; }
     </style>
 </head>
 <body>
@@ -164,15 +163,7 @@
         </div>
     </section>
 
-    <footer class="footer" style="color: white; text-align: center; padding-top: 20px;">
-        <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
-        <br />
-        <p style="margin-top: 10px;">
-            <a href="/privacy" style="color: white; text-decoration: none; margin: 0 10px;">Privacy and Policy</a>
-            |
-            <a href="/agreement" style="color: white; text-decoration: none; margin: 0 10px;">User Agreement</a>
-        </p>
-    </footer>
+    @include('partials.footer')
 
     <script>
         document.getElementById('booking-form').addEventListener('submit', function(event) {

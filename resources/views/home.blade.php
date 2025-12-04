@@ -68,11 +68,6 @@
             width: 100%;
             padding: 20px;
         }
-        
-        .footer {
-            background-color: #000;
-            width: 100%;
-        }
 
         /* HOMEPAGE UNIQUE STYLES (Content and Buttons) */
         .content-area { 
@@ -134,12 +129,6 @@
         </div>
     </section>
 
-    <!-- FOOTER -->
-    <footer class="footer" style="color: white; text-align: center; padding-top: 20px;">
-        <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
-        <p style="margin-top: 10px;">
-        </p>
-        <br />
-    </footer>
+   @include('partials.footer')
 </body>
 </html>

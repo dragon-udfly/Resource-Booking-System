@@ -83,14 +83,6 @@
         .today .day-number { color: #fff; background-color: #007bff; border-radius: 50%; padding: 4px; display: inline-block; width: 25px; height: 25px; line-height: 18px; }
         .other-month { color: #ccc; }
         .booked-date { background-color: #05fd01; }
-        .footer {
-            background-color: #000;
-            height: 10vh;
-            width: 100%;
-            color: white;
-            text-align: center; 
-            padding-top: 20px;
-        }
     </style>
 </head>
 <body>
@@ -133,10 +125,7 @@
         </div>
     </section>
 
-   <footer class="footer" style=" ">
-        <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
-        <br />
-    </footer>
+   @include('partials.footer')
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
