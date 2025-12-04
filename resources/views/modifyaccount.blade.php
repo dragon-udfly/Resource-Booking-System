@@ -1,29 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modify Account - District Secretariat Vavuniya</title>
-    <link href="{{ asset('icons/right_logo.png') }}" rel='icon' type='image/png'>
+@extends('layouts.admin_body_layout')
+
+@section('title', 'Modify Account - District Secretariat Vavuniya')
+
+@section('page_styles')
     <style>
         /* Reusing styles for consistency */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .banner {
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 65vh;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
         .page-header {
             text-align: center;
             margin-bottom: 30px;
@@ -119,10 +100,9 @@
             text-decoration: none;
         }
     </style>
-</head>
-<body>
-    @include('partials.header_nav')
+@endsection
 
+@section('content')
     <section class="banner">
         <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
             <a href="#" onclick="history.back(); return false;" class="btn submit-btn" style="background-color: #6c757d;">Back</a>
@@ -243,9 +223,9 @@
             </form>
         </div>
     </section>
+@endsection
 
-    @include('partials.footer')
-
+@push('scripts')
     <script>
         document.getElementById('modify-user-form').addEventListener('submit', function(event) {
             if (!confirm('Are you sure you want to save these changes?')) {
@@ -272,5 +252,4 @@
             });
         });
     </script>
-</body>
-</html>
+@endpush
