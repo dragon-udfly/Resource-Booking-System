@@ -139,6 +139,7 @@
         <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
         <p style="margin-top: 10px;">
         </p>
+        <br />
     </footer>
 </body>
 </html>

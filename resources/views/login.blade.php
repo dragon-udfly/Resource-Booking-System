@@ -58,13 +58,13 @@
 
         .banner {
             background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            height: 58vh;
+            height: 65vh;
             width: 100%;
         }
 
         .footer {
             background-color: #000;
-            height: 17vh;
+            height: 10vh;
             width: 100%;
         }
 
@@ -108,13 +108,11 @@
     </section>
 
     <!-- Black Footer Section -->
-    <footer class="footer" style="color: white; text-align: center; padding-top: 20px;">
+   <footer class="footer" style="color: white; text-align: center; padding-top: 20px;">
         <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
         <p style="margin-top: 10px;">
-            <a href="/privacy" style="color: white; text-decoration: none; margin: 0 10px;">Privacy and Policy</a>
-            |
-            <a href="/agreement" style="color: white; text-decoration: none; margin: 0 10px;">User Agreement</a>
         </p>
+        <br />
     </footer>
     <script>
         const usernameInput = document.getElementById('username');
