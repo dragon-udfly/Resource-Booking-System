@@ -107,7 +107,7 @@
             @endif
             <li id="nav-halls"><a href="/seehalls">Halls</a></li>
             <li id="nav-quarter"><a href="#">Quarters</a></li>
-            <li id="nav-audit-log"><a href="#">Audit Log</a></li>
+            <li id="nav-audit-log"><a href="/seeauditlog">Audit Log</a></li>
         </ul>
         <ul class="navbar-right">
             <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
