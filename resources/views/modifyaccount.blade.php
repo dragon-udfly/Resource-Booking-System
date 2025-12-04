@@ -57,7 +57,6 @@
         }
         .button-group { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
         .submit-btn { padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; background-color: #007bff; color: white; text-decoration: none; }
-        .footer { background-color: #000; height: 17vh; width: 100%; color: white; text-align: center; padding-top: 20px; }
     </style>
 </head>
 <body>
@@ -213,9 +212,7 @@
         </div>
     </section>
 
-    <footer class="footer">
-        <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
-    </footer>
+    @include('partials.footer')
 
     <script>
         document.getElementById('modify-user-form').addEventListener('submit', function(event) {
