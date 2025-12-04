@@ -70,7 +70,11 @@ class UserController extends Controller
 
     public function seeOfficers()
     {
-        return view('seeofficers');
+        if (Auth::check() && Auth::user()->hasPermissionTo('view_officers')) {
+            $users = User::all(); // Fetch all users, including admins
+            return view('seeofficers', ['users' => $users]);
+        }
+        return redirect()->back()->with('error', 'You do not have permission to view officers.');
     }
 
     public function create()
