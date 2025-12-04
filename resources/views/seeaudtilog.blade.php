@@ -1,39 +1,112 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audit Logs - District Secretariat Vavuniya</title>
+@extends('layouts.user_body_layout')
+
+@section('title', 'Audit Logs - District Secretariat Vavuniya')
+
+@section('page_styles')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* Table styles */
+        table {
+            width: 90%; /* Adjust table width */
+            margin: 20px auto;
+            border-collapse: collapse;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            background-color: #fff;
         }
 
-        body {
-            font-family: Arial, sans-serif;
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: left;
         }
 
-        .banner {
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 65vh; /* Use min-height instead of fixed height */
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: #333;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .page-header h2 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            font-size: 1.1em;
+            color: #555;
+        }
+        /* Generic button styles */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        /* Specific back button styles */
+        .back-button {
+            background-color: #6c757d;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
         }
     </style>
-</head>
-<body>
-     @include('partials.header_nav_user')
+@endsection
 
+@section('content')
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
-        
-    </section>
+        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+            <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
+        </div>
+        <div class="page-header">
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Audit Log Records</h2>
+            <p>Viewing system audit log records.</p>
+        </div>
 
-    @include('partials.footer')
-</body>
-</html>
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Log Title</th>
+                    <th>Performed By</th>
+                    <th>Date Performed</th>
+                    <th>Time Performed</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($auditLogs as $index => $log)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $log->log_title }}</td>
+                        <td>{{ $log->performed_by ?? $log->details }}</td>
+                        <td>{{ $log->date_performed }}</td>
+                        <td>{{ $log->time_performed }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" style="text-align: center;">No audit log records found.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </section>
+@endsection
