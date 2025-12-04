@@ -35,7 +35,7 @@
             ">CRITICAL ERROR: No database connection found.</p>
             
             <p style="font-size: 1em; margin-bottom: 30px;">
-                Please verify your configuration in the <strong>.env</strong> file and ensure the MySQL server is running.
+                Please verify your database configuration and ensure the MySQL server is running.
             </p>
 
             <button onclick="location.reload()" style="
