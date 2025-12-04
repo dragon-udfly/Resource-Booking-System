@@ -81,11 +81,3 @@ Route::get('/bookhall', [HallBookingController::class, 'create'])->name('halls.b
 Route::post('/bookhall', [HallBookingController::class, 'store'])->name('hall_bookings.store');
 
 Route::get('/hallschedule', [HallBookingController::class, 'showSchedule'])->name('halls.schedule');
-
-Route::get('/privacy_notice', function(){
-    return view('privacy_notice');
-});
-
-Route::get('/user_agreement', function(){
-    return view('user_agreement');
-});
