@@ -60,6 +60,7 @@
             background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
             height: 66vh;
             width: 100%;
+            position: relative;
         }
 
         .login-button:hover:not(:disabled) {
@@ -80,7 +81,7 @@
     </header>
 
     <!-- Cyan/Turquoise Banner Section -->
-    <section class="banner" style="position: relative;">
+    <section class="banner">
         <a href="/" style="position: absolute; top: 20px; left: 20px; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Back to Home</a>
         <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
             <div style="background-color: white; padding: 40px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
@@ -89,13 +90,39 @@
                     @csrf
                     <div style="margin-bottom: 20px;">
                         <label for="nic_number" style="display: block; margin-bottom: 5px;">NIC</label>
-                        <input type="text" id="nic_number" name="nic_number" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" required>
+                        <input 
+                            type="text" 
+                            id="nic_number" 
+                            name="nic_number" 
+                            style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" 
+                            required
+                        >
+                        @error('nic_number')
+                            <span style="color: red; font-size: small; display: block; margin-top: 5px;">{{ $message }}</span>
+                        @enderror
                     </div>
                     <div style="margin-bottom: 20px;">
                         <label for="passcode" style="display: block; margin-bottom: 5px;">Passcode</label>
-                        <input type="password" id="passcode" name="passcode" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" required>
+                        <input 
+                            type="password" 
+                            id="passcode" 
+                            name="passcode" 
+                            style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" 
+                            required
+                        >
+                        @error('passcode')
+                            <span style="color: red; font-size: small; display: block; margin-top: 5px;">{{ $message }}</span>
+                        @enderror
                     </div>
-                    <button type="submit" id="loginButton" class="login-button" style="width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Login</button>
+
+                    <button 
+                        type="submit" 
+                        id="loginButton" 
+                        class="login-button" 
+                        style="width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;"
+                    >
+                        Login
+                    </button>
                 </form>
             </div>
         </div>
@@ -104,8 +131,8 @@
    @include('partials.footer')
 
     <script>
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
+        const usernameInput = document.getElementById('nic_number');
+        const passwordInput = document.getElementById('passcode');
         const loginButton = document.getElementById('loginButton');
 
         function validateForm() {
