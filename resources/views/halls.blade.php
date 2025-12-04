@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Halls - District Secretariat Vavuniya</title>
+    <link href='icons/right_logo.png' rel='icon' type='image/png'>
     <style>
         * {
             margin: 0;
@@ -15,94 +16,9 @@
             font-family: Arial, sans-serif;
         }
 
-        .header {
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border-bottom: 3px solid #ddd;
-        }
-
-        .header-main {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-
-        .logo-left {
-            width: 110px;
-            height: 22vh;
-            margin-left: 70px;
-        }
-
-        .header-content {
-            flex: 1;
-            text-align: center;
-            padding: 0 10px;
-        }
-
-        .header-content h1 {
-            font-size: 40px;
-            font-weight: bold;
-            color: #000;
-            padding-bottom: 20px;
-        }
-
-        .header-content h2 {
-            font-size: 25px;
-            font-weight: normal;
-            color: #333;
-        }
-
-        .logo-right {
-            width: 130px;
-            height: 22vh;
-            margin-right: 70px;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 10px 20px;
-            background-color: #e9ecef; /* Light grey background for navbar */
-            border-top: 1px solid #dee2e6;
-        }
-
-        .navbar ul {
-            list-style: none;
-            display: flex;
-            margin: 0;
-            padding: 0;
-        }
-
-        .navbar li {
-            margin-right: 20px;
-        }
-
-        .navbar li:last-child {
-            margin-right: 0;
-        }
-
-        .navbar a {
-            text-decoration: none;
-            color: #007bff;
-            font-weight: bold;
-        }
-
-        .navbar a:hover {
-            color: #0056b3;
-        }
-
-        .navbar-right {
-            margin-left: auto; /* Pushes right items to the right */
-        }
-
         .banner {
             background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 58vh; /* Use min-height instead of fixed height */
+            min-height: 65vh; /* Use min-height instead of fixed height */
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -197,110 +113,101 @@
         .action-btn:nth-of-type(3) { /* Delete button */
             background-color: #dc3545;
         }
-
-        .footer {
-            background-color: #000;
-            height: 17vh;
-            width: 100%;
-        }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-main">
-            <img src="icons/left_logo.png" alt="Sri Lanka government logo" class="logo-left">
-            <div class="header-content">
-                <h1>District Secretariat - Vavuniya</h1>
-                <h2>Hall and Quarters Booking System - Administrator</h2>
-            </div>
-            <img src="icons/right_logo.png" alt="district Secretariat vavuniya logo" class="logo-right">
-        </div>
-        <nav class="navbar">
-            <ul class="navbar-left">
-                <li><a href="/document-history">Document History</a></li>
-                <li><a href="/preference">Preference</a></li>
-            </ul>
-            <ul class="navbar-right">
-                <li>Admin, Thanuharan V.</li>
-                <li><a href="/logout">Log Out</a></li>
-            </ul>
-        </nav>
-    </header>
+    @include('partials.header_nav')
 
-    <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
+        @if(session('success'))
+            <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px; width: 90%; max-width: 900px;">
+                {{ session('success') }}
+            </div>
+        @endif
         <div class="page-header">
-            <h2>Halls List</h2>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Halls List</h2>
             <p>Manage Halls by modifying or deleting entries</p>
         </div>
 
-        <!-- Add Officer Button -->
         <div style="text-align: center; margin-bottom: 20px;">
-            <a href="/admin-create-account.html" class="add-officer-btn">Add Officer</a>
+            <a href="{{ route('halls.create') }}" class="add-officer-btn">Add Hall</a>
         </div>
 
-        <!-- Officer Table -->
-        <table>
+        <table id="hall-details">
             <thead>
                 <tr>
-                    <th>No</th>
-                    <th>Hall ID</th>
-                    <th>Title</th>
-                    <th>Capacity</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th id="item_number">No</th>
+                    <th id="hall_id">Hall ID</th>
+                    <th id="hall_type">Hall Type</th>
+                    <th id="capacity">Capacity</th>
+                    <th id="description">Description</th>
+                    <th id="current_state">Hall Status</th>
+                    <th id="booking_state">Booking Status</th>
+                    <th id="date_created">Date Created</th>
+                    <th id="date_modified">Date Modified</th>
+                    <th id="actions">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>V_DSHC0001</td>
-                    <td>Nadun's Memorial Hall</td>
-                    <td>100</td>
-                    <td>Booked</td>
-                    <td>
-                        <button class="action-btn" onclick=viewHall()>View</button>
-                        <button class="action-btn" onclick="modifyHall()">Modify</button>
-                        <button class="action-btn" onclick="deleteHall()">Delete</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>V_DSHC0004</td>
-                    <td>District Conference Hall</td>
-                    <td>150</td>
-                    <td>Available</td>
-                    <td>
-                        <button class="action-btn" onclick=viewHall()>View</button>
-                        <button class="action-btn" onclick="modifyHall()">Modify</button>
-                        <button class="action-btn" onclick="deleteHall()">Delete</button>
-                    </td>
-                </tr>
+                @if($halls->isEmpty())
+                    <tr>
+                        <td colspan="10" style="text-align: center;">No halls found.</td>
+                    </tr>
+                @else
+                    @foreach($halls as $index => $hall)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $hall->hall_id }}</td>
+                            <td>{{ $hall->hall_type }}</td>
+                            <td>{{ $hall->capacity }}</td>
+                            <td>{{ $hall->description }}</td>
+                            <td>{{ $hall->current_state }}</td>
+                            <td>{{ $hall->booking_state }}</td>
+                            <td>{{ $hall->date_created }}</td>
+                            <td>{{ $hall->date_modified }}</td>
+                            <td>
+                                <button class="action-btn" onclick="modifyHall('{{ $hall->hall_id }}')">Modify</button>
+                                <button class="action-btn" onclick="deleteHall('{{ $hall->hall_id }}')">Delete</button>
+                            </td>
+                        </tr>
+                    @endforeach
+                @endif
             </tbody>
         </table>
     </section>
 
-    <!-- Black Footer Section -->
-    <footer class="footer" style="color: white; text-align: center; padding-top: 20px;">
-        <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
-        <p style="margin-top: 10px;">
-            <a href="/privacy" style="color: white; text-decoration: none; margin: 0 10px;">Privacy and Policy</a>
-            |
-            <a href="/agreement" style="color: white; text-decoration: none; margin: 0 10px;">User Agreement</a>
-        </p>
-    </footer>
+    @include('partials.footer')
 
     <script>
-        function viewHall(){
-            window.location.href= "/viewofficer";
+        function modifyHall(hallId) {
+            window.location.href = '/halls/' + hallId + '/edit';
         }
 
-        function modifyHall() {
-            // add code
-        }
+        function deleteHall(hallId) {
+            if (confirm('Are you sure you want to delete this hall? This action cannot be undone.')) {
+                // Create a new form element
+                let form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/halls/' + hallId; // The route will be /halls/{hall}
 
-        function deleteHall() {
-            // add code
+                // Add CSRF token
+                let csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                form.appendChild(csrfToken);
+
+                // Add method spoofing for DELETE
+                let methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'DELETE';
+                form.appendChild(methodInput);
+
+                // Append form to the body and submit
+                document.body.appendChild(form);
+                form.submit();
+            }
         }
     </script>
 </body>
