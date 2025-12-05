@@ -120,7 +120,15 @@
             color: #ccc;
         }
         .booked-date {
-            background-color: #05fd01;
+            background-color: #22ff05;
+        }
+        .pending-booking {
+            background-color: #433cfe; /* Blue for pending */
+            color: white; /* Improve readability on blue */
+        }
+        .approved-booking {
+            background-color: #22ff05; /* Green for approved */
+            color: white; /* Improve readability on green */
         }
     </style>
 </head>
@@ -158,8 +166,16 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const bookings = @json($bookings->map->event_date);
-            const bookedDates = new Set(bookings);
+            const allBookings = @json($bookings); // Pass full booking objects
+            const bookedDatesStatus = {};
+            allBookings.forEach(booking => {
+                // Store approval status for each event date
+                if (!bookedDatesStatus[booking.event_date]) {
+                    bookedDatesStatus[booking.event_date] = [];
+                }
+                bookedDatesStatus[booking.event_date].push(booking.final_approval);
+            });
+
             const calendarContainer = document.getElementById('calendar');
             const today = new Date();
             const currentYear = today.getFullYear();
@@ -197,9 +213,19 @@
                              cell.classList.add('other-month');
                         } else {
                             const currentDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-                            if (bookedDates.has(currentDate)) {
-                                cell.classList.add('booked-date');
+                            
+                            if (bookedDatesStatus[currentDate]) {
+                                // Check if any booking for this date is approved
+                                const isApproved = bookedDatesStatus[currentDate].includes('approved');
+                                const isPending = bookedDatesStatus[currentDate].includes('pending');
+
+                                if (isApproved) {
+                                    cell.classList.add('approved-booking');
+                                } else if (isPending) {
+                                    cell.classList.add('pending-booking');
+                                }
                             }
+                            
                             const dayNumber = document.createElement('div');
                             dayNumber.className = 'day-number';
                             dayNumber.textContent = date;
