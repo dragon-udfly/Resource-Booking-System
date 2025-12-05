@@ -145,7 +145,7 @@
                 <h2 style="color: rgb(6, 4, 60); font-weight: bold; padding: 10px">Upcoming Events/Programms</h2>
                 @forelse($bookings as $booking)
                     <div class="event-item">
-                        <strong>Programme: {{ $booking->programme }}</strong>
+                        <strong @if($booking->is_emergency_booking) style="background-color: yellow;" @endif>Programme: {{ $booking->programme }}</strong>
                         <p>Applicant: {{ $booking->applicant_name }} ({{ $booking->applicant_type }})</p>
                         <p>Date: {{ $booking->event_date }}</p>
                         <p>Start Time: {{ \Carbon\Carbon::parse($booking->event_time)->format('h:i A') }}</p>
