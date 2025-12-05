@@ -28,6 +28,7 @@ class UserPermission extends Model
         'government_agent_approval',
         'form_history',
         'account_setting',
+        'requester',
     ];
 
     public function user()

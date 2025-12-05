@@ -129,6 +129,7 @@ class UserController extends Controller
             'government_agent_approval' => 0,
             'form_history' => 0,
             'account_setting' => 0,
+            'requester' => 0,
         ];
 
         if ($request->has('permissions')) {
@@ -189,7 +190,7 @@ class UserController extends Controller
             'view_hall_details' => 0, 'view_quarters' => 0, 'view_quarter_details' => 0,
             'view_audit_log' => 0, 'administrative_officer_approval' => 0,
             'additional_government_agent_approval' => 0, 'government_agent_approval' => 0,
-            'form_history' => 0, 'account_setting' => 0,
+            'form_history' => 0, 'account_setting' => 0, 'requester' => 0,
         ];
 
         // Set submitted permissions to 1
