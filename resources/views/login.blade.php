@@ -9,14 +9,36 @@
             transform: translateY(-1px); /* Slight lift effect */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
         }
+
+        /* Generic button styles */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        /* Specific back button styles */
+        .back-button {
+            background-color: #6c757d;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+        }
     </style>
 @endsection
 
 @section('content')
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
-        <a href="/" style="top: 20px; left: 20px; padding: 15px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 5px;">Home</a>
-        <br />
+        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+            <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
+        </div>
         <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
             <div style="background-color: white; padding: 40px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
                 <h1 style="color: rgb(6, 4, 60); text-align: center; margin-bottom: 20px;">Login</h1>
