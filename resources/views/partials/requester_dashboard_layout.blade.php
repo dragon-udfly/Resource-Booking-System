@@ -8,7 +8,7 @@
         <tr>
             <th>Application Type</th>
             <th>Submitted Date</th>
-            <th>Modified Date</th>
+            <th>Event Date</th>
             <th>AO Approval</th>
             <th>AGA Approval</th>
             <th>GA Approval</th>
@@ -20,7 +20,7 @@
             <tr data-booking='{{ json_encode($booking) }}'>
                 <td>Hall Booking</td> {{-- Assuming only Hall Booking for now --}}
                 <td>{{ \Carbon\Carbon::parse($booking->date_created)->format('Y-m-d') }}</td>
-                <td>{{ \Carbon\Carbon::parse($booking->date_modified)->format('Y-m-d') }}</td>
+                <td>{{ \Carbon\Carbon::parse($booking->event_date)->format('Y-m-d') }}</td>
                 <td>{{ ucfirst($booking->administrative_officer_approved) }}</td>
                 <td>{{ ucfirst($booking->additional_government_agent_approved) }}</td>
                 <td>{{ ucfirst($booking->government_agent_approved) }}</td>
