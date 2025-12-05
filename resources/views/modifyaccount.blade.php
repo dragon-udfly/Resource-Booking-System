@@ -214,6 +214,10 @@
                         <input type="checkbox" id="account_setting" name="permissions[]" value="account_setting" @if($user->permissions && $user->permissions->account_setting) checked @endif>
                         <label for="account_setting">Preference</label>
                     </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="requester" name="permissions[]" value="requester" @if($user->permissions && $user->permissions->requester) checked @endif>
+                        <label for="requester">Requester</label>
+                    </div>
                 </div>
 
                 <div class="button-group">
