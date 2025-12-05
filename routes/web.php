@@ -29,7 +29,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
     Route::get('/officers', [UserController::class, 'index'])->name('officers.index');
-    Route::get('/seeofficers', [UserController::class, 'seeOfficers'])->name('seeofficers');
 
     Route::get('/addhall', [HallController::class, 'create'])->name('halls.create');
     Route::post('/addhall', [HallController::class, 'store'])->name('halls.store');
@@ -69,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
     // Hall routes
     Route::get('/halls', [HallController::class, 'index'])->name('halls.index');
     Route::get('/seehalls', [HallController::class, 'seeHalls'])->name('seehalls');
+    Route::get('/seeofficers', [UserController::class, 'seeOfficers'])->name('seeofficers');
 
     Route::get('/dashboard', [UserController::class, 'showDashboard'])->name('dashboard');
     Route::get('/seeauditlog', [UserController::class, 'seeAuditLog'])->name('seeauditlog');
