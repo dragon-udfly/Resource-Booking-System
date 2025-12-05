@@ -140,9 +140,8 @@
                         <strong>Programme: {{ $booking->programme }}</strong>
                         <p>Applicant: {{ $booking->applicant_name }} ({{ $booking->applicant_type }})</p>
                         <p>Date: {{ $booking->event_date }}</p>
-                        <p>Hall: {{ $booking->hall->hall_type ?? 'N/A' }}</p>
-                        <p>Participants: {{ $booking->participants }}</p>
-                        <p>Duration: {{ $booking->event_duration }} hours</p>
+                        <p>Start Time: {{ \Carbon\Carbon::parse($booking->event_time)->format('h:i A') }}</p>
+                        <p>End Time: {{ \Carbon\Carbon::parse($booking->event_date . ' ' . $booking->event_time)->addHours($booking->event_duration)->format('h:i A') }}</p>
                         <p style="color: {{ $booking->final_approval == 'approved' ? 'green' : ($booking->final_approval == 'pending' ? 'blue' : 'red') }}; font-weight: bold;">Status: {{ ucfirst($booking->final_approval) }}</p>
                     </div>
                 @empty
