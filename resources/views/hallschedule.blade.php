@@ -127,7 +127,7 @@
             color: white; /* Improve readability on blue */
         }
         .approved-booking {
-            background-color: #22ff05; /* Green for approved */
+            background-color: #29b406; /* Green for approved */
             color: white; /* Improve readability on green */
         }
     </style>
@@ -138,7 +138,7 @@
     <section class="banner">
         <div class="left-content-area">
             <div class="button-bar">
-                <a href="/" style="background-color: #6c757d;" class="btn">Back to Home</a>
+                <a href="/" style="background-color: #6c757d;" class="btn">Home</a>
                 <a href="{{ route('halls.book') }}" class="btn" style="background-color: #007bff;">New Event</a>
             </div>
             <div class="event-list-container">
