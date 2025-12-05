@@ -253,6 +253,10 @@
                         <input type="checkbox" id="account_setting" name="permissions[]" value="account_setting">
                         <label for="account_setting">Preference</label>
                     </div>
+                    <div id="permission9" class="form-group checkbox-group">
+                        <input type="checkbox" id="requester" name="permissions[]" value="requester">
+                        <label for="requester">Requester</label>
+                    </div>
                 </div>
 
                 <div class="button-group">
