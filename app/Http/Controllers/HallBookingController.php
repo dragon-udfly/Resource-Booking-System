@@ -74,7 +74,7 @@ class HallBookingController extends Controller
 
         $hall = Hall::find($request->hall_id);
 
-        $booking = HallBooking::create([
+        $bookingData = [
             'booking_id' => $newBookingId,
             'applicant_name' => $request->applicant_name,
             'applicant_type' => $request->applicant_type,
@@ -91,7 +91,16 @@ class HallBookingController extends Controller
             'filled_by_phone' => $request->filled_by_phone,
             'date_created' => Carbon::now(),
             'date_modified' => Carbon::now(),
-        ]);
+        ];
+
+        if ($request->is_emergency_booking) {
+            $bookingData['final_approval'] = 'approved';
+            $bookingData['administrative_officer_approved'] = 'approved';
+            $bookingData['additional_government_agent_approved'] = 'approved';
+            $bookingData['government_agent_approved'] = 'approved';
+        }
+
+        $booking = HallBooking::create($bookingData);
 
         AuditLog::create([
             'log_title' => 'New hall booking created ' . $newBookingId,

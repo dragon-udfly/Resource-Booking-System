@@ -105,6 +105,12 @@
         .action-btn.reject:hover {
             background-color: #c82333;
         }
+        .action-btn.review-btn {
+            background-color: #007bff;
+        }
+        .action-btn.review-btn:hover {
+            background-color: #0056b3;
+        }
     </style>
 
     {{-- Slot for page-specific styles --}}

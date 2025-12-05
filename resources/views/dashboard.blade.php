@@ -19,6 +19,7 @@
                     <tr>
                         <th>Applicant Name</th>
                         <th>Application Type</th>
+                        <th>Submitted Date</th>
                         <th>AO Approval</th>
                         <th>AGA Approval</th>
                         <th>GA Approval</th>
@@ -27,20 +28,20 @@
                 </thead>
                 <tbody>
                     @forelse ($bookings as $booking)
-                        <tr>
+                        <tr @if($booking->is_emergency_booking) style="background-color: yellow;" @endif>
                             <td>{{ $booking->applicant_name }}</td>
                             <td>Hall Booking</td>
+                            <td>{{ \Carbon\Carbon::parse($booking->date_created)->format('Y-m-d') }}</td>
                             <td>{{ ucfirst($booking->administrative_officer_approved) }}</td>
                             <td>{{ ucfirst($booking->additional_government_agent_approved) }}</td>
                             <td>{{ ucfirst($booking->government_agent_approved) }}</td>
                             <td>
-                                <button class="action-btn approve">Approve</button>
-                                <button class="action-btn reject">Reject</button>
+                                <button class="action-btn review-btn" data-booking-id="{{ $booking->booking_id }}">Review</button>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 12px 15px;">No pending bookings found.</td>
+                            <td colspan="7" style="text-align: center; padding: 12px 15px;">No pending bookings found.</td>
                         </tr>
                     @endforelse
                 </tbody>
