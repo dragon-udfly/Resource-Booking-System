@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Gate;
 
 class HallBookingController extends Controller
 {
@@ -138,5 +139,97 @@ class HallBookingController extends Controller
         }
 
         return response()->json(['success' => true, 'message' => 'Requester verified successfully.']);
+    }
+
+    public function updateBooking(Request $request, HallBooking $hallBooking)
+    {
+        // Authorization: Ensure the authenticated user is the requester of this booking
+        if (Auth::user()->nic_number !== $hallBooking->filled_by_nic) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
+        }
+
+        // Check if any approval is not 'pending'
+        if ($hallBooking->administrative_officer_approved !== 'pending' ||
+            $hallBooking->additional_government_agent_approved !== 'pending' ||
+            $hallBooking->government_agent_approved !== 'pending') {
+            return response()->json(['success' => false, 'message' => 'Booking cannot be modified after approval status has changed.'], 403);
+        }
+
+        // Validation
+        $validator = Validator::make($request->all(), [
+            'applicant_name' => 'required|string|max:200',
+            'applicant_type' => 'required|string',
+            'programme' => 'required|string|max:200',
+            'event_date' => 'required|date',
+            'participants' => 'required|integer',
+            'event_duration' => 'required|numeric',
+            'paid_status' => 'required|string',
+            'is_emergency_booking' => 'required|boolean',
+            'hall_id' => [
+                'required',
+                'string',
+                Rule::exists('hall', 'hall_id'),
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
+        }
+
+        // Update booking details
+        $hallBooking->update([
+            'applicant_name' => $request->applicant_name,
+            'applicant_type' => $request->applicant_type,
+            'programme' => $request->programme,
+            'event_date' => $request->event_date,
+            'participants' => $request->participants,
+            'event_duration' => $request->event_duration,
+            'paid_status' => $request->paid_status,
+            'is_emergency_booking' => $request->is_emergency_booking,
+            'hall_id' => $request->hall_id,
+            'date_modified' => Carbon::now(),
+            // Reset approvals to pending after modification
+            'administrative_officer_approved' => 'pending',
+            'additional_government_agent_approved' => 'pending',
+            'government_agent_approved' => 'pending',
+        ]);
+
+        // Audit Log
+        AuditLog::create([
+            'log_title' => 'Hall booking ' . $hallBooking->booking_id . ' modified by requester',
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Booking updated successfully. Approvals reset to pending.']);
+    }
+
+    public function destroyBooking(HallBooking $hallBooking)
+    {
+        // Authorization: Ensure the authenticated user is the requester of this booking
+        if (Auth::user()->nic_number !== $hallBooking->filled_by_nic) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
+        }
+
+        // Check if any approval is not 'pending'
+        if ($hallBooking->administrative_officer_approved !== 'pending' ||
+            $hallBooking->additional_government_agent_approved !== 'pending' ||
+            $hallBooking->government_agent_approved !== 'pending') {
+            return response()->json(['success' => false, 'message' => 'Booking cannot be cancelled after approval status has changed.'], 403);
+        }
+
+        $bookingId = $hallBooking->booking_id;
+        $hallBooking->delete();
+
+        // Audit Log
+        AuditLog::create([
+            'log_title' => 'Hall booking ' . $bookingId . ' cancelled by requester',
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Booking cancelled successfully.']);
     }
 }

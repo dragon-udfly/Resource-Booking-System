@@ -72,6 +72,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', [UserController::class, 'showDashboard'])->name('dashboard');
     Route::get('/seeauditlog', [UserController::class, 'seeAuditLog'])->name('seeauditlog');
+
+    // Requester Booking Management Routes
+    Route::patch('/hall-bookings/{hallBooking}', [HallBookingController::class, 'updateBooking'])->name('hall_bookings.update_by_requester');
+    Route::delete('/hall-bookings/{hallBooking}', [HallBookingController::class, 'destroyBooking'])->name('hall_bookings.destroy_by_requester');
 });
 
 Route::post('/verify-requester', [HallBookingController::class, 'verifyRequester'])->name('requester.verify');
@@ -86,5 +90,7 @@ Route::get('/quarterdashboard', function(){
 
 Route::get('/bookhall', [HallBookingController::class, 'create'])->name('halls.book');
 Route::post('/bookhall', [HallBookingController::class, 'store'])->name('hall_bookings.store');
+
+Route::get('/api/halls/available', [HallController::class, 'getAvailableHalls'])->name('halls.available');
 
 Route::get('/hallschedule', [HallBookingController::class, 'showSchedule'])->name('halls.schedule');

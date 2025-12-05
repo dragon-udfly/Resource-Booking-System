@@ -156,4 +156,15 @@ class HallController extends Controller
 
         return redirect()->route('halls.index')->with('success', 'Hall deleted successfully!');
     }
+
+    /**
+     * Get a list of available halls.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAvailableHalls()
+    {
+        $halls = Hall::where('current_state', 'available')->get(['hall_id', 'hall_type', 'capacity']);
+        return response()->json($halls);
+    }
 }
