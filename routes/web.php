@@ -74,6 +74,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/seeauditlog', [UserController::class, 'seeAuditLog'])->name('seeauditlog');
 });
 
+Route::post('/verify-requester', [HallBookingController::class, 'verifyRequester'])->name('requester.verify');
+
 Route::get('/halldashboard', function(){
     return view('halldashboard');
 });
