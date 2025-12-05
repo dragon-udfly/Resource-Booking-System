@@ -233,11 +233,11 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="filled_by_nic">Filling Officer's NIC <span class="required">*</span></label>
+                        <label for="filled_by_nic">Requester Officer's NIC <span class="required">*</span></label>
                         <input type="text" id="filled_by_nic" name="filled_by_nic" value="{{ old('filled_by_nic') }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="filled_by_phone">Filling Officer's Phone <span class="required">*</span></label>
+                        <label for="filled_by_phone">Requester Officer's Phone <span class="required">*</span></label>
                         <input type="tel" id="filled_by_phone" name="filled_by_phone" value="{{ old('filled_by_phone') }}" required>
                     </div>
                 </div>
@@ -254,12 +254,94 @@
     </section>
 
     @include('partials.footer')
+    @include('partials.requester_layout')
 
     <script>
-        document.getElementById('booking-form').addEventListener('submit', function(event) {
-            if (!confirm('Are you sure you want to submit this booking request?')) {
-                event.preventDefault();
+        document.addEventListener('DOMContentLoaded', function() {
+            const bookingForm = document.getElementById('booking-form');
+            const requesterOverlay = document.getElementById('requester-overlay');
+            const requesterMessage = document.getElementById('requester-message');
+            const requesterConfirmBtn = document.getElementById('requester-confirm-btn');
+            const requesterCancelBtn = document.getElementById('requester-cancel-btn');
+
+            let isAwaitingConfirmation = false; // Flag to track if overlay is for confirmation
+
+            function showOverlay(message, isConfirmation = false) {
+                requesterMessage.textContent = message;
+                requesterOverlay.style.display = 'flex';
+                isAwaitingConfirmation = isConfirmation;
+
+                if (isConfirmation) {
+                    requesterConfirmBtn.textContent = 'Submit';
+                    requesterConfirmBtn.style.display = 'inline-block';
+                    requesterCancelBtn.style.display = 'inline-block';
+                } else {
+                    requesterConfirmBtn.textContent = 'OK';
+                    requesterConfirmBtn.style.display = 'inline-block';
+                    requesterCancelBtn.style.display = 'none';
+                }
             }
+
+            function hideOverlay() {
+                requesterOverlay.style.display = 'none';
+                requesterMessage.textContent = '';
+                isAwaitingConfirmation = false; // Reset flag
+            }
+
+            // Event listener for the Confirm/OK button
+            requesterConfirmBtn.addEventListener('click', function() {
+                if (isAwaitingConfirmation) {
+                    bookingForm.submit(); // Submit the form if it was a confirmation
+                } else {
+                    hideOverlay(); // Just close for simple messages
+                }
+            });
+
+            // Event listener for the Cancel button
+            requesterCancelBtn.addEventListener('click', hideOverlay);
+            
+            // Optionally, close overlay when clicking outside the message box (but not on the content itself)
+            requesterOverlay.addEventListener('click', function(event) {
+                if (event.target === requesterOverlay) {
+                    hideOverlay();
+                }
+            });
+
+            bookingForm.addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                const form = event.target;
+                const nicNumber = form.querySelector('#filled_by_nic').value;
+                const contactNumber = form.querySelector('#filled_by_phone').value;
+                const csrfToken = form.querySelector('input[name="_token"]').value;
+
+                // Perform AJAX verification
+                fetch('{{ route('requester.verify') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        nic_number: nicNumber,
+                        contact_number: contactNumber
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // If verification is successful, show confirmation overlay
+                        showOverlay('Requester verified. Are you sure you want to submit this booking request?', true);
+                    } else {
+                        // Show error message in the overlay
+                        showOverlay(data.message, false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showOverlay('An error occurred during verification. Please try again.', false);
+                });
+            });
         });
     </script>
 </body>
