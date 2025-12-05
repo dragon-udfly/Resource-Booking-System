@@ -196,11 +196,18 @@
                         <label for="programme">Programme/Event <span class="required">*</span></label>
                         <input type="text" id="programme" name="programme" value="{{ old('programme') }}" required>
                     </div>
-                    <div class="form-group">
+                </div>
+
+                <div class="form-row">
+                     <div class="form-group">
                         <label for="event_date">Event Date <span class="required">*</span></label>
                         <input type="date" id="event_date" name="event_date" value="{{ old('event_date') }}" required>
                     </div>
-                </div>
+                    <div class="form-group">
+                        <label for="event_time">Event Time <span class="required">*</span></label>
+                        <input type="time" id="event_time" name="event_time" value="{{ old('event_time') }}" required>
+                    </div>
+                </div> 
 
                 <div class="form-row">
                     <div class="form-group">

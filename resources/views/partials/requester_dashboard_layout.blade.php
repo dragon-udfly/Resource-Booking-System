@@ -245,6 +245,10 @@
                         <label for="event_date">Event Date</label>
                         <input type="date" id="event_date" name="event_date" value="${booking.event_date}" required>
                     </div>
+                     <div class="form-group">
+                        <label for="event_time">Event Time</label>
+                        <input type="time" id="event_time" name="event_time" value="${booking.event_time}" required>
+                    </div>
                     <div class="form-group">
                         <label for="participants">Number of Participants</label>
                         <input type="number" id="participants" name="participants" value="${booking.participants}" required>
