@@ -100,14 +100,22 @@
     </div>
     <nav class="navbar">
         <ul class="navbar-left">
-           <li id="nav-preference"><a href="{{ route('preference') }}">Preference</a></li>
+           @if(Auth::user()->hasPermissionTo('account_setting'))
+                <li id="nav-preference"><a href="{{ route('preference') }}">Preference</a></li>
+           @endif
            <li id="nav-dashboard"><a href="/dashboard">Dashboard</a></li>
             @if(Auth::user()->hasPermissionTo('view_officers'))
                 <li id="nav-officers"><a href="{{ route('seeofficers') }}">Officers</a></li>
             @endif
-            <li id="nav-halls"><a href="/seehalls">Halls</a></li>
-            <li id="nav-quarter"><a href="#">Quarters</a></li>
-            <li id="nav-audit-log"><a href="/seeauditlog">Audit Log</a></li>
+            @if(Auth::user()->hasPermissionTo('view_halls'))
+                <li id="nav-halls"><a href="/seehalls">Halls</a></li>
+            @endif
+            @if(Auth::user()->hasPermissionTo('view_quarters'))
+                <li id="nav-quarter"><a href="#">Quarters</a></li>
+            @endif
+            @if(Auth::user()->hasPermissionTo('view_audit_log'))
+                <li id="nav-audit-log"><a href="/seeauditlog">Audit Log</a></li>
+            @endif
         </ul>
         <ul class="navbar-right">
             <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
