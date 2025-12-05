@@ -6,10 +6,12 @@ use Illuminate\Http\Request;
 use App\Models\Hall;
 use App\Models\HallBooking;
 use App\Models\AuditLog;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
 
 class HallBookingController extends Controller
 {
@@ -110,5 +112,31 @@ class HallBookingController extends Controller
             $query->where('current_state', 'available');
         })->with('hall')->get();
         return view('hallschedule', ['bookings' => $bookings]);
+    }
+
+    public function verifyRequester(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nic_number' => 'required|string|max:50',
+            'contact_number' => 'required|string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()->first()]);
+        }
+
+        $user = User::where('nic_number', $request->nic_number)
+                               ->where('contact_number', $request->contact_number)
+                               ->first();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Invalid NIC or Contact Number.']);
+        }
+
+        if (!$user->hasPermissionTo('requester')) {
+            return response()->json(['success' => false, 'message' => 'You do not have permission to make this request.']);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Requester verified successfully.']);
     }
 }
