@@ -85,7 +85,6 @@
         <table id="approval-details">
             <thead>
                 <tr>
-                    <th>Booking ID</th>
                     <th>Applicant Name</th>
                     <th>Application Type</th>
                     <th>AO Approval</th>
@@ -97,7 +96,6 @@
             <tbody>
                 @forelse ($bookings as $booking)
                     <tr>
-                        <td>{{ $booking->booking_id }}</td>
                         <td>{{ $booking->applicant_name }}</td>
                         <td>Hall Booking</td>
                         <td>{{ ucfirst($booking->administrative_officer_approved) }}</td>
@@ -110,7 +108,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 12px 15px;">No pending bookings found.</td>
+                        <td colspan="6" style="text-align: center; padding: 12px 15px;">No pending bookings found.</td>
                     </tr>
                 @endforelse
             </tbody>
