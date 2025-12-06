@@ -93,4 +93,6 @@ Route::post('/bookhall', [HallBookingController::class, 'store'])->name('hall_bo
 
 Route::get('/api/halls/available', [HallController::class, 'getAvailableHalls'])->name('halls.available');
 
+Route::get('/hall-overview', [HallController::class, 'showOverview'])->name('halls.overview');
+
 Route::get('/hallschedule', [HallBookingController::class, 'showSchedule'])->name('halls.schedule');
