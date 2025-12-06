@@ -47,7 +47,7 @@
             
             <!-- Book Hall Button -->
             <a href="{{ route('halls.schedule') }}" class="action-button" style="margin-left: 10px;">Book Hall</a>
-            
+
             <!-- Book Quarter Button -->
             <a href="/book-quarter" class="action-button" style="margin-left: 10px;">Book Quarter</a>
         </div>
