@@ -24,6 +24,7 @@ class HallBooking extends Model
         'hall_id',
         'programme',
         'event_date',
+        'event_time',
         'participants',
         'event_duration',
         'paid_status',

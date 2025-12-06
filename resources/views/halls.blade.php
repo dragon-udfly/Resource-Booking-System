@@ -1,31 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Halls - District Secretariat Vavuniya</title>
-    <link href='icons/right_logo.png' rel='icon' type='image/png'>
+@extends('layouts.admin_body_layout')
+
+@section('title', 'Halls - District Secretariat Vavuniya')
+
+@section('page_styles')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        .banner {
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 65vh; /* Use min-height instead of fixed height */
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
         .page-header {
             text-align: center;
             margin-bottom: 30px;
@@ -113,17 +91,40 @@
         .action-btn:nth-of-type(3) { /* Delete button */
             background-color: #dc3545;
         }
-    </style>
-</head>
-<body>
-    @include('partials.header_nav')
 
+        /* Generic button styles */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        /* Specific back button styles */
+        .back-button {
+            background-color: #6c757d;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+        }
+    </style>
+@endsection
+
+@section('content')
     <section class="banner">
         @if(session('success'))
             <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px; width: 90%; max-width: 900px;">
                 {{ session('success') }}
             </div>
         @endif
+         <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+            <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
+        </div>
         <div class="page-header">
             <h2 style="color: rgb(6, 4, 60); font-weight: bold">Halls List</h2>
             <p>Manage Halls by modifying or deleting entries</p>
@@ -163,8 +164,8 @@
                             <td>{{ $hall->description }}</td>
                             <td>{{ $hall->current_state }}</td>
                             <td>{{ $hall->booking_state }}</td>
-                            <td>{{ $hall->date_created }}</td>
-                            <td>{{ $hall->date_modified }}</td>
+                            <td>{{ \Carbon\Carbon::parse($hall->date_created)->format('Y-m-d h:i A') }}</td>
+                            <td>{{ $hall->date_modified ? \Carbon\Carbon::parse($hall->date_modified)->format('Y-m-d h:i A') : 'N/A' }}</td>
                             <td>
                                 <button class="action-btn" onclick="modifyHall('{{ $hall->hall_id }}')">Modify</button>
                                 <button class="action-btn" onclick="deleteHall('{{ $hall->hall_id }}')">Delete</button>
@@ -175,9 +176,9 @@
             </tbody>
         </table>
     </section>
+@endsection
 
-    @include('partials.footer')
-
+@push('scripts')
     <script>
         function modifyHall(hallId) {
             window.location.href = '/halls/' + hallId + '/edit';
@@ -210,5 +211,4 @@
             }
         }
     </script>
-</body>
-</html>
+@endpush

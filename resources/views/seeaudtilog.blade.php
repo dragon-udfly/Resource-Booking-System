@@ -1,6 +1,6 @@
 @extends('layouts.user_body_layout')
 
-@section('title', 'Officers - District Secretariat Vavuniya')
+@section('title', 'Audit Logs - District Secretariat Vavuniya')
 
 @section('page_styles')
     <style>
@@ -78,32 +78,32 @@
             <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
         </div>
         <div class="page-header">
-            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Officers List</h2>
-            <p>Details of all officers in the system.</p>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Audit Log Records</h2>
+            <p>Viewing system audit log records.</p>
         </div>
 
         <table>
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Name</th>
-                    <th>Designation</th>
-                    <th>Email</th>
-                    <th>Contact Number</th>
+                    <th>Log Title</th>
+                    <th>Performed By</th>
+                    <th>Date Performed</th>
+                    <th>Time Performed</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse ($users as $index => $user)
+                @forelse ($auditLogs as $index => $log)
                     <tr>
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ $user->first_name }} {{ $user->last_name }}</td>
-                        <td>{{ $user->designation }}</td>
-                        <td>{{ $user->email }}</td>
-                        <td>{{ $user->contact_number }}</td>
+                        <td>{{ $log->log_title }}</td>
+                        <td>{{ $log->performed_by ?? $log->details }}</td>
+                        <td>{{ $log->date_performed }}</td>
+                        <td>{{ $log->time_performed }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="text-align: center;">No officers found.</td>
+                        <td colspan="5" style="text-align: center;">No audit log records found.</td>
                     </tr>
                 @endforelse
             </tbody>

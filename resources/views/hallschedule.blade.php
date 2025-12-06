@@ -6,23 +6,23 @@
     <title>Hall Schedule - District Secretariat - Vavuniya</title>
     <link href='{{ asset('icons/right_logo.png') }}' rel='icon' type='image/png'>
     <style>
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        body { 
-            font-family: Arial, sans-serif; 
+        body {
+            font-family: Arial, sans-serif;
         }
-        .banner { 
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%); 
-            min-height: 58vh; 
-            width: 100%; 
-            display: flex; 
-            flex-direction: row; 
-            align-items: flex-start; 
-            padding: 20px; 
-            gap: 20px; 
+        .banner {
+            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
+            min-height: 65vh;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            padding: 20px;
+            gap: 20px;
         }
         /* Styles for hall schedule page */
         .left-content-area {
@@ -60,10 +60,17 @@
             padding-bottom: 10px;
             margin-bottom: 10px;
         }
-        .event-item:last-child { border-bottom: none; }
-        .event-item strong { color: #0056b3; }
-        .event-item p { font-size: 0.9em; color: #555; }
-
+        .event-item:last-child {
+            border-bottom: none;
+        }
+        .event-item strong {
+            color: #0056b3;
+        }
+        .event-item p {
+            font-size: 0.9em;
+            color: #555;
+            padding: 2px;
+        }
         .calendar-section {
             width: 70%;
             background: #fff;
@@ -72,9 +79,18 @@
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
             overflow-y: auto;
         }
-        .calendar-month { margin-bottom: 20px; }
-        .calendar-month h3 { text-align: center; font-size: 1.5em; margin-bottom: 10px; }
-        .calendar-grid { width: 100%; border-collapse: collapse; }
+        .calendar-month {
+            margin-bottom: 20px;
+        }
+        .calendar-month h3 {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .calendar-grid {
+            width: 100%;
+            border-collapse: collapse;
+        }
         .calendar-grid th, .calendar-grid td {
             border: 1px solid #ddd;
             text-align: center;
@@ -83,11 +99,43 @@
             vertical-align: top;
             font-size: 0.8em;
         }
-        .calendar-grid th { background-color: #f2f2f2; font-weight: bold; }
-        .day-number { font-weight: bold; font-size: 1em; }
-        .today .day-number { color: #fff; background-color: #007bff; border-radius: 50%; padding: 4px; display: inline-block; width: 25px; height: 25px; line-height: 18px; }
-        .other-month { color: #ccc; }
-        .booked-date { background-color: #05fd01; }
+        .calendar-grid th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .day-number {
+            font-weight: bold;
+            font-size: 1em;
+        }
+        .today .day-number {
+            color: #fff;
+            background-color: #007bff;
+            border-radius: 50%;
+            padding: 4px;
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            line-height: 18px;
+        }
+        .other-month {
+            color: #ccc;
+        }
+        .booked-date {
+            background-color: #22ff05;
+        }
+        .pending-booking {
+            background-color: #433cfe; /* Blue for pending */
+            color: white; /* Improve readability on blue */
+        }
+        .approved-booking {
+            background-color: #29b406; /* Green for approved */
+            color: white; /* Improve readability on green */
+        }
+        .today-event {
+            background-color: #fffacd; /* Light yellow background for today's events */
+            border-left: 5px solid #ff0000; /* A contrasting border */
+            padding-left: 15px; /* Adjust padding due to border */
+        }
     </style>
 </head>
 <body>
@@ -96,19 +144,24 @@
     <section class="banner">
         <div class="left-content-area">
             <div class="button-bar">
-                <a href="/" style="background-color: #6c757d;" class="btn">Back to Home</a>
-                <a href="{{ route('halls.book') }}" class="btn" style="background-color: #007bff;">New Event</a>
+                <a href="/" style="background-color: #6c757d;" class="btn">Home</a>
+                <a href="{{ route('halls.overview') }}" style="background-color: #097e61;" class="btn">Halls</a>
+                <a href="{{ route('halls.book') }}" class="btn" style="background-color: #007bff;">Book Hall</a>
             </div>
             <div class="event-list-container">
                 <h2 style="color: rgb(6, 4, 60); font-weight: bold; padding: 10px">Upcoming Events/Programms</h2>
+                <br />
+                @php
+                    $todayDate = \Carbon\Carbon::today()->toDateString();
+                @endphp
                 @forelse($bookings as $booking)
-                    <div class="event-item">
-                        <strong>Programme: {{ $booking->programme }}</strong>
-                        <p>Applicant: {{ $booking->applicant_name }} ({{ $booking->applicant_type }})</p>
-                        <p>Date: {{ $booking->event_date }}</p>
-                        <p>Hall: {{ $booking->hall->hall_type ?? 'N/A' }}</p>
-                        <p>Participants: {{ $booking->participants }}</p>
-                        <p>Duration: {{ $booking->event_duration }} hours</p>
+                    <div class="event-item @if($booking->event_date == $todayDate) today-event @endif">
+                        <strong @if($booking->is_emergency_booking) style="color:#a19909;" @endif>Programme: {{ $booking->programme }} @if($booking->is_emergency_booking)(Emergency Booking)@endif</strong>
+                        <p>Hall Type: {{ $booking->hall->hall_type }}</p>
+                        <p>Applicant: {{ $booking->applicant_type }}</p>
+                        <p style="font-weight: bold; color: rgb(66, 63, 63)">Date: {{ $booking->event_date }}</p>
+                        <p>Start Time: {{ \Carbon\Carbon::parse($booking->event_time)->format('h:i A') }}</p>
+                        <p>End Time: {{ \Carbon\Carbon::parse($booking->event_date . ' ' . $booking->event_time)->addHours($booking->event_duration)->format('h:i A') }}</p>
                         <p style="color: {{ $booking->final_approval == 'approved' ? 'green' : ($booking->final_approval == 'pending' ? 'blue' : 'red') }}; font-weight: bold;">Status: {{ ucfirst($booking->final_approval) }}</p>
                     </div>
                 @empty
@@ -125,8 +178,16 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const bookings = @json($bookings->map->event_date);
-            const bookedDates = new Set(bookings);
+            const allBookings = @json($bookings); // Pass full booking objects
+            const bookedDatesStatus = {};
+            allBookings.forEach(booking => {
+                // Store approval status for each event date
+                if (!bookedDatesStatus[booking.event_date]) {
+                    bookedDatesStatus[booking.event_date] = [];
+                }
+                bookedDatesStatus[booking.event_date].push(booking.final_approval);
+            });
+
             const calendarContainer = document.getElementById('calendar');
             const today = new Date();
             const currentYear = today.getFullYear();
@@ -164,9 +225,19 @@
                              cell.classList.add('other-month');
                         } else {
                             const currentDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-                            if (bookedDates.has(currentDate)) {
-                                cell.classList.add('booked-date');
+                            
+                            if (bookedDatesStatus[currentDate]) {
+                                // Check if any booking for this date is approved
+                                const isApproved = bookedDatesStatus[currentDate].includes('approved');
+                                const isPending = bookedDatesStatus[currentDate].includes('pending');
+
+                                if (isApproved) {
+                                    cell.classList.add('approved-booking');
+                                } else if (isPending) {
+                                    cell.classList.add('pending-booking');
+                                }
                             }
+                            
                             const dayNumber = document.createElement('div');
                             dayNumber.className = 'day-number';
                             dayNumber.textContent = date;

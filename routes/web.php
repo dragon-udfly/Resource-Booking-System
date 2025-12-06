@@ -29,7 +29,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
     Route::get('/officers', [UserController::class, 'index'])->name('officers.index');
-    Route::get('/seeofficers', [UserController::class, 'seeOfficers'])->name('seeofficers');
 
     Route::get('/addhall', [HallController::class, 'create'])->name('halls.create');
     Route::post('/addhall', [HallController::class, 'store'])->name('halls.store');
@@ -49,10 +48,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
         return view('modifyquarter');
     });
 
-    Route::get('/modifyhall', function(){
-        return view('modifyhall');
-    });
-
+        Route::get('/modifyhall', function(){
+            return view('modifyhall');
+        });
+    
+        Route::get('/systemsetting', function(){
+            return view('systemsetting');
+        })->name('systemsetting');
     Route::get('/auditlog', [UserController::class, 'showAuditLog'])->name('auditlog');
     Route::delete('/auditlog/clear', [UserController::class, 'clearAuditLog'])->name('auditlog.clear');
 });
@@ -65,9 +67,18 @@ Route::middleware(['auth'])->group(function () {
 
     // Hall routes
     Route::get('/halls', [HallController::class, 'index'])->name('halls.index');
+    Route::get('/seehalls', [HallController::class, 'seeHalls'])->name('seehalls');
+    Route::get('/seeofficers', [UserController::class, 'seeOfficers'])->name('seeofficers');
 
     Route::get('/dashboard', [UserController::class, 'showDashboard'])->name('dashboard');
+    Route::get('/seeauditlog', [UserController::class, 'seeAuditLog'])->name('seeauditlog');
+
+    // Requester Booking Management Routes
+    Route::patch('/hall-bookings/{hallBooking}', [HallBookingController::class, 'updateBooking'])->name('hall_bookings.update_by_requester');
+    Route::delete('/hall-bookings/{hallBooking}', [HallBookingController::class, 'destroyBooking'])->name('hall_bookings.destroy_by_requester');
 });
+
+Route::post('/verify-requester', [HallBookingController::class, 'verifyRequester'])->name('requester.verify');
 
 Route::get('/halldashboard', function(){
     return view('halldashboard');
@@ -79,5 +90,9 @@ Route::get('/quarterdashboard', function(){
 
 Route::get('/bookhall', [HallBookingController::class, 'create'])->name('halls.book');
 Route::post('/bookhall', [HallBookingController::class, 'store'])->name('hall_bookings.store');
+
+Route::get('/api/halls/available', [HallController::class, 'getAvailableHalls'])->name('halls.available');
+
+Route::get('/hall-overview', [HallController::class, 'showOverview'])->name('halls.overview');
 
 Route::get('/hallschedule', [HallBookingController::class, 'showSchedule'])->name('halls.schedule');

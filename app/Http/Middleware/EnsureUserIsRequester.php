@@ -4,10 +4,11 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckDatabaseConnection
+use Illuminate\Support\Facades\Auth;
+
+class EnsureUserIsRequester
 {
     /**
      * Handle an incoming request.
@@ -16,12 +17,10 @@ class CheckDatabaseConnection
      */
     public function handle(Request $request, Closure $next): Response
     {
-        try {
-            DB::connection()->getPdo();
-        } catch (\Exception $e) {
-            return response()->view('errors.db_error', [], 503);
+        if (Auth::check() && Auth::user()->hasPermissionTo('requester')) {
+            return $next($request);
         }
 
-        return $next($request);
+        return redirect()->route('dashboard')->with('error', 'You do not have permission to access this page.');
     }
 }

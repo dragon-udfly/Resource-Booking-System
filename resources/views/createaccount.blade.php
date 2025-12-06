@@ -1,31 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account - District Secretariat Vavuniya</title>
-    <link href='icons/right_logo.png' rel='icon' type='image/png'>
+@extends('layouts.admin_body_layout')
+
+@section('title', 'Create Account - District Secretariat Vavuniya')
+
+@section('page_styles')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        .banner {
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 58vh; /* Use min-height instead of fixed height */
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
         .page-header {
             text-align: center;
             margin-bottom: 30px;
@@ -161,12 +139,13 @@
             transform: translateY(-1px);
         }
     </style>
-</head>
-<body>
-    @include('partials.header_nav')
+@endsection
 
-    <!-- Cyan/Turquoise Banner Section -->
+@section('content')
     <section class="banner">
+         <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+            <a href="#" onclick="history.back(); return false;" class="submit-btn" style="background-color: #6c757d; text-decoration: none">Back</a>
+        </div>
         <div class="page-header">
             <h2 style="color: rgb(6, 4, 60); font-weight: bold">Create New Account</h2>
             <p>Fill in the details below to create a new user account</p>
@@ -274,6 +253,10 @@
                         <input type="checkbox" id="account_setting" name="permissions[]" value="account_setting">
                         <label for="account_setting">Preference</label>
                     </div>
+                    <div id="permission9" class="form-group checkbox-group">
+                        <input type="checkbox" id="requester" name="permissions[]" value="requester">
+                        <label for="requester">Requester</label>
+                    </div>
                 </div>
 
                 <div class="button-group">
@@ -283,7 +266,4 @@
             </form>
         </div>
     </section>
-
-    @include('partials.footer')
-</body>
-</html>
+@endsection
