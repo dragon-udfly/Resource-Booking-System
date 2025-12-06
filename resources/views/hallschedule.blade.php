@@ -69,6 +69,7 @@
         .event-item p {
             font-size: 0.9em;
             color: #555;
+            padding: 2px;
         }
         .calendar-section {
             width: 70%;
@@ -130,6 +131,11 @@
             background-color: #29b406; /* Green for approved */
             color: white; /* Improve readability on green */
         }
+        .today-event {
+            background-color: #fffacd; /* Light yellow background for today's events */
+            border-left: 5px solid #ff0000; /* A contrasting border */
+            padding-left: 15px; /* Adjust padding due to border */
+        }
     </style>
 </head>
 <body>
@@ -139,15 +145,21 @@
         <div class="left-content-area">
             <div class="button-bar">
                 <a href="/" style="background-color: #6c757d;" class="btn">Home</a>
+                <a href="{{ route('halls.overview') }}" style="background-color: #097e61;" class="btn">Halls</a>
                 <a href="{{ route('halls.book') }}" class="btn" style="background-color: #007bff;">New Event</a>
             </div>
             <div class="event-list-container">
                 <h2 style="color: rgb(6, 4, 60); font-weight: bold; padding: 10px">Upcoming Events/Programms</h2>
+                <br />
+                @php
+                    $todayDate = \Carbon\Carbon::today()->toDateString();
+                @endphp
                 @forelse($bookings as $booking)
-                    <div class="event-item">
-                        <strong @if($booking->is_emergency_booking) style="background-color: yellow;" @endif>Programme: {{ $booking->programme }}</strong>
-                        <p>Applicant: {{ $booking->applicant_name }} ({{ $booking->applicant_type }})</p>
-                        <p>Date: {{ $booking->event_date }}</p>
+                    <div class="event-item @if($booking->event_date == $todayDate) today-event @endif">
+                        <strong @if($booking->is_emergency_booking) style="color:#a19909;" @endif>Programme: {{ $booking->programme }} @if($booking->is_emergency_booking)(Emergency Booking)@endif</strong>
+                        <p>Hall Type: {{ $booking->hall->hall_type }}</p>
+                        <p>Applicant: {{ $booking->applicant_type }}</p>
+                        <p style="font-weight: bold; color: rgb(66, 63, 63)">Date: {{ $booking->event_date }}</p>
                         <p>Start Time: {{ \Carbon\Carbon::parse($booking->event_time)->format('h:i A') }}</p>
                         <p>End Time: {{ \Carbon\Carbon::parse($booking->event_date . ' ' . $booking->event_time)->addHours($booking->event_duration)->format('h:i A') }}</p>
                         <p style="color: {{ $booking->final_approval == 'approved' ? 'green' : ($booking->final_approval == 'pending' ? 'blue' : 'red') }}; font-weight: bold;">Status: {{ ucfirst($booking->final_approval) }}</p>
