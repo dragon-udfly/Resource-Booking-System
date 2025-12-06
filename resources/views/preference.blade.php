@@ -1,34 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preference - District Secretariat Vavuniya</title>
-    <link href='icons/right_logo.png' rel='icon' type='image/png'>
+@extends('layouts.normal_body_layout')
+
+@section('title', 'Preference - District Secretariat Vavuniya')
+
+@section('page_styles')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        .banner {
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            flex-grow: 1;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        
         .top-buttons {
             width: 90%;
             max-width: 900px;
@@ -143,23 +118,11 @@
             background-color: #0056b3;
         }
 
-        .footer {
-            background-color: #000;
-            color: white;
-            text-align: center;
-            padding: 20px;
-        }
-        .footer a {
-            color: white;
-            text-decoration: none;
-            margin: 0 10px;
-        }
     </style>
-</head>
-<body>
-    @auth
-    @include('partials.header')
+@endsection
 
+@section('content')
+    @auth
     <section class="banner">
         <div class="top-buttons">
             <a href="#" onclick="history.back(); return false;" class="btn btn-back">Go Back</a>
@@ -203,15 +166,14 @@
             </div>
         </div>
     </section>
+    @endauth
 
-    <footer class="footer">
-        <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
-        <p>
-            <a href="/privacy_notice">Privacy and Policy</a> |
-            <a href="/user_agreement">User Agreement</a>
-        </p>
-    </footer>
+    @guest
+        <p>You must be logged in to view this page. <a href="{{ route('login') }}">Click here to log in.</a></p>
+    @endguest
+@endsection
 
+@push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const toggleButtons = document.querySelectorAll('.toggle-passcode-visibility');
@@ -232,10 +194,4 @@
             });
         });
     </script>
-    @endauth
-
-    @guest
-        <p>You must be logged in to view this page. <a href="{{ route('login') }}">Click here to log in.</a></p>
-    @endguest
-</body>
-</html>
+@endpush

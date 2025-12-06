@@ -1,6 +1,6 @@
 @extends('layouts.user_body_layout')
 
-@section('title', 'Officers - District Secretariat Vavuniya')
+@section('title', 'Halls - District Secretariat Vavuniya')
 
 @section('page_styles')
     <style>
@@ -78,32 +78,36 @@
             <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
         </div>
         <div class="page-header">
-            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Officers List</h2>
-            <p>Details of all officers in the system.</p>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Halls List</h2>
+            <p>Details of all halls in the system.</p>
         </div>
 
         <table>
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Name</th>
-                    <th>Designation</th>
-                    <th>Email</th>
-                    <th>Contact Number</th>
+                    <th>Hall ID</th>
+                    <th>Hall Type</th>
+                    <th>Capacity</th>
+                    <th>Description</th>
+                    <th>Hall Status</th>
+                    <th>Booking Status</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse ($users as $index => $user)
+                @forelse ($halls as $index => $hall)
                     <tr>
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ $user->first_name }} {{ $user->last_name }}</td>
-                        <td>{{ $user->designation }}</td>
-                        <td>{{ $user->email }}</td>
-                        <td>{{ $user->contact_number }}</td>
+                        <td>{{ $hall->hall_id }}</td>
+                        <td>{{ $hall->hall_type }}</td>
+                        <td>{{ $hall->capacity }}</td>
+                        <td>{{ $hall->description }}</td>
+                        <td>{{ $hall->current_state }}</td>
+                        <td>{{ $hall->booking_state }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="text-align: center;">No officers found.</td>
+                        <td colspan="7" style="text-align: center;">No halls found.</td>
                     </tr>
                 @endforelse
             </tbody>

@@ -58,8 +58,18 @@ class UserController extends Controller
     public function showDashboard()
     {
         $user = Auth::user()->load('permissions');
-        $bookings = HallBooking::with('hall')->orderBy('date_created', 'desc')->get();
-        return view('dashboard', ['user' => $user, 'bookings' => $bookings]);
+
+        if ($user->hasPermissionTo('requester')) {
+            $hallBookings = HallBooking::with('hall')
+                                        ->where('filled_by_nic', $user->nic_number)
+                                        ->orderBy('date_created', 'desc')
+                                        ->get();
+            // In a real scenario, you would also fetch QuarterBookings here if they existed
+            return view('dashboard', ['user' => $user, 'requesterBookings' => $hallBookings]);
+        } else {
+            $bookings = HallBooking::with('hall')->orderBy('date_created', 'desc')->get();
+            return view('dashboard', ['user' => $user, 'bookings' => $bookings]);
+        }
     }
 
     public function index()
@@ -70,7 +80,11 @@ class UserController extends Controller
 
     public function seeOfficers()
     {
-        return view('seeofficers');
+        if (Auth::check() && Auth::user()->hasPermissionTo('view_officers')) {
+            $users = User::all(); // Fetch all users, including admins
+            return view('seeofficers', ['users' => $users]);
+        }
+        return redirect()->back()->with('error', 'You do not have permission to view officers.');
     }
 
     public function create()
@@ -125,6 +139,7 @@ class UserController extends Controller
             'government_agent_approval' => 0,
             'form_history' => 0,
             'account_setting' => 0,
+            'requester' => 0,
         ];
 
         if ($request->has('permissions')) {
@@ -170,7 +185,7 @@ class UserController extends Controller
             'designation' => $request->designation,
             'email' => $request->email,
             'contact_number' => $request->contact_number,
-            'modified_datatime' => Carbon::now(),
+            'modified_datetime' => Carbon::now(),
         ];
 
         if ($request->filled('passcode')) {
@@ -185,7 +200,7 @@ class UserController extends Controller
             'view_hall_details' => 0, 'view_quarters' => 0, 'view_quarter_details' => 0,
             'view_audit_log' => 0, 'administrative_officer_approval' => 0,
             'additional_government_agent_approval' => 0, 'government_agent_approval' => 0,
-            'form_history' => 0, 'account_setting' => 0,
+            'form_history' => 0, 'account_setting' => 0, 'requester' => 0,
         ];
 
         // Set submitted permissions to 1
@@ -238,7 +253,7 @@ class UserController extends Controller
 
         $user = Auth::user();
         $user->passcode = Hash::make($request->new_passcode);
-        $user->modified_datatime = Carbon::now();
+        $user->modified_datetime = Carbon::now();
         $user->save();
 
         AuditLog::create([
@@ -255,6 +270,15 @@ class UserController extends Controller
     {
         $auditLogs = AuditLog::orderBy('audit_log_id', 'desc')->get();
         return view('auditlog', ['auditLogs' => $auditLogs]);
+    }
+
+    public function seeAuditLog()
+    {
+        if (Auth::check() && Auth::user()->hasPermissionTo('view_audit_log')) {
+            $auditLogs = AuditLog::orderBy('audit_log_id', 'desc')->get();
+            return view('seeaudtilog', ['auditLogs' => $auditLogs]);
+        }
+        return redirect()->back()->with('error', 'You do not have permission to view the audit log.');
     }
 
     public function clearAuditLog()
