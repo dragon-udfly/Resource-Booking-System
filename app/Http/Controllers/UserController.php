@@ -185,7 +185,7 @@ class UserController extends Controller
             'designation' => $request->designation,
             'email' => $request->email,
             'contact_number' => $request->contact_number,
-            'modified_datatime' => Carbon::now(),
+            'modified_datetime' => Carbon::now(),
         ];
 
         if ($request->filled('passcode')) {
@@ -253,7 +253,7 @@ class UserController extends Controller
 
         $user = Auth::user();
         $user->passcode = Hash::make($request->new_passcode);
-        $user->modified_datatime = Carbon::now();
+        $user->modified_datetime = Carbon::now();
         $user->save();
 
         AuditLog::create([
