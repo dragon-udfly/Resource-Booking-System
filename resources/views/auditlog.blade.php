@@ -157,7 +157,7 @@
                             <td>{{ $log->log_title }}</td>
                             <td>{{ $log->performed_by ?? $log->details }}</td>
                             <td>{{ $log->date_performed }}</td>
-                            <td>{{ $log->time_performed }}</td>
+                            <td>{{ \Carbon\Carbon::parse($log->time_performed)->format('h:i:s A') }}</td>
                         </tr>
                     @endforeach
                 @endif
