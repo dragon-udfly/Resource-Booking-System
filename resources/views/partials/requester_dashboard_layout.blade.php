@@ -19,7 +19,7 @@
         @forelse ($requesterBookings as $booking)
             <tr data-booking='{{ json_encode($booking) }}'>
                 <td>Hall Booking</td> {{-- Assuming only Hall Booking for now --}}
-                <td>{{ \Carbon\Carbon::parse($booking->date_created)->format('Y-m-d') }}</td>
+                <td>{{ \Carbon\Carbon::parse($booking->date_created)->format('Y-m-d h:i A') }}</td>
                 <td>{{ \Carbon\Carbon::parse($booking->event_date)->format('Y-m-d') }}</td>
                 <td>{{ ucfirst($booking->administrative_officer_approved) }}</td>
                 <td>{{ ucfirst($booking->additional_government_agent_approved) }}</td>
