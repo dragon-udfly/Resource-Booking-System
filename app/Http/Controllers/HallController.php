@@ -158,6 +158,17 @@ class HallController extends Controller
     }
 
     /**
+     * Display an overview of available halls.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function showOverview()
+    {
+        $halls = Hall::where('current_state', 'available')->get();
+        return view('halloverview', ['halls' => $halls]);
+    }
+
+    /**
      * Get a list of available halls.
      *
      * @return \Illuminate\Http\JsonResponse
