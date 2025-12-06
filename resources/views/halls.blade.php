@@ -164,8 +164,8 @@
                             <td>{{ $hall->description }}</td>
                             <td>{{ $hall->current_state }}</td>
                             <td>{{ $hall->booking_state }}</td>
-                            <td>{{ $hall->date_created }}</td>
-                            <td>{{ $hall->date_modified }}</td>
+                            <td>{{ \Carbon\Carbon::parse($hall->date_created)->format('Y-m-d h:i A') }}</td>
+                            <td>{{ $hall->date_modified ? \Carbon\Carbon::parse($hall->date_modified)->format('Y-m-d h:i A') : 'N/A' }}</td>
                             <td>
                                 <button class="action-btn" onclick="modifyHall('{{ $hall->hall_id }}')">Modify</button>
                                 <button class="action-btn" onclick="deleteHall('{{ $hall->hall_id }}')">Delete</button>
