@@ -146,7 +146,7 @@
             <div class="button-bar">
                 <a href="/" style="background-color: #6c757d;" class="btn">Home</a>
                 <a href="{{ route('halls.overview') }}" style="background-color: #097e61;" class="btn">Halls</a>
-                <a href="{{ route('halls.book') }}" class="btn" style="background-color: #007bff;">New Event</a>
+                <a href="{{ route('halls.book') }}" class="btn" style="background-color: #007bff;">Book Hall</a>
             </div>
             <div class="event-list-container">
                 <h2 style="color: rgb(6, 4, 60); font-weight: bold; padding: 10px">Upcoming Events/Programms</h2>
