@@ -1,4 +1,4 @@
-# 💻 Integrated Resource Management and Allocation System
+# 💻 Resource Booking System for District Secratariat, Vabuniya.
 
 ## Introduction
 
