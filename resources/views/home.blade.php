@@ -39,7 +39,7 @@
 @section('content')
     <section class="banner">
         <div class="content-area">
-            <h1 class="main-title">Welcome to the Resource Booking System</h1>
+            <h1 class="main-title">Welcome to the Hall and Quarters Booking System</h1>
             <p class="sub-text">Please log in to approve hall booking and quarter reservation applications.</p>
             
             <!-- Login Button -->
@@ -49,7 +49,7 @@
             <a href="{{ route('halls.schedule') }}" class="action-button" style="margin-left: 10px;">Book Hall</a>
 
             <!-- Book Quarter Button -->
-            <a href="/book-quarter" class="action-button" style="margin-left: 10px;">Book Quarter</a>
+            <a href="/book-quarter" class="action-button" style="margin-left: 10px;">Book Quarters</a>
         </div>
     </section>
 @endsection
