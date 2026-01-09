@@ -10,7 +10,7 @@ This is a **Web-Based Resource Management System** designed for the **District S
 
 The system's primary goal is to ensure the transparent and efficient allocation of two critical resources:
 
-1.  **Hall Bookings:** Manages the reservation of various halls (Auditorium, Conference, Training) via a **three-step approval workflow** (PA → Branch Head → District Secretary).
+1.  **Hall Bookings:** Manages the reservation of various halls (Auditorium, Conference, Training) via a **three-step approval workflow** (PA → AO/AGA/GA).
 2.  **Quarters Allocation:** Facilitates applications for government quarters with an **automated eligibility check** that verifies staff **grade, salary, and service-based constraints** before final allocation by the Admin.
 
 ---
