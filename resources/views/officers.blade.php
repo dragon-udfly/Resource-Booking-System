@@ -1,115 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Officers - District Secretariat Vavuniya</title>
+@extends('layouts.admin_body_layout')
+
+@section('title', 'Officers - District Secretariat Vavuniya')
+
+@section('page_styles')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        .header {
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border-bottom: 3px solid #ddd;
-        }
-
-        .header-main {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-
-        .logo-left {
-            width: 110px;
-            height: 22vh;
-            margin-left: 70px;
-        }
-
-        .header-content {
-            flex: 1;
-            text-align: center;
-            padding: 0 10px;
-        }
-
-        .header-content h1 {
-            font-size: 40px;
-            font-weight: bold;
-            color: #000;
-            padding-bottom: 20px;
-        }
-
-        .header-content h2 {
-            font-size: 25px;
-            font-weight: normal;
-            color: #333;
-        }
-
-        .logo-right {
-            width: 130px;
-            height: 22vh;
-            margin-right: 70px;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 10px 20px;
-            background-color: #e9ecef; /* Light grey background for navbar */
-            border-top: 1px solid #dee2e6;
-        }
-
-        .navbar ul {
-            list-style: none;
-            display: flex;
-            margin: 0;
-            padding: 0;
-        }
-
-        .navbar li {
-            margin-right: 20px;
-        }
-
-        .navbar li:last-child {
-            margin-right: 0;
-        }
-
-        .navbar a {
-            text-decoration: none;
-            color: #007bff;
-            font-weight: bold;
-        }
-
-        .navbar a:hover {
-            color: #0056b3;
-        }
-
-        .navbar-right {
-            margin-left: auto; /* Pushes right items to the right */
-        }
-
-        .banner {
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 58vh; /* Use min-height instead of fixed height */
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
         .page-header {
             text-align: center;
             margin-bottom: 30px;
@@ -185,58 +79,56 @@
             opacity: 0.9;
         }
 
-        .action-btn:nth-of-type(1) { /* View button */
-            background-color: #007bff;
-        }
-
-        .action-btn:nth-of-type(2) { /* Modify button */
+        .action-btn:nth-of-type(1) { /* Modify button */
             background-color: #ffc107;
             color: #333;
         }
 
-        .action-btn:nth-of-type(3) { /* Delete button */
+        .action-btn:nth-of-type(2) { /* Delete button */
             background-color: #dc3545;
         }
 
-        .footer {
-            background-color: #000;
-            height: 17vh;
-            width: 100%;
+        /* Generic button styles */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        /* Specific back button styles */
+        .back-button {
+            background-color: #6c757d;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
         }
     </style>
-</head>
-<body>
-    <header class="header">
-        <div class="header-main">
-            <img src="icons/left_logo.png" alt="Sri Lanka government logo" class="logo-left">
-            <div class="header-content">
-                <h1>District Secretariat - Vavuniya</h1>
-                <h2>Hall and Quarters Booking System - Administrator</h2>
-            </div>
-            <img src="icons/right_logo.png" alt="district Secretariat vavuniya logo" class="logo-right">
-        </div>
-        <nav class="navbar">
-            <ul class="navbar-left">
-                <li><a href="/document-history">Document History</a></li>
-                <li><a href="/preference">Preference</a></li>
-            </ul>
-            <ul class="navbar-right">
-                <li>Admin, Thanuharan V.</li>
-                <li><a href="/logout">Log Out</a></li>
-            </ul>
-        </nav>
-    </header>
+@endsection
 
-    <!-- Cyan/Turquoise Banner Section -->
+@section('content')
     <section class="banner">
+        @if(session('success'))
+            <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px; width: 90%; max-width: 900px;">
+                {{ session('success') }}
+            </div>
+        @endif
+        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+            <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
+        </div>
         <div class="page-header">
-            <h2>Officers List</h2>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Officers List</h2>
             <p>Manage officers by modifying or deleting entries</p>
         </div>
 
         <!-- Add Officer Button -->
         <div style="text-align: center; margin-bottom: 20px;">
-            <a href="/admin-create-account.html" class="add-officer-btn">Add Officer</a>
+            <a href="createaccount" class="add-officer-btn">Add Officer</a>
         </div>
 
         <!-- Officer Table -->
@@ -251,54 +143,50 @@
                 </tr>
             </thead>
             <tbody>
+                @foreach ($users as $user)
                 <tr>
-                    <td>1</td>
-                    <td>V_DS0001</td>
-                    <td>Mr. Isuru Udakara</td>
-                    <td>Goverment Agent</td>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $user->user_id }}</td>
+                    <td>{{ "{$user->first_name} {$user->last_name}" }}</td>
+                    <td>{{ $user->designation }}</td>
                     <td>
-                        <button class="action-btn" onclick=viewOfficer()>View</button>
-                        <button class="action-btn" onclick="modifyOfficer()">Modify</button>
-                        <button class="action-btn" onclick="deleteOfficer()">Delete</button>
+                        <button class="action-btn" onclick="modifyOfficer('{{ $user->user_id }}')">Modify</button>
+                        <button class="action-btn" onclick="deleteOfficer('{{ $user->user_id }}')">Delete</button>
                     </td>
                 </tr>
-                <tr>
-                    <td>2</td>
-                    <td>V_DS0003</td>
-                    <td>Mr. Tharusha Dewmith John Deo Deo</td>
-                    <td>Administrative Officer</td>
-                    <td>
-                        <button class="action-btn" onclick=viewOfficer()>View</button>
-                        <button class="action-btn" onclick="modifyOfficer()">Modify</button>
-                        <button class="action-btn" onclick="deleteOfficer()">Delete</button>
-                    </td>
-                </tr>
+                @endforeach
             </tbody>
         </table>
     </section>
+@endsection
 
-    <!-- Black Footer Section -->
-    <footer class="footer" style="color: white; text-align: center; padding-top: 20px;">
-        <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
-        <p style="margin-top: 10px;">
-            <a href="/privacy" style="color: white; text-decoration: none; margin: 0 10px;">Privacy and Policy</a>
-            |
-            <a href="/agreement" style="color: white; text-decoration: none; margin: 0 10px;">User Agreement</a>
-        </p>
-    </footer>
-
+@push('scripts')
     <script>
-        function viewOfficer(){
-            window.location.href= "/viewofficer";
+        function modifyOfficer(userId) {
+            window.location.href = '/users/' + userId + '/edit';
         }
 
-        function modifyOfficer() {
-            // add code
-        }
+        function deleteOfficer(userId) {
+            if (confirm('Are you sure you want to delete this officer? This action cannot be undone.')) {
+                let form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/users/' + userId;
 
-        function deleteOfficer() {
-            // add code
+                let csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                form.appendChild(csrfToken);
+
+                let methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'DELETE';
+                form.appendChild(methodInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
         }
     </script>
-</body>
-</html>
+@endpush

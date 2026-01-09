@@ -1,115 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audit Log - District Secretariat Vavuniya</title>
+@extends('layouts.admin_body_layout')
+
+@section('title', 'Audit Log - District Secretariat Vavuniya')
+
+@section('page_styles')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        .header {
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border-bottom: 3px solid #ddd;
-        }
-
-        .header-main {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-
-        .logo-left {
-            width: 110px;
-            height: 22vh;
-            margin-left: 70px;
-        }
-
-        .header-content {
-            flex: 1;
-            text-align: center;
-            padding: 0 10px;
-        }
-
-        .header-content h1 {
-            font-size: 40px;
-            font-weight: bold;
-            color: #000;
-            padding-bottom: 20px;
-        }
-
-        .header-content h2 {
-            font-size: 25px;
-            font-weight: normal;
-            color: #333;
-        }
-
-        .logo-right {
-            width: 130px;
-            height: 22vh;
-            margin-right: 70px;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 10px 20px;
-            background-color: #e9ecef; /* Light grey background for navbar */
-            border-top: 1px solid #dee2e6;
-        }
-
-        .navbar ul {
-            list-style: none;
-            display: flex;
-            margin: 0;
-            padding: 0;
-        }
-
-        .navbar li {
-            margin-right: 20px;
-        }
-
-        .navbar li:last-child {
-            margin-right: 0;
-        }
-
-        .navbar a {
-            text-decoration: none;
-            color: #007bff;
-            font-weight: bold;
-        }
-
-        .navbar a:hover {
-            color: #0056b3;
-        }
-
-        .navbar-right {
-            margin-left: auto; /* Pushes right items to the right */
-        }
-
-        .banner {
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            min-height: 58vh; /* Use min-height instead of fixed height */
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
         .page-header {
             text-align: center;
             margin-bottom: 30px;
@@ -198,80 +92,103 @@
             background-color: #dc3545;
         }
 
-        .footer {
-            background-color: #000;
-            height: 17vh;
-            width: 100%;
+        /* Generic button styles */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        /* Specific back button styles */
+        .back-button {
+            background-color: #6c757d;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
         }
     </style>
-</head>
-<body>
-    <header class="header">
-        <div class="header-main">
-            <img src="icons/left_logo.png" alt="Sri Lanka government logo" class="logo-left">
-            <div class="header-content">
-                <h1>District Secretariat - Vavuniya</h1>
-                <h2>Hall and Quarters Booking System - Audit Log</h2>
-            </div>
-            <img src="icons/right_logo.png" alt="district Secretariat vavuniya logo" class="logo-right">
-        </div>
-        <nav class="navbar">
-            <ul class="navbar-left">
-                <li><a href="/preference">Preference</a></li>
-            </ul>
-            <ul class="navbar-right">
-                <li style="color:#0b03ff">Government Agent - Mr. John Deo</li>
-                <li><a href="/logout">Log Out</a></li>
-            </ul>
-        </nav>
-    </header>
+@endsection
 
-    <!-- Cyan/Turquoise Banner Section -->
+@section('content')
     <section class="banner">
+        @if(session('success'))
+            <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px; width: 90%; max-width: 900px;">
+                {{ session('success') }}
+            </div>
+        @endif
+        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+            <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
+        </div>
         <div class="page-header">
-            <h2>Audit Log Records</h2>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Audit Log Records</h2>
             <p>Viewing system audit log records as a list of changes and modifications done by users</p>
         </div>
-        <!-- Officer Table -->
-        <table>
+        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+            <button class="action-btn" style="background-color: #dc3545;" onclick="clearAuditLogs()">Clear Records</button>
+        </div>
+       <!-- Audit log table -->
+        <table id="audit-log">
             <thead>
                 <tr>
-                    <th>No</th>
-                    <th>Log ID</th>
-                    <th>Log Title</th>
-                    <th>Performed By</th>
-                    <th>Performed Date</th>
-                    <th>Performed Time</th>
+                    <th id="log-number">No</th>
+                    <th id="log-id">Log ID</th>
+                    <th id="log-title">Log Title</th>
+                    <th id="log-performed-by">Performed By</th>
+                    <th id="log-performed-date">Performed Date</th>
+                    <th id="log-performed-time">Performed Time</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>ALOG_DS0001</td>
-                    <td>Created a new user account user id: V_DS0393</td>
-                    <td>Administrator</td>
-                    <td>2025-11-24</td>
-                    <td>09.04.23.09</td>
-                </tr>
-                    <td>2</td>
-                    <td>ALOG_DS0301</td>
-                    <td>Removed a user account user id: V_DS0393</td>
-                    <td>Administrator</td>
-                    <td>2025-11-24</td>
-                    <td>10.04.23.09</td>
-                </tr>
+                @if($auditLogs->isEmpty())
+                    <tr>
+                        <td colspan="6" style="text-align: center;">No audit log records found.</td>
+                    </tr>
+                @else
+                    @foreach($auditLogs as $index => $log)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $log->audit_log_id }}</td>
+                            <td>{{ $log->log_title }}</td>
+                            <td>{{ $log->performed_by ?? $log->details }}</td>
+                            <td>{{ $log->date_performed }}</td>
+                            <td>{{ \Carbon\Carbon::parse($log->time_performed)->format('h:i:s A') }}</td>
+                        </tr>
+                    @endforeach
+                @endif
             </tbody>
         </table>
     </section>
+@endsection
 
-    <!-- Black Footer Section -->
-    <footer class="footer" style="color: white; text-align: center; padding-top: 20px;">
-        <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
-        <p style="margin-top: 10px;">
-            <a href="/privacy" style="color: white; text-decoration: none; margin: 0 10px;">Privacy and Policy</a>
-            |
-            <a href="/agreement" style="color: white; text-decoration: none; margin: 0 10px;">User Agreement</a>
-        </p>
-    </footer>
-</body>
-</html>
+@push('scripts')
+    <script>
+        function clearAuditLogs() {
+            if (confirm('Are you sure you want to clear all audit log records? This action cannot be undone.')) {
+                let form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route("auditlog.clear") }}';
+
+                let csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                form.appendChild(csrfToken);
+
+                let methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'DELETE';
+                form.appendChild(methodInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+@endpush

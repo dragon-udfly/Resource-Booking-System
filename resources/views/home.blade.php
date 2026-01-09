@@ -1,100 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>District Secretariat - Vavuniya</title>
+@extends('layouts.normal_body_layout')
+
+@section('title', 'Welcome - District Secretariat Vavuniya')
+
+@section('page_styles')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* HOMEPAGE UNIQUE STYLES (Content and Buttons) */
+        .content-area { 
+            text-align: center; 
+            padding-top: 100px;
         }
-
-        body {
-            font-family: Arial, sans-serif;
+        .main-title { 
+            color: rgb(6, 4, 60); 
+            font-size: 3em; 
         }
-
-        .header {
-            background-color: #f8f9fa;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 3px solid #ddd;
+        .sub-text { 
+            color: rgb(71, 66, 85); 
+            font-size: 1.2em; 
+            margin-top: 20px; 
         }
-
-        .logo-left {
-            width: 110px;
-            height: 22vh;
-            margin-left: 70px;
+        .action-button {
+            display: inline-block; 
+            margin-top: 30px; 
+            padding: 15px 30px; 
+            background-color: #007bff; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 5px; 
+            font-size: 1.2em;
+            transition: background-color 0.3s, transform 0.2s;
         }
-
-        .header-content {
-            flex: 1;
-            text-align: center;
-            padding: 0 10px;
-        }
-
-        .header-content h1 {
-            font-size: 40px;
-            font-weight: bold;
-            color: #000;
-            padding-bottom: 20px;
-        }
-
-        .header-content h2 {
-            font-size: 25px;
-            font-weight: normal;
-            color: #333;
-        }
-
-        .logo-right {
-            width: 130px;
-            height: 22vh;
-            margin-right: 70px;
-        }
-
-        .banner {
-            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
-            height: 58vh;
-            width: 100%;
-        }
-
-        .footer {
-            background-color: #000;
-            height: 17vh;
-            width: 100%;
+        .action-button:hover {
+            background-color: #0056b3;
+            transform: scale(1.02);
         }
     </style>
-</head>
-<body>
-    <header class="header">
-        <img src="icons/left_logo.png" alt="Sri Lanka government logo" class="logo-left">
-        <div class="header-content">
-            <h1>District Secretariat - Vavuniya</h1>
-            <h2>Hall and Quarters Booking System</h2>
-        </div>
-        <img src="icons/right_logo.png" alt="district Secretariat vavuniya logo" class="logo-right">
-    </header>
+@endsection
 
-    <!-- Cyan/Turquoise Banner Section -->
+@section('content')
     <section class="banner">
-        <div style="text-align: center; padding-top: 100px;">
-            <h1 style="color: white; font-size: 3em;">Welcome to the Resource Booking System</h1>
-            <p style="color: white; font-size: 1.2em; margin-top: 20px;">Please log in to book halls and reserve quarters.</p>
-            <a href="/login" style="display: inline-block; margin-top: 30px; padding: 15px 30px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 1.2em;">Login</a>
+        <div class="content-area">
+            <h1 class="main-title">Welcome to the Resource Booking System</h1>
+            <p class="sub-text">Please log in to approve hall booking and quarter reservation applications.</p>
+            
+            <!-- Login Button -->
+            <a href="/login" class="action-button">Login</a>
+            
+            <!-- Book Hall Button -->
+            <a href="{{ route('halls.schedule') }}" class="action-button" style="margin-left: 10px;">Book Hall</a>
+
+            <!-- Book Quarter Button -->
+            <a href="/book-quarter" class="action-button" style="margin-left: 10px;">Book Quarter</a>
         </div>
     </section>
-
-    <!-- Black Footer Section -->
-    <footer class="footer" style="color: white; text-align: center; padding-top: 20px;">
-        <p>&copy; 2025 District Secretariat, Vavuniya. All Rights Reserved.</p>
-        <p style="margin-top: 10px;">
-            <a href="/privacy" style="color: white; text-decoration: none; margin: 0 10px;">Privacy and Policy</a>
-            |
-            <a href="/agreement" style="color: white; text-decoration: none; margin: 0 10px;">User Agreement</a>
-        </p>
-    </footer>
-</body>
-</html>
+@endsection
