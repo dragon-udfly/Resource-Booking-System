@@ -1,4 +1,4 @@
-# 💻 Resource Booking System for District Secratariat, Vavuniya.
+# 💻 Resource Booking System for District Secretariat, Vavuniya.
 
 ## Introduction
 
