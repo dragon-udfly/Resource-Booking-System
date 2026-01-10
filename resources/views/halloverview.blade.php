@@ -6,7 +6,7 @@
     <style>
         .content-area {
             padding: 40px 20px;
-            background-color: #f4f7f6;
+            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
             flex-grow: 1; /* Ensure it fills available space to push footer down */
         }
         .page-header {
