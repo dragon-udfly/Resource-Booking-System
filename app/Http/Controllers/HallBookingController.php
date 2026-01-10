@@ -37,6 +37,7 @@ class HallBookingController extends Controller
     {
         $request->validate([
             'applicant_name' => 'required|string|max:200',
+            'applicant_email' => 'required|email|max:255',
             'applicant_type' => 'required|string',
             'hall_id' => [
                 'required',
@@ -77,6 +78,7 @@ class HallBookingController extends Controller
         $bookingData = [
             'booking_id' => $newBookingId,
             'applicant_name' => $request->applicant_name,
+            'applicant_email' => $request->applicant_email,
             'applicant_type' => $request->applicant_type,
             'requested_hall_type' => $hall->hall_type,
             'hall_id' => $request->hall_id,

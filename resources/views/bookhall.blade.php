@@ -171,15 +171,19 @@
                         <input type="text" id="applicant_name" name="applicant_name" value="{{ old('applicant_name') }}" required>
                     </div>
                     <div class="form-group">
+                        <label for="applicant_email">Applicant Email <span class="required">*</span></label>
+                        <input type="email" id="applicant_email" name="applicant_email" value="{{ old('applicant_email') }}" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
                         <label for="applicant_type">Applicant Type <span class="required">*</span></label>
                         <select id="applicant_type" name="applicant_type" required>
                             <option value="Internal" @if(old('applicant_type') == 'Internal') selected @endif>Internal</option>
                             <option value="External" @if(old('applicant_type') == 'External') selected @endif>External</option>
                         </select>
                     </div>
-                </div>
-
-                <div class="form-row">
                     <div class="form-group">
                         <label for="hall_id">Hall Type <span class="required">*</span></label>
                         <select id="hall_id" name="hall_id" required>
@@ -195,6 +199,10 @@
                     <div class="form-group">
                         <label for="programme">Programme/Event <span class="required">*</span></label>
                         <input type="text" id="programme" name="programme" value="{{ old('programme') }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Applicant's Email <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" value="{{ old('email') }}" required>
                     </div>
                 </div>
 
