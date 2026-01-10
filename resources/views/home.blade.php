@@ -43,7 +43,7 @@
             <p class="sub-text">Please log in to approve hall booking and quarter reservation applications.</p>
             
             <!-- Login Button -->
-            <a href="/login" class="action-button">Login</a>
+            <a href="/login" class="action-button">System Login</a>
             
             <!-- Book Hall Button -->
             <a href="{{ route('halls.schedule') }}" class="action-button" style="margin-left: 10px;">Book Hall</a>
