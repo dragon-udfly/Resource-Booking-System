@@ -35,6 +35,7 @@ class HallController extends Controller
             'description' => 'required|string|max:1200',
             'booking_status' => 'required|string',
             'hall_status' => 'required|string',
+            'special_notice' => 'nullable|string',
         ]);
 
         // Generate hall_id
@@ -52,6 +53,7 @@ class HallController extends Controller
             'capacity' => $request->capacity,
             'description' => $request->description,
             'current_state' => $request->hall_status,
+            'special_notice' => $request->special_notice,
             'booking_state' => $request->booking_status,
             'date_created' => Carbon::now(),
             'date_modified' => Carbon::now(),
@@ -115,6 +117,7 @@ class HallController extends Controller
             'description' => 'required|string|max:1200',
             'booking_state' => 'required|string',
             'current_state' => 'required|string',
+            'special_notice' => 'nullable|string',
         ]);
 
         $hall->update([
@@ -122,6 +125,7 @@ class HallController extends Controller
             'capacity' => $request->capacity,
             'description' => $request->description,
             'current_state' => $request->current_state,
+            'special_notice' => $request->special_notice,
             'booking_state' => $request->booking_state,
             'date_modified' => Carbon::now(),
         ]);

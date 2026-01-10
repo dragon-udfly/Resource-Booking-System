@@ -106,7 +106,7 @@
                             <td class="{{ $hall->current_state === 'unavailable' ? 'status-unavailable' : '' }}">
                                 {{ ucfirst($hall->current_state) }}
                             </td>
-                            <td></td>
+                            <td>{{ $hall->special_notice }}</td>
                         </tr>
                     @endforeach
                 </tbody>
