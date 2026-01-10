@@ -200,10 +200,6 @@
                         <label for="programme">Programme/Event <span class="required">*</span></label>
                         <input type="text" id="programme" name="programme" value="{{ old('programme') }}" required>
                     </div>
-                    <div class="form-group">
-                        <label for="email">Applicant's Email <span class="required">*</span></label>
-                        <input type="email" id="email" name="email" value="{{ old('email') }}" required>
-                    </div>
                 </div>
 
                 <div class="form-row">
