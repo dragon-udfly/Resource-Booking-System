@@ -9,6 +9,10 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+Route::get('/homepage', function () {
+    return view('homepage');
+})->name('homepage');
+
 Route::get('/login', function () {
     return view('login');
 })->name('login');

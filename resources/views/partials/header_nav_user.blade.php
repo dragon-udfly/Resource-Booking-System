@@ -113,6 +113,7 @@
             @if(Auth::user()->hasPermissionTo('view_quarters'))
                 <li id="nav-quarter"><a href="#">Quarters</a></li>
             @endif
+            <li id="nav-homepage"><a href="{{ route('homepage') }}">Homepage</a></li>
             @if(Auth::user()->hasPermissionTo('view_audit_log'))
                 <li id="nav-audit-log"><a href="/seeauditlog">Audit Log</a></li>
             @endif
