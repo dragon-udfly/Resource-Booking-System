@@ -80,7 +80,6 @@
     <section class="content-area">
         <div style="width: 90%; margin: 0 auto; text-align: left; margin-bottom: 20px;">
             <a href="#" onclick="history.back(); return false;" class="action-button" style="background-color: #6c757d; padding: 10px 20px; font-size: 1em; font-weight: bold;">Back</a>
-            <a href="/" class="action-button" style="background-color: #6c757d; padding: 10px 20px; font-size: 1em; font-weight: bold;">Home</a>
         </div>
 
         <div class="page-header">
