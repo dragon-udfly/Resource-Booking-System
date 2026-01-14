@@ -1,4 +1,4 @@
-@extends('layouts.normal_body_layout')
+@extends('layouts.user_body_layout')
 
 @section('title', 'Welcome - District Secretariat Vavuniya')
 
@@ -40,7 +40,7 @@
     <section class="banner">
         <div class="content-area">
             <h1 class="main-title">Welcome to the Hall and Quarters Booking System</h1>
-            <p class="sub-text">Hall booking and quarter reservation applications.</p>
+            <p class="sub-text">Hall Booking and Quarter Reservation Applications and Overviews.</p>
             
             <!-- Book Hall Button -->
             <a href="{{ route('halls.schedule') }}" class="action-button" style="margin-left: 10px;">Book Hall</a>
