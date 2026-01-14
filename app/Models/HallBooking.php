@@ -22,6 +22,7 @@ class HallBooking extends Model
         'applicant_name',
         'applicant_type',
         'applicant_email',
+        'requested_hall_type',
         'programme',
         'start_time',
         'end_time',
@@ -38,6 +39,7 @@ class HallBooking extends Model
         'filled_by_nic',
         'filled_by_phone',
         'date_created',
+        'date_modified',
         'event_date',
         'event_time',
         'is_emergency_booking'
