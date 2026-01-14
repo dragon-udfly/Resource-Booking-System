@@ -144,7 +144,7 @@
     <section class="banner">
         <div class="left-content-area">
             <div class="button-bar">
-                <a href="/" style="background-color: #6c757d;" class="btn">Home</a>
+                <a href="#" onclick="history.back(); return false;" style="background-color: #6c757d;" class="btn">Back</a>
                 <a href="{{ route('halls.overview') }}" style="background-color: #097e61;" class="btn">Halls</a>
                 <a href="{{ route('halls.book') }}" class="btn" style="background-color: #007bff;">Book Hall</a>
             </div>
