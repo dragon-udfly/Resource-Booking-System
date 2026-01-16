@@ -265,6 +265,6 @@ class HallBookingController extends Controller
         ];
         
         $pdf = Pdf::loadView('pdf.hall_booking_form', $data);
-        return $pdf->download('hall_booking_' . $hallBooking->booking_id . '.pdf');
+        return $pdf->download('hall_booking_Application_' . $hallBooking->booking_id . '.pdf');
     }
 }
