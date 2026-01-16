@@ -91,7 +91,7 @@
                     <th>Capacity</th>
                     <th>Description</th>
                     <th>Hall Status</th>
-                    <th>Booking Status</th>
+                    <th>Special Notice</th>
                 </tr>
             </thead>
             <tbody>
@@ -103,7 +103,7 @@
                         <td>{{ $hall->capacity }}</td>
                         <td>{{ $hall->description }}</td>
                         <td>{{ $hall->current_state }}</td>
-                        <td>{{ $hall->booking_state }}</td>
+                        <td>{{ $hall->special_notice }}</td>
                     </tr>
                 @empty
                     <tr>
