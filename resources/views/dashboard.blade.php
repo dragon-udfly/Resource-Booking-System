@@ -13,7 +13,7 @@
                 <h2 style="color: rgb(6, 4, 60); font-weight: bold">Pending Booking Approvals</h2>
                 <p>Review the pending applications.</p>
             </div>
-
+            <h2 style="text-align: center; color:rgb(34, 60, 4)">Hall Booking Applications</h2>
             <table id="approval-details">
                 <thead>
                     <tr>
@@ -45,6 +45,22 @@
                         </tr>
                     @endforelse
                 </tbody>
+            </table>
+            <br /> 
+            <br />
+            <h2 style="text-align: center; color:rgb(34, 60, 4)">Hall Booking Applications</h2>
+            <table id="approval-details">
+                <thead>
+                    <tr>
+                        <th>Applicant Name</th>
+                        <th>Application Type</th>
+                        <th>Submitted Date</th>
+                        <th>AO Approval</th>
+                        <th>AGA Approval</th>
+                        <th>GA Approval</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
             </table>
         @endif
     </section>
