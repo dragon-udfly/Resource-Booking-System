@@ -252,8 +252,9 @@
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-top: 20px;">
-                    <p>I filled this form with applicant details. All details filled here are true.</p>
+                <div class="form-group" style="margin-top: 20px; display: flex; align-items: center;">
+                    <input type="checkbox" id="confirm_details" name="confirm_details" required style="width: 20px; height: 20px; margin-right: 15px; cursor: pointer;">
+                    <label for="confirm_details" style="margin-bottom: 0; cursor: pointer;">I filled this form with applicant details. All details filled here are true.</label>
                 </div>
 
                 <div class="button-group">
