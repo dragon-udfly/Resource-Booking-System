@@ -18,7 +18,6 @@
                 <thead>
                     <tr>
                         <th>Applicant Name</th>
-                        <th>Application Type</th>
                         <th>Submitted Date</th>
                         <th>AO Approval</th>
                         <th>AGA Approval</th>
@@ -30,7 +29,6 @@
                     @forelse ($bookings as $booking)
                         <tr @if($booking->is_emergency_booking) style="background-color: yellow;" @endif>
                             <td>{{ $booking->applicant_name }}</td>
-                            <td>Hall Booking</td>
                             <td>{{ \Carbon\Carbon::parse($booking->date_created)->format('Y-m-d h:i A') }}</td>
                             <td>{{ ucfirst($booking->administrative_officer_approved) }}</td>
                             <td>{{ ucfirst($booking->additional_government_agent_approved) }}</td>
@@ -48,12 +46,11 @@
             </table>
             <br /> 
             <br />
-            <h2 style="text-align: center; color:rgb(34, 60, 4)">Hall Booking Applications</h2>
+            <h2 style="text-align: center; color:rgb(34, 60, 4)">Quarters Booking Applications</h2>
             <table id="approval-details">
                 <thead>
                     <tr>
                         <th>Applicant Name</th>
-                        <th>Application Type</th>
                         <th>Submitted Date</th>
                         <th>AO Approval</th>
                         <th>AGA Approval</th>
