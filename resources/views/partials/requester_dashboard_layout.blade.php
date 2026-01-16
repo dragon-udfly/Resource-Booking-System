@@ -159,6 +159,7 @@
         const overlayFormContent = document.getElementById('overlay-form-content');
         const overlayModifyBtn = document.getElementById('overlay-modify-btn');
         const overlayCancelBtn = document.getElementById('overlay-cancel-btn');
+        const overlayDownloadBtn = document.getElementById('overlay-download-btn');
         const overlayForm = document.getElementById('overlay-form');
 
         // Global confirmation overlay elements
@@ -449,6 +450,17 @@
                     showInfoOverlay('An error occurred while cancelling the booking. Please try again.'); // Use info overlay
                 });
             });
+        });
+
+        // --- Download Button Logic ---
+        overlayDownloadBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            if (currentBookingId) {
+                // Redirect to the download route
+                window.location.href = `{{ url('hall-bookings') }}/${currentBookingId}/download`;
+            } else {
+                showInfoOverlay("No booking selected for download.");
+            }
         });
     });
 </script>

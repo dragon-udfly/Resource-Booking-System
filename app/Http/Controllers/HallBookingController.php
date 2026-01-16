@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\HallBookingSubmitted;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class HallBookingController extends Controller
 {
@@ -254,5 +255,16 @@ class HallBookingController extends Controller
         ]);
 
         return response()->json(['success' => true, 'message' => 'Booking cancelled successfully.']);
+    }
+
+    public function downloadPDF(HallBooking $hallBooking)
+    {
+        $data = [
+            'booking' => $hallBooking,
+            'date' => Carbon::now()->format('Y-m-d')
+        ];
+        
+        $pdf = Pdf::loadView('pdf.hall_booking_form', $data);
+        return $pdf->download('hall_booking_' . $hallBooking->booking_id . '.pdf');
     }
 }
