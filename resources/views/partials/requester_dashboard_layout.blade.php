@@ -6,7 +6,7 @@
 <table id="requester-bookings-table">
     <thead>
         <tr>
-            <th>Application Type</th>
+            <th>Applicant Name</th>
             <th>Submitted Date</th>
             <th>Event Date</th>
             <th>AO Approval</th>
@@ -18,7 +18,7 @@
     <tbody>
         @forelse ($requesterBookings as $booking)
             <tr data-booking='{{ json_encode($booking) }}'>
-                <td>Hall Booking</td> {{-- Assuming only Hall Booking for now --}}
+                <td>{{ ucfirst($booking->applicant_name) }}</td>
                 <td>{{ \Carbon\Carbon::parse($booking->date_created)->format('Y-m-d h:i A') }}</td>
                 <td>{{ \Carbon\Carbon::parse($booking->event_date)->format('Y-m-d') }}</td>
                 <td>{{ ucfirst($booking->administrative_officer_approved) }}</td>
