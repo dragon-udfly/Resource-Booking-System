@@ -131,9 +131,10 @@ class HallBookingController extends Controller
      */
     public function showSchedule()
     {
-        $bookings = HallBooking::whereHas('hall', function ($query) {
-            $query->where('current_state', 'available');
-        })->with('hall')->get();
+        $bookings = HallBooking::where('final_approval', '!=', 'rejected')
+            ->whereHas('hall', function ($query) {
+                $query->where('current_state', 'available');
+            })->with('hall')->get();
         return view('hallschedule', ['bookings' => $bookings]);
     }
 
@@ -342,5 +343,13 @@ class HallBookingController extends Controller
         }
 
         return response()->json(['success' => false, 'message' => 'You do not have permission to reject this booking or it is already processed.'], 403);
+    }
+
+    public function showHistory()
+    {
+        $bookings = HallBooking::where('final_approval', '!=', 'pending')
+                               ->orderBy('date_created', 'desc')
+                               ->get();
+        return view('history', ['bookings' => $bookings]);
     }
 }

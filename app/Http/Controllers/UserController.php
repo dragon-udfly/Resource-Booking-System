@@ -62,12 +62,16 @@ class UserController extends Controller
         if ($user->hasPermissionTo('requester')) {
             $hallBookings = HallBooking::with('hall')
                                         ->where('filled_by_nic', $user->nic_number)
+                                        ->where('final_approval', 'pending')
                                         ->orderBy('date_created', 'desc')
                                         ->get();
             // In a real scenario, you would also fetch QuarterBookings here if they existed
             return view('dashboard', ['user' => $user, 'requesterBookings' => $hallBookings]);
         } else {
-            $bookings = HallBooking::with('hall')->orderBy('date_created', 'desc')->get();
+            $bookings = HallBooking::with('hall')
+                                    ->where('final_approval', 'pending')
+                                    ->orderBy('date_created', 'desc')
+                                    ->get();
             return view('dashboard', ['user' => $user, 'bookings' => $bookings]);
         }
     }

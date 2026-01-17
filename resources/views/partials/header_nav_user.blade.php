@@ -116,6 +116,7 @@
                 @endif
             @endauth
             <li id="nav-homepage"><a href="{{ route('homepage') }}">Homepage</a></li>
+            <li id="nav-history"><a href="{{ route('history') }}">History</a></li>
             @auth
                 @if(Auth::user()->hasPermissionTo('view_audit_log'))
                     <li id="nav-audit-log"><a href="/seeauditlog">Audit Log</a></li>
