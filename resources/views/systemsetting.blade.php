@@ -179,7 +179,7 @@
                 </div>
             </form>
             <br><br><br>
-            <h3 style="text-align: center; color:rgb(255, 68, 0)">Danger Zone</h3>
+            <h3 style="text-align: center; color:rgb(255, 136, 0)">Danger Zone</h3>
             
             <table class="advanced-table">
                 <thead>
@@ -206,6 +206,26 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-danger" data-confirm="Are you sure you want to clear all hall records? This action cannot be undone.">Clear</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Clear all hall booking details records from the system. (This action cannot be undone)</td>
+                        <td style="text-align: center;">
+                            <form id="clear-bookings-form" action="{{ route('bookings.clear') }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-danger" data-confirm="Are you sure you want to clear all hall booking records? This action cannot be undone.">Clear</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Clear all user details records from the system. (This action cannot be undone and will not delete admin users)</td>
+                        <td style="text-align: center;">
+                            <form id="clear-users-form" action="{{ route('users.clear') }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-danger" data-confirm="Are you sure you want to clear all non-admin user records? This action cannot be undone.">Clear</button>
                             </form>
                         </td>
                     </tr>
