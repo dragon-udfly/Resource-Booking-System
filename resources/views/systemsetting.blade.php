@@ -179,7 +179,7 @@
                 </div>
             </form>
             <br><br><br>
-            <h3 style="text-align: center; color:rgb(255, 136, 0)">Advanced System Setting</h3>
+            <h3 style="text-align: center; color:rgb(255, 68, 0)">Danger Zone</h3>
             
             <table class="advanced-table">
                 <thead>
@@ -195,7 +195,17 @@
                             <form id="clear-audit-form" action="{{ route('auditlog.clear') }}" method="POST">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn-danger">Clear</button>
+                                <button type="submit" class="btn-danger" data-confirm="Are you sure you want to clear all audit log records? This action cannot be undone.">Clear</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Clear all hall details records from the system. (This action cannot be undone)</td>
+                        <td style="text-align: center;">
+                            <form id="clear-halls-form" action="{{ route('halls.clear') }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-danger" data-confirm="Are you sure you want to clear all hall records? This action cannot be undone.">Clear</button>
                             </form>
                         </td>
                     </tr>
@@ -208,7 +218,7 @@
     <div id="confirmation-overlay">
         <div class="overlay-content">
             <h3 style="color: #dc3545; margin-bottom: 15px;">Confirm Action</h3>
-            <p style="font-size: 1.1em; color: #333; margin-bottom: 25px;">Are you sure you want to clear all audit log records? This action cannot be undone.</p>
+            <p id="confirmation-message" style="font-size: 1.1em; color: #333; margin-bottom: 25px;"></p>
             <div style="display: flex; justify-content: center; gap: 15px;">
                 <button id="confirm-btn" class="btn-danger" style="padding: 10px 20px; font-size: 1em;">Yes, Clear It</button>
                 <button id="cancel-btn" style="background-color: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; font-weight: bold;">Cancel</button>
@@ -219,28 +229,39 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('clear-audit-form');
             const overlay = document.getElementById('confirmation-overlay');
+            const message = document.getElementById('confirmation-message');
             const confirmBtn = document.getElementById('confirm-btn');
             const cancelBtn = document.getElementById('cancel-btn');
+            let currentForm = null;
 
-            form.addEventListener('submit', function(e) {
-                e.preventDefault(); // Stop form submission
-                overlay.style.display = 'flex'; // Show overlay
+            document.querySelectorAll('form button[type="submit"]').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    if (this.dataset.confirm) {
+                        e.preventDefault();
+                        currentForm = this.closest('form');
+                        message.textContent = this.dataset.confirm;
+                        overlay.style.display = 'flex';
+                    }
+                });
             });
 
             confirmBtn.addEventListener('click', function() {
-                form.submit(); // Submit the form
+                if (currentForm) {
+                    currentForm.submit();
+                }
             });
 
             cancelBtn.addEventListener('click', function() {
-                overlay.style.display = 'none'; // Hide overlay
+                overlay.style.display = 'none';
+                currentForm = null;
             });
 
             // Close on outside click
             overlay.addEventListener('click', function(e) {
                 if (e.target === overlay) {
                     overlay.style.display = 'none';
+                    currentForm = null;
                 }
             });
         });

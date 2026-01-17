@@ -182,4 +182,18 @@ class HallController extends Controller
         $halls = Hall::where('current_state', 'available')->get(['hall_id', 'hall_type', 'capacity']);
         return response()->json($halls);
     }
+
+    public function clearHalls()
+    {
+        Hall::truncate();
+
+        AuditLog::create([
+            'log_title' => 'All hall records deleted',
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('systemsetting')->with('success', 'All hall records have been cleared successfully.');
+    }
 }

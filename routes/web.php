@@ -61,6 +61,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         })->name('systemsetting');
     Route::get('/auditlog', [UserController::class, 'showAuditLog'])->name('auditlog');
     Route::delete('/auditlog/clear', [UserController::class, 'clearAuditLog'])->name('auditlog.clear');
+    Route::delete('/halls/clear', [HallController::class, 'clearHalls'])->name('halls.clear');
 });
 
 Route::middleware(['auth'])->group(function () {
