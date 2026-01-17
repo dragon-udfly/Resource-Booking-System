@@ -108,7 +108,7 @@ class HallBookingController extends Controller
         $booking = HallBooking::create($bookingData);
 
         AuditLog::create([
-            'log_title' => 'New hall booking created ' . $newBookingId,
+            'log_title' => 'New Hall Booking Application ' . $newBookingId . ' submitted',
             'performed_by' => Auth::check() ? Auth::id() : null,
             'details' => Auth::check() ? null : 'Booking by officer with NIC: ' . $request->filled_by_nic,
             'date_performed' => Carbon::now()->toDateString(),
@@ -220,7 +220,7 @@ class HallBookingController extends Controller
 
         // Audit Log
         AuditLog::create([
-            'log_title' => 'Hall booking ' . $hallBooking->booking_id . ' modified by requester',
+            'log_title' => 'Hall Booking Application ' . $hallBooking->booking_id . ' details updated by requester',
             'performed_by' => Auth::id(),
             'date_performed' => Carbon::now()->toDateString(),
             'time_performed' => Carbon::now()->toTimeString(),
@@ -248,7 +248,7 @@ class HallBookingController extends Controller
 
         // Audit Log
         AuditLog::create([
-            'log_title' => 'Hall booking ' . $bookingId . ' cancelled by requester',
+            'log_title' => 'Hall Booking Application ' . $bookingId . ' cancelled by requester',
             'performed_by' => Auth::id(),
             'date_performed' => Carbon::now()->toDateString(),
             'time_performed' => Carbon::now()->toTimeString(),
@@ -266,5 +266,81 @@ class HallBookingController extends Controller
         
         $pdf = Pdf::loadView('pdf.hall_booking_form', $data);
         return $pdf->download('hall_booking_Application_' . $hallBooking->booking_id . '.pdf');
+    }
+
+    public function approve(HallBooking $hallBooking)
+    {
+        $user = Auth::user();
+        $updated = false;
+        $role_action = 'Approved';
+
+        if ($user->hasPermissionTo('administrative_officer_approval') && $hallBooking->administrative_officer_approved === 'pending') {
+            $hallBooking->administrative_officer_approved = 'approved';
+            $role_action = 'Administrative Officer Approval granted';
+            $updated = true;
+        } elseif ($user->hasPermissionTo('additional_government_agent_approval') && $hallBooking->additional_government_agent_approved === 'pending') {
+            $hallBooking->additional_government_agent_approved = 'approved';
+            $role_action = 'Additional Government Agent Approval granted';
+            $updated = true;
+        } elseif ($user->hasPermissionTo('government_agent_approval') && $hallBooking->government_agent_approved === 'pending') {
+            $hallBooking->government_agent_approved = 'approved';
+            // Only the Government Agent's approval sets the final status to approved
+            $hallBooking->final_approval = 'approved';
+            $role_action = 'Government Agent Approval granted';
+            $updated = true;
+        }
+
+        if ($updated) {
+            $hallBooking->save();
+
+            AuditLog::create([
+                'log_title' => $role_action . ' for booking ' . $hallBooking->booking_id,
+                'performed_by' => $user->user_id,
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Booking approved successfully.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'You do not have permission to approve this booking or it is already processed.'], 403);
+    }
+
+    public function reject(HallBooking $hallBooking)
+    {
+        $user = Auth::user();
+        $updated = false;
+        $role_action = 'Rejected';
+
+        if ($user->hasPermissionTo('administrative_officer_approval') && $hallBooking->administrative_officer_approved === 'pending') {
+            $hallBooking->administrative_officer_approved = 'rejected';
+            $role_action = 'Administrative Officer Rejection';
+            $updated = true;
+        } elseif ($user->hasPermissionTo('additional_government_agent_approval') && $hallBooking->additional_government_agent_approved === 'pending') {
+            $hallBooking->additional_government_agent_approved = 'rejected';
+            $role_action = 'Additional Government Agent Rejection';
+            $updated = true;
+        } elseif ($user->hasPermissionTo('government_agent_approval') && $hallBooking->government_agent_approved === 'pending') {
+            $hallBooking->government_agent_approved = 'rejected';
+            // Only the Government Agent's rejection sets the final status to rejected (per specific requirement)
+            $hallBooking->final_approval = 'rejected';
+            $role_action = 'Government Agent Rejection';
+            $updated = true;
+        }
+
+        if ($updated) {
+            $hallBooking->save();
+
+            AuditLog::create([
+                'log_title' => $role_action . ' for booking ' . $hallBooking->booking_id,
+                'performed_by' => $user->user_id,
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Booking rejected successfully.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'You do not have permission to reject this booking or it is already processed.'], 403);
     }
 }
