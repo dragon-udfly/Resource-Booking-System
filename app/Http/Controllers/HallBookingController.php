@@ -345,14 +345,6 @@ class HallBookingController extends Controller
         return response()->json(['success' => false, 'message' => 'You do not have permission to reject this booking or it is already processed.'], 403);
     }
 
-    public function showHistory()
-    {
-        $bookings = HallBooking::where('final_approval', '!=', 'pending')
-                               ->orderBy('date_created', 'desc')
-                               ->get();
-        return view('history', ['bookings' => $bookings]);
-    }
-
     public function clearBookings()
     {
         HallBooking::truncate();
@@ -365,5 +357,27 @@ class HallBookingController extends Controller
         ]);
 
         return redirect()->route('systemsetting')->with('success', 'All hall booking records have been cleared successfully.');
+    }
+
+    public function clearRejectedBookings()
+    {
+        HallBooking::where('final_approval', 'rejected')->delete();
+
+        AuditLog::create([
+            'log_title' => 'All rejected hall booking records deleted',
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('systemsetting')->with('success', 'All rejected hall booking records have been cleared successfully.');
+    }
+
+    public function showHistory()
+    {
+        $bookings = HallBooking::where('final_approval', '!=', 'pending')
+                               ->orderBy('date_created', 'desc')
+                               ->get();
+        return view('history', ['bookings' => $bookings]);
     }
 }

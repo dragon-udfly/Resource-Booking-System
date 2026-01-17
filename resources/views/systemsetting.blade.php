@@ -220,6 +220,16 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>Clear rejected hall booking application from history. (This action cannot be undone)</td>
+                        <td style="text-align: center;">
+                            <form id="clear-rejected-bookings-form" action="{{ route('bookings.clearRejected') }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-danger" data-confirm="Are you sure you want to clear all rejected hall booking records? This action cannot be undone.">Clear</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Clear all user details records from the system. (This action cannot be undone and will not delete admin users)</td>
                         <td style="text-align: center;">
                             <form id="clear-users-form" action="{{ route('users.clear') }}" method="POST">
