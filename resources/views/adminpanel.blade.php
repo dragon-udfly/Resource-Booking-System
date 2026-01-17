@@ -41,7 +41,7 @@
             <a href="/halls">Halls</a>
         </div>
         <div class="btn-row btn-reset">
-            <a href="/systemsetting">System Setting</a>
+            <a href="{{ route('systemsetting') }}">System Setting</a>
         </div>
     </section>
 @endsection
