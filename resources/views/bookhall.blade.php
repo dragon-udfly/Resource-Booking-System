@@ -204,7 +204,7 @@
                 <div class="form-row">
                      <div class="form-group">
                         <label for="event_date">Event Date <span class="required">*</span></label>
-                        <input type="date" id="event_date" name="event_date" value="{{ old('event_date') }}" required>
+                        <input type="date" id="event_date" name="event_date" value="{{ old('event_date') }}" min="{{ \Carbon\Carbon::today()->format('Y-m-d') }}" required>
                     </div>
                     <div class="form-group">
                         <label for="event_time">Event Time <span class="required">*</span></label>
@@ -274,6 +274,26 @@
             const requesterMessage = document.getElementById('requester-message');
             const requesterConfirmBtn = document.getElementById('requester-confirm-btn');
             const requesterCancelBtn = document.getElementById('requester-cancel-btn');
+
+            const eventDateInput = document.getElementById('event_date');
+            const eventTimeInput = document.getElementById('event_time');
+
+            // Function to update the minimum time allowed based on the selected date
+            function updateMinTime() {
+                const today = new Date().toISOString().split('T')[0];
+                if (eventDateInput.value === today) {
+                    const now = new Date();
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    eventTimeInput.min = `${hours}:${minutes}`;
+                } else {
+                    eventTimeInput.removeAttribute('min');
+                }
+            }
+
+            // Initial check and event listener for date changes
+            updateMinTime();
+            eventDateInput.addEventListener('change', updateMinTime);
 
             let isAwaitingConfirmation = false; // Flag to track if overlay is for confirmation
 
