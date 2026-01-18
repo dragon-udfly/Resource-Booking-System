@@ -36,13 +36,12 @@ class HallBooking extends Model
         'ao_user',
         'aga_user',
         'ga_user',
+        'is_emergency_booking',
         'filled_by_nic',
         'filled_by_phone',
+        'reason_of_rejection',
         'date_created',
         'date_modified',
-        'event_date',
-        'event_time',
-        'is_emergency_booking'
     ];
 
     /**

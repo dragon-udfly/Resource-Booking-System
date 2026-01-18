@@ -154,7 +154,7 @@
                 @php
                     $todayDate = \Carbon\Carbon::today()->toDateString();
                 @endphp
-                @forelse($bookings as $booking)
+                @forelse($upcomingBookings as $booking)
                     <div class="event-item @if($booking->event_date == $todayDate) today-event @endif">
                         <strong @if($booking->is_emergency_booking) style="color:#a19909;" @endif>Programme: {{ $booking->programme }} @if($booking->is_emergency_booking)(Emergency Booking)@endif</strong>
                         <p>Hall Type: {{ $booking->hall->hall_type }}</p>

@@ -16,6 +16,7 @@
                 <th>Event Date</th>
                 <th>Submitted Date</th>
                 <th>Final Approval State</th>
+                <th>Reason of Rejection</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -30,13 +31,14 @@
                             {{ ucfirst($booking->final_approval) }}
                         </span>
                     </td>
+                    <td>{{ $booking->reason_of_rejection ?? 'N/A' }}</td>
                     <td>
                          <button class="action-btn review-btn" data-booking-id="{{ $booking->booking_id }}">Review</button>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" style="text-align: center;">No history found.</td>
+                    <td colspan="6" style="text-align: center;">No history found.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -61,6 +63,9 @@
             <h3 style="text-align: center; margin-bottom: 20px;">Application Details</h3>
             <div id="history-form-content"></div>
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                @if(Auth::user()->hasPermissionTo('administrative_officer_approval'))
+                    <button type="button" id="history-cancel-btn" class="action-btn" style="background-color: #dc3545; color: white; padding: 10px 20px; display: none;">Cancel Booking</button>
+                @endif
                 <button type="button" id="history-download-btn" class="action-btn" style="background-color: #29f00f; color: white; padding: 10px 20px;">Download PDF</button>
             </div>
         </div>
@@ -103,6 +108,7 @@
             const historyBackBtn = document.getElementById('history-back-btn');
             const historyFormContent = document.getElementById('history-form-content');
             const historyDownloadBtn = document.getElementById('history-download-btn');
+            const historyCancelBtn = document.getElementById('history-cancel-btn'); // May be null if no permission
             let currentBookingId = null;
 
             function renderHistoryFields(booking) {
@@ -162,8 +168,29 @@
                             <p style="color: ${booking.final_approval === 'approved' ? 'green' : 'red'}; font-weight: bold;">${booking.final_approval.charAt(0).toUpperCase() + booking.final_approval.slice(1)}</p>
                         </div>
                     </div>
+                    ${booking.reason_of_rejection ? `
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Reason of Rejection/Cancellation</label>
+                            <p style="background-color: #fff3f3; border-color: #f5c6cb; color: #721c24;">${booking.reason_of_rejection}</p>
+                        </div>
+                    </div>
+                    ` : ''}
+                    <div id="cancel-reason-container" style="display: none; margin-top: 15px;">
+                        <label for="cancel-reason" style="display: block; margin-bottom: 5px; font-weight: bold; color: #dc3545;">Reason for Cancellation <span style="color: red">*</span></label>
+                        <textarea id="cancel-reason" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;" rows="3" placeholder="Enter the reason for cancelling this approved booking..."></textarea>
+                    </div>
                 `;
                 historyFormContent.innerHTML = fieldsHtml;
+
+                // Toggle cancel button based on status
+                if (historyCancelBtn) {
+                    if (booking.final_approval === 'approved') {
+                        historyCancelBtn.style.display = 'inline-block';
+                    } else {
+                        historyCancelBtn.style.display = 'none';
+                    }
+                }
             }
 
             document.querySelectorAll('.review-btn').forEach(button => {
@@ -189,6 +216,51 @@
                     window.location.href = `/hall-bookings/${currentBookingId}/download`;
                 }
             });
+
+            if (historyCancelBtn) {
+                historyCancelBtn.addEventListener('click', function() {
+                    const reasonContainer = document.getElementById('cancel-reason-container');
+                    const reasonInput = document.getElementById('cancel-reason');
+
+                    if (reasonContainer.style.display === 'none') {
+                        reasonContainer.style.display = 'block';
+                        reasonInput.focus();
+                        return; // Stop here to let user enter reason
+                    }
+
+                    const reason = reasonInput.value.trim();
+                    if (!reason) {
+                        alert('Please provide a reason for cancellation.');
+                        reasonInput.focus();
+                        return;
+                    }
+
+                    if (confirm('Are you sure you want to cancel this approved booking? This action cannot be undone.')) {
+                        fetch(`/hall-bookings/${currentBookingId}/cancel-approved`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ reason: reason })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message);
+                                location.reload();
+                            } else {
+                                alert('Error: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while cancelling the booking.');
+                        });
+                    }
+                });
+            }
         });
     </script>
     @endpush

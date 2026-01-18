@@ -67,10 +67,10 @@ class HallBookingController extends Controller
             'filled_by_phone' => 'required|string|max:50',
         ]);
 
-        // Check for existing booking for the same hall and date (excluding rejected ones)
+        // Check for existing booking for the same hall and date (excluding rejected and cancelled ones)
         $existingBooking = HallBooking::where('hall_id', $request->hall_id)
             ->where('event_date', $request->event_date)
-            ->where('final_approval', '!=', 'rejected')
+            ->whereNotIn('final_approval', ['rejected', 'cancelled'])
             ->exists();
 
         if ($existingBooking) {
@@ -141,11 +141,22 @@ class HallBookingController extends Controller
      */
     public function showSchedule()
     {
-        $bookings = HallBooking::where('final_approval', '!=', 'rejected')
+        $bookings = HallBooking::whereNotIn('final_approval', ['rejected', 'cancelled'])
             ->whereHas('hall', function ($query) {
                 $query->where('current_state', 'available');
             })->with('hall')->get();
-        return view('hallschedule', ['bookings' => $bookings]);
+
+        $upcomingBookings = HallBooking::whereNotIn('final_approval', ['rejected', 'cancelled'])
+            ->whereHas('hall', function ($query) {
+                $query->where('current_state', 'available');
+            })
+            ->where('event_date', '>=', Carbon::today()->toDateString())
+            ->orderBy('event_date', 'asc')
+            ->orderBy('event_time', 'asc')
+            ->with('hall')
+            ->get();
+
+        return view('hallschedule', ['bookings' => $bookings, 'upcomingBookings' => $upcomingBookings]);
     }
 
     public function verifyRequester(Request $request)
@@ -210,10 +221,10 @@ class HallBookingController extends Controller
             return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
         }
 
-        // Check for existing booking for the same hall and date (excluding current booking and rejected ones)
+        // Check for existing booking for the same hall and date (excluding current booking and rejected/cancelled ones)
         $existingBooking = HallBooking::where('hall_id', $request->hall_id)
             ->where('event_date', $request->event_date)
-            ->where('final_approval', '!=', 'rejected')
+            ->whereNotIn('final_approval', ['rejected', 'cancelled'])
             ->where('booking_id', '!=', $hallBooking->booking_id)
             ->exists();
 
@@ -366,32 +377,32 @@ class HallBookingController extends Controller
         return response()->json(['success' => false, 'message' => 'You do not have permission to reject this booking or it is already processed.'], 403);
     }
 
-    public function clearBookings()
+    public function cancelApproved(Request $request, HallBooking $hallBooking)
     {
-        HallBooking::truncate();
-
-        AuditLog::create([
-            'log_title' => 'All hall booking records deleted',
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
+        $request->validate([
+            'reason' => 'required|string|max:500',
         ]);
 
-        return redirect()->route('systemsetting')->with('success', 'All hall booking records have been cleared successfully.');
-    }
+        if (Auth::user()->hasPermissionTo('administrative_officer_approval')) {
+            if ($hallBooking->final_approval === 'approved') {
+                $hallBooking->final_approval = 'cancelled';
+                $hallBooking->reason_of_rejection = $request->reason;
+                // Reset internal approvals just in case, or leave them as history? 
+                // Typically cancellation keeps the record that it WAS approved but now cancelled.
+                $hallBooking->save();
 
-    public function clearRejectedBookings()
-    {
-        HallBooking::where('final_approval', 'rejected')->delete();
+                AuditLog::create([
+                    'log_title' => 'Approved booking ' . $hallBooking->booking_id . ' cancelled by Administrative Officer. Reason: ' . $request->reason,
+                    'performed_by' => Auth::id(),
+                    'date_performed' => Carbon::now()->toDateString(),
+                    'time_performed' => Carbon::now()->toTimeString(),
+                ]);
 
-        AuditLog::create([
-            'log_title' => 'All rejected hall booking records deleted',
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
-
-        return redirect()->route('systemsetting')->with('success', 'All rejected hall booking records have been cleared successfully.');
+                return response()->json(['success' => true, 'message' => 'Booking cancelled successfully.']);
+            }
+            return response()->json(['success' => false, 'message' => 'This booking is not currently approved.'], 422);
+        }
+        return response()->json(['success' => false, 'message' => 'You do not have permission to cancel this booking.'], 403);
     }
 
     public function showHistory()

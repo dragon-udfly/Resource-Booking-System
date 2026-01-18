@@ -89,6 +89,7 @@ Route::middleware(['auth'])->group(function () {
     // Approval Routes
     Route::post('/hall-bookings/{hallBooking}/approve', [HallBookingController::class, 'approve'])->name('hall_bookings.approve');
     Route::post('/hall-bookings/{hallBooking}/reject', [HallBookingController::class, 'reject'])->name('hall_bookings.reject');
+    Route::post('/hall-bookings/{hallBooking}/cancel-approved', [HallBookingController::class, 'cancelApproved'])->name('hall_bookings.cancelApproved');
 
     Route::get('/history', [HallBookingController::class, 'showHistory'])->name('history');
 });
