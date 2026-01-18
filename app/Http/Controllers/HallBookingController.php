@@ -67,6 +67,16 @@ class HallBookingController extends Controller
             'filled_by_phone' => 'required|string|max:50',
         ]);
 
+        // Check for existing booking for the same hall and date (excluding rejected ones)
+        $existingBooking = HallBooking::where('hall_id', $request->hall_id)
+            ->where('event_date', $request->event_date)
+            ->where('final_approval', '!=', 'rejected')
+            ->exists();
+
+        if ($existingBooking) {
+            return redirect()->back()->withErrors(['hall_id' => 'The selected hall is already booked for this date.'])->withInput();
+        }
+
         // Generate booking_id
         $lastBooking = HallBooking::orderBy('booking_id', 'desc')->first();
         $nextBookingIdNumber = 1;
@@ -198,6 +208,17 @@ class HallBookingController extends Controller
 
         if ($validator->fails()) {
             return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
+        }
+
+        // Check for existing booking for the same hall and date (excluding current booking and rejected ones)
+        $existingBooking = HallBooking::where('hall_id', $request->hall_id)
+            ->where('event_date', $request->event_date)
+            ->where('final_approval', '!=', 'rejected')
+            ->where('booking_id', '!=', $hallBooking->booking_id)
+            ->exists();
+
+        if ($existingBooking) {
+            return response()->json(['success' => false, 'message' => 'The selected hall is already booked for this date.'], 422);
         }
 
         // Update booking details
