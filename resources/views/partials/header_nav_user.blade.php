@@ -100,35 +100,47 @@
     </div>
     <nav class="navbar">
         <ul class="navbar-left">
-           @if(Auth::user()->hasPermissionTo('account_setting'))
-                <li id="nav-preference"><a href="{{ route('preference') }}">Preference</a></li>
-           @endif
-           <li id="nav-dashboard"><a href="/dashboard">Dashboard</a></li>
-            @if(Auth::user()->hasPermissionTo('view_officers'))
-                <li id="nav-officers"><a href="{{ route('seeofficers') }}">Officers</a></li>
-            @endif
-            @if(Auth::user()->hasPermissionTo('view_halls'))
-                <li id="nav-halls"><a href="/seehalls">Halls</a></li>
-            @endif
-            @if(Auth::user()->hasPermissionTo('view_quarters'))
-                <li id="nav-quarter"><a href="#">Quarters</a></li>
-            @endif
-            @if(Auth::user()->hasPermissionTo('view_audit_log'))
-                <li id="nav-audit-log"><a href="/seeauditlog">Audit Log</a></li>
-            @endif
+           @auth
+               @if(Auth::user()->hasPermissionTo('account_setting'))
+                    <li id="nav-preference"><a href="{{ route('preference') }}">Preference</a></li>
+               @endif
+               <li id="nav-dashboard"><a href="/dashboard">Dashboard</a></li>
+                @if(Auth::user()->hasPermissionTo('view_officers'))
+                    <li id="nav-officers"><a href="{{ route('seeofficers') }}">Officers</a></li>
+                @endif
+                @if(Auth::user()->hasPermissionTo('view_halls'))
+                    <li id="nav-halls"><a href="/seehalls">Halls</a></li>
+                @endif
+                @if(Auth::user()->hasPermissionTo('view_quarters'))
+                    <li id="nav-quarter"><a href="#">Quarters</a></li>
+                @endif
+            @endauth
+            <li id="nav-homepage"><a href="{{ route('homepage') }}">Homepage</a></li>
+            <li id="nav-history"><a href="{{ route('history') }}">History</a></li>
+            @auth
+                @if(Auth::user()->hasPermissionTo('view_audit_log'))
+                    <li id="nav-audit-log"><a href="/seeauditlog">Audit Log</a></li>
+                @endif
+            @endauth
         </ul>
         <ul class="navbar-right">
             <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
                 @auth
                 <span id="designation">{{ Auth::user()->designation }}</span>, 
                 <span id="first_name">{{ Auth::user()->first_name }}</span>
+                @else
+                Guest
                 @endauth
             </li>
             <li>
+                @auth
                 <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                     @csrf
                     <button type="submit" style="background: none; border: none; color: #007bff; font-weight: bold; cursor: pointer; font-size: 1em; padding: 0;">Log Out</button>
                 </form>
+                @else
+                <a href="/login" style="color: #007bff; font-weight: bold; text-decoration: none;">Log In</a>
+                @endauth
             </li>
         </ul>
     </nav>

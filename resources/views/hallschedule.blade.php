@@ -144,7 +144,7 @@
     <section class="banner">
         <div class="left-content-area">
             <div class="button-bar">
-                <a href="/" style="background-color: #6c757d;" class="btn">Home</a>
+                <a href="{{ Auth::check() ? route('homepage') : route('home') }}" style="background-color: #6c757d;" class="btn">Home</a>
                 <a href="{{ route('halls.overview') }}" style="background-color: #097e61;" class="btn">Halls</a>
                 <a href="{{ route('halls.book') }}" class="btn" style="background-color: #007bff;">Book Hall</a>
             </div>
@@ -154,7 +154,7 @@
                 @php
                     $todayDate = \Carbon\Carbon::today()->toDateString();
                 @endphp
-                @forelse($bookings as $booking)
+                @forelse($upcomingBookings as $booking)
                     <div class="event-item @if($booking->event_date == $todayDate) today-event @endif">
                         <strong @if($booking->is_emergency_booking) style="color:#a19909;" @endif>Programme: {{ $booking->programme }} @if($booking->is_emergency_booking)(Emergency Booking)@endif</strong>
                         <p>Hall Type: {{ $booking->hall->hall_type }}</p>
