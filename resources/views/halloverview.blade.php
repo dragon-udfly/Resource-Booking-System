@@ -6,7 +6,8 @@
     <style>
         .content-area {
             padding: 40px 20px;
-            background-color: #f4f7f6;
+            background: linear-gradient(180deg, #7dd3d9 0%, #a8e6ea 100%);
+            flex-grow: 1; /* Ensure it fills available space to push footer down */
         }
         .page-header {
             text-align: center;
@@ -22,38 +23,32 @@
             color: #555;
             margin-top: 10px;
         }
-        .halls-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .hall-card {
+        .content-area table {
+            width: 90%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
             background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            padding: 25px;
-            transition: transform 0.3s, box-shadow 0.3s;
         }
-        .hall-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        .content-area th, .content-area td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: left;
         }
-        .hall-card h2 {
-            font-size: 1.5em;
-            margin-bottom: 15px;
-            color: #0056b3;
-        }
-        .hall-card p {
-            font-size: 1em;
-            color: #333;
-            margin-bottom: 10px;
-            line-height: 1.6;
-        }
-        .hall-card .capacity {
+        .content-area th {
+            background-color: #f2f2f2;
             font-weight: bold;
-            color: #007bff;
+            color: #333;
+        }
+        .content-area tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .content-area tr:hover {
+            background-color: #f1f1f1;
+        }
+        .status-unavailable {
+            color: #dc3545;
+            font-weight: bold;
         }
         .no-halls {
             text-align: center;
@@ -83,27 +78,41 @@
 
 @section('content')
     <section class="content-area">
+        <div style="width: 90%; margin: 0 auto; text-align: left; margin-bottom: 20px;">
+            <a href="#" onclick="history.back(); return false;" class="action-button" style="background-color: #6c757d; padding: 10px 20px; font-size: 1em; font-weight: bold;">Back</a>
+        </div>
+
         <div class="page-header">
-            <h1>Available Halls</h1>
-            <p>Here is an overview of the halls available for booking.</p>
+            <h1>Halls Overview</h1>
+            <p>Here is an overview of the halls included in the system.</p>
         </div>
 
         @if($halls->count() > 0)
-            <div class="halls-container">
-                @foreach($halls as $hall)
-                    <div class="hall-card">
-                        <h2>{{ $hall->hall_type }}</h2>
-                        <p>{{ $hall->description }}</p>
-                        <p class="capacity">Capacity: {{ $hall->capacity }}</p>
-                    </div>
-                @endforeach
-            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Hall Type</th>
+                        <th>Description</th>
+                        <th>Current State</th>
+                        <th>Special Notice</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($halls as $hall)
+                        <tr>
+                            <td>{{ $hall->hall_type }}</td>
+                            <td>{{ $hall->description }}</td>
+                            <td class="{{ $hall->current_state === 'unavailable' ? 'status-unavailable' : '' }}">
+                                {{ ucfirst($hall->current_state) }}
+                            </td>
+                            <td>{{ $hall->special_notice }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         @else
             <p class="no-halls">No halls are available at the moment.</p>
         @endif
 
-        <div class="button-bar">
-            <a href="{{ route('halls.book') }}" class="action-button">Book Hall</a>
-        </div>
     </section>
 @endsection

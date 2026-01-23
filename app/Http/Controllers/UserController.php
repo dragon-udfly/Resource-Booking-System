@@ -62,12 +62,16 @@ class UserController extends Controller
         if ($user->hasPermissionTo('requester')) {
             $hallBookings = HallBooking::with('hall')
                                         ->where('filled_by_nic', $user->nic_number)
+                                        ->where('final_approval', 'pending')
                                         ->orderBy('date_created', 'desc')
                                         ->get();
             // In a real scenario, you would also fetch QuarterBookings here if they existed
             return view('dashboard', ['user' => $user, 'requesterBookings' => $hallBookings]);
         } else {
-            $bookings = HallBooking::with('hall')->orderBy('date_created', 'desc')->get();
+            $bookings = HallBooking::with('hall')
+                                    ->where('final_approval', 'pending')
+                                    ->orderBy('date_created', 'desc')
+                                    ->get();
             return view('dashboard', ['user' => $user, 'bookings' => $bookings]);
         }
     }
@@ -293,5 +297,32 @@ class UserController extends Controller
         ]);
 
         return redirect()->route('auditlog')->with('success', 'Audit log has been cleared successfully.');
+    }
+
+    public function clearUsers()
+    {
+        // Get all non-admin users
+        $usersToDelete = User::where('role', '!=', 'admin')->get();
+
+        foreach ($usersToDelete as $user) {
+            // Permissions are deleted via cascade if set up in DB, but we can manually ensure it
+            // Assuming cascading deletes or manual deletion if needed. 
+            // If UserPermission has user_id FK cascading on delete, just deleting User is enough.
+            // If not, we should delete permissions first.
+            // Let's assume standard Laravel relationship delete or manual.
+            if ($user->permissions) {
+                $user->permissions()->delete();
+            }
+            $user->delete();
+        }
+
+        AuditLog::create([
+            'log_title' => 'All non-admin user records deleted',
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('systemsetting')->with('success', 'All user records (except admins) have been cleared successfully.');
     }
 }

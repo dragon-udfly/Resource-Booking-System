@@ -100,7 +100,6 @@
     </div>
     <nav class="navbar">
         <ul class="navbar-left">
-            <li><a href="/document-history">Document History</a></li>
             <li><a href="/preference">Preference</a></li>
             <li><a href="/auditlog">Audit Log</a></li>
             <li><a href="/admin">Panel</a></li>

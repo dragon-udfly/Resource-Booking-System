@@ -13,6 +13,9 @@ use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\HallBookingSubmitted;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class HallBookingController extends Controller
 {
@@ -37,6 +40,7 @@ class HallBookingController extends Controller
     {
         $request->validate([
             'applicant_name' => 'required|string|max:200',
+            'applicant_email' => 'required|email|max:255',
             'applicant_type' => 'required|string',
             'hall_id' => [
                 'required',
@@ -63,6 +67,16 @@ class HallBookingController extends Controller
             'filled_by_phone' => 'required|string|max:50',
         ]);
 
+        // Check for existing booking for the same hall and date (excluding rejected and cancelled ones)
+        $existingBooking = HallBooking::where('hall_id', $request->hall_id)
+            ->where('event_date', $request->event_date)
+            ->whereNotIn('final_approval', ['rejected', 'cancelled'])
+            ->exists();
+
+        if ($existingBooking) {
+            return redirect()->back()->withErrors(['hall_id' => 'The selected hall is already booked for this date.'])->withInput();
+        }
+
         // Generate booking_id
         $lastBooking = HallBooking::orderBy('booking_id', 'desc')->first();
         $nextBookingIdNumber = 1;
@@ -77,6 +91,7 @@ class HallBookingController extends Controller
         $bookingData = [
             'booking_id' => $newBookingId,
             'applicant_name' => $request->applicant_name,
+            'applicant_email' => $request->applicant_email,
             'applicant_type' => $request->applicant_type,
             'requested_hall_type' => $hall->hall_type,
             'hall_id' => $request->hall_id,
@@ -103,12 +118,18 @@ class HallBookingController extends Controller
         $booking = HallBooking::create($bookingData);
 
         AuditLog::create([
-            'log_title' => 'New hall booking created ' . $newBookingId,
+            'log_title' => 'New Hall Booking Application ' . $newBookingId . ' submitted',
             'performed_by' => Auth::check() ? Auth::id() : null,
             'details' => Auth::check() ? null : 'Booking by officer with NIC: ' . $request->filled_by_nic,
             'date_performed' => Carbon::now()->toDateString(),
             'time_performed' => Carbon::now()->toTimeString(),
         ]);
+
+        try {
+            Mail::to($request->applicant_email)->send(new HallBookingSubmitted($request->applicant_name, $request->programme));
+        } catch (\Exception $e) {
+            // Log the error or handle it silently so the booking process isn't interrupted
+        }
 
         return redirect()->route('halls.schedule')->with('success', 'Hall booking request submitted successfully!');
     }
@@ -120,10 +141,22 @@ class HallBookingController extends Controller
      */
     public function showSchedule()
     {
-        $bookings = HallBooking::whereHas('hall', function ($query) {
-            $query->where('current_state', 'available');
-        })->with('hall')->get();
-        return view('hallschedule', ['bookings' => $bookings]);
+        $bookings = HallBooking::whereNotIn('final_approval', ['rejected', 'cancelled'])
+            ->whereHas('hall', function ($query) {
+                $query->where('current_state', 'available');
+            })->with('hall')->get();
+
+        $upcomingBookings = HallBooking::whereNotIn('final_approval', ['rejected', 'cancelled'])
+            ->whereHas('hall', function ($query) {
+                $query->where('current_state', 'available');
+            })
+            ->where('event_date', '>=', Carbon::today()->toDateString())
+            ->orderBy('event_date', 'asc')
+            ->orderBy('event_time', 'asc')
+            ->with('hall')
+            ->get();
+
+        return view('hallschedule', ['bookings' => $bookings, 'upcomingBookings' => $upcomingBookings]);
     }
 
     public function verifyRequester(Request $request)
@@ -188,6 +221,17 @@ class HallBookingController extends Controller
             return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
         }
 
+        // Check for existing booking for the same hall and date (excluding current booking and rejected/cancelled ones)
+        $existingBooking = HallBooking::where('hall_id', $request->hall_id)
+            ->where('event_date', $request->event_date)
+            ->whereNotIn('final_approval', ['rejected', 'cancelled'])
+            ->where('booking_id', '!=', $hallBooking->booking_id)
+            ->exists();
+
+        if ($existingBooking) {
+            return response()->json(['success' => false, 'message' => 'The selected hall is already booked for this date.'], 422);
+        }
+
         // Update booking details
         $hallBooking->update([
             'applicant_name' => $request->applicant_name,
@@ -209,7 +253,7 @@ class HallBookingController extends Controller
 
         // Audit Log
         AuditLog::create([
-            'log_title' => 'Hall booking ' . $hallBooking->booking_id . ' modified by requester',
+            'log_title' => 'Hall Booking Application ' . $hallBooking->booking_id . ' details updated by requester',
             'performed_by' => Auth::id(),
             'date_performed' => Carbon::now()->toDateString(),
             'time_performed' => Carbon::now()->toTimeString(),
@@ -237,12 +281,135 @@ class HallBookingController extends Controller
 
         // Audit Log
         AuditLog::create([
-            'log_title' => 'Hall booking ' . $bookingId . ' cancelled by requester',
+            'log_title' => 'Hall Booking Application ' . $bookingId . ' cancelled by requester',
             'performed_by' => Auth::id(),
             'date_performed' => Carbon::now()->toDateString(),
             'time_performed' => Carbon::now()->toTimeString(),
         ]);
 
         return response()->json(['success' => true, 'message' => 'Booking cancelled successfully.']);
+    }
+
+    public function downloadPDF(HallBooking $hallBooking)
+    {
+        $data = [
+            'booking' => $hallBooking,
+            'date' => Carbon::now()->format('Y-m-d')
+        ];
+        
+        $pdf = Pdf::loadView('pdf.hall_booking_form', $data);
+        return $pdf->download('hall_booking_Application_' . $hallBooking->booking_id . '.pdf');
+    }
+
+    public function approve(HallBooking $hallBooking)
+    {
+        $user = Auth::user();
+        $updated = false;
+        $role_action = 'Approved';
+
+        if ($user->hasPermissionTo('administrative_officer_approval') && $hallBooking->administrative_officer_approved === 'pending') {
+            $hallBooking->administrative_officer_approved = 'approved';
+            $role_action = 'Administrative Officer Approval granted';
+            $updated = true;
+        } elseif ($user->hasPermissionTo('additional_government_agent_approval') && $hallBooking->additional_government_agent_approved === 'pending') {
+            $hallBooking->additional_government_agent_approved = 'approved';
+            $role_action = 'Additional Government Agent Approval granted';
+            $updated = true;
+        } elseif ($user->hasPermissionTo('government_agent_approval') && $hallBooking->government_agent_approved === 'pending') {
+            $hallBooking->government_agent_approved = 'approved';
+            // Only the Government Agent's approval sets the final status to approved
+            $hallBooking->final_approval = 'approved';
+            $role_action = 'Government Agent Approval granted';
+            $updated = true;
+        }
+
+        if ($updated) {
+            $hallBooking->save();
+
+            AuditLog::create([
+                'log_title' => $role_action . ' for booking ' . $hallBooking->booking_id,
+                'performed_by' => $user->user_id,
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Booking approved successfully.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'You do not have permission to approve this booking or it is already processed.'], 403);
+    }
+
+    public function reject(HallBooking $hallBooking)
+    {
+        $user = Auth::user();
+        $updated = false;
+        $role_action = 'Rejected';
+
+        if ($user->hasPermissionTo('administrative_officer_approval') && $hallBooking->administrative_officer_approved === 'pending') {
+            $hallBooking->administrative_officer_approved = 'rejected';
+            $role_action = 'Administrative Officer Rejection';
+            $updated = true;
+        } elseif ($user->hasPermissionTo('additional_government_agent_approval') && $hallBooking->additional_government_agent_approved === 'pending') {
+            $hallBooking->additional_government_agent_approved = 'rejected';
+            $role_action = 'Additional Government Agent Rejection';
+            $updated = true;
+        } elseif ($user->hasPermissionTo('government_agent_approval') && $hallBooking->government_agent_approved === 'pending') {
+            $hallBooking->government_agent_approved = 'rejected';
+            // Only the Government Agent's rejection sets the final status to rejected (per specific requirement)
+            $hallBooking->final_approval = 'rejected';
+            $role_action = 'Government Agent Rejection';
+            $updated = true;
+        }
+
+        if ($updated) {
+            $hallBooking->save();
+
+            AuditLog::create([
+                'log_title' => $role_action . ' for booking ' . $hallBooking->booking_id,
+                'performed_by' => $user->user_id,
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Booking rejected successfully.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'You do not have permission to reject this booking or it is already processed.'], 403);
+    }
+
+    public function cancelApproved(Request $request, HallBooking $hallBooking)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:500',
+        ]);
+
+        if (Auth::user()->hasPermissionTo('administrative_officer_approval')) {
+            if ($hallBooking->final_approval === 'approved') {
+                $hallBooking->final_approval = 'cancelled';
+                $hallBooking->reason_of_rejection = $request->reason;
+                // Reset internal approvals just in case, or leave them as history? 
+                // Typically cancellation keeps the record that it WAS approved but now cancelled.
+                $hallBooking->save();
+
+                AuditLog::create([
+                    'log_title' => 'Approved booking ' . $hallBooking->booking_id . ' cancelled by Administrative Officer. Reason: ' . $request->reason,
+                    'performed_by' => Auth::id(),
+                    'date_performed' => Carbon::now()->toDateString(),
+                    'time_performed' => Carbon::now()->toTimeString(),
+                ]);
+
+                return response()->json(['success' => true, 'message' => 'Booking cancelled successfully.']);
+            }
+            return response()->json(['success' => false, 'message' => 'This booking is not currently approved.'], 422);
+        }
+        return response()->json(['success' => false, 'message' => 'You do not have permission to cancel this booking.'], 403);
+    }
+
+    public function showHistory()
+    {
+        $bookings = HallBooking::where('final_approval', '!=', 'pending')
+                               ->orderBy('date_created', 'desc')
+                               ->get();
+        return view('history', ['bookings' => $bookings]);
     }
 }

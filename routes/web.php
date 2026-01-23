@@ -9,6 +9,10 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+Route::get('/homepage', function () {
+    return view('homepage');
+})->name('homepage');
+
 Route::get('/login', function () {
     return view('login');
 })->name('login');
@@ -57,6 +61,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
         })->name('systemsetting');
     Route::get('/auditlog', [UserController::class, 'showAuditLog'])->name('auditlog');
     Route::delete('/auditlog/clear', [UserController::class, 'clearAuditLog'])->name('auditlog.clear');
+    Route::delete('/halls/clear', [HallController::class, 'clearHalls'])->name('halls.clear');
+    Route::delete('/bookings/clear', [HallBookingController::class, 'clearBookings'])->name('bookings.clear');
+    Route::delete('/bookings/clear-rejected', [HallBookingController::class, 'clearRejectedBookings'])->name('bookings.clearRejected');
+    Route::delete('/users/clear', [UserController::class, 'clearUsers'])->name('users.clear');
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -76,6 +84,14 @@ Route::middleware(['auth'])->group(function () {
     // Requester Booking Management Routes
     Route::patch('/hall-bookings/{hallBooking}', [HallBookingController::class, 'updateBooking'])->name('hall_bookings.update_by_requester');
     Route::delete('/hall-bookings/{hallBooking}', [HallBookingController::class, 'destroyBooking'])->name('hall_bookings.destroy_by_requester');
+    Route::get('/hall-bookings/{hallBooking}/download', [HallBookingController::class, 'downloadPDF'])->name('hall_bookings.download');
+
+    // Approval Routes
+    Route::post('/hall-bookings/{hallBooking}/approve', [HallBookingController::class, 'approve'])->name('hall_bookings.approve');
+    Route::post('/hall-bookings/{hallBooking}/reject', [HallBookingController::class, 'reject'])->name('hall_bookings.reject');
+    Route::post('/hall-bookings/{hallBooking}/cancel-approved', [HallBookingController::class, 'cancelApproved'])->name('hall_bookings.cancelApproved');
+
+    Route::get('/history', [HallBookingController::class, 'showHistory'])->name('history');
 });
 
 Route::post('/verify-requester', [HallBookingController::class, 'verifyRequester'])->name('requester.verify');

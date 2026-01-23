@@ -2,11 +2,11 @@
     <h2 style="color: rgb(6, 4, 60); font-weight: bold">Submitted Forms</h2>
     <p>Review the status of your hall and quarter booking requests.</p>
 </div>
-
+<h2 style="text-align: center; color:rgb(34, 60, 4)">Hall Booking Applications</h2>
 <table id="requester-bookings-table">
     <thead>
         <tr>
-            <th>Application Type</th>
+            <th>Applicant Name</th>
             <th>Submitted Date</th>
             <th>Event Date</th>
             <th>AO Approval</th>
@@ -18,7 +18,7 @@
     <tbody>
         @forelse ($requesterBookings as $booking)
             <tr data-booking='{{ json_encode($booking) }}'>
-                <td>Hall Booking</td> {{-- Assuming only Hall Booking for now --}}
+                <td>{{ ucfirst($booking->applicant_name) }}</td>
                 <td>{{ \Carbon\Carbon::parse($booking->date_created)->format('Y-m-d h:i A') }}</td>
                 <td>{{ \Carbon\Carbon::parse($booking->event_date)->format('Y-m-d') }}</td>
                 <td>{{ ucfirst($booking->administrative_officer_approved) }}</td>
@@ -35,6 +35,22 @@
         @endforelse
     </tbody>
 </table>
+<br /> 
+<br />
+<h2 style="text-align: center; color:rgb(34, 60, 4)">Quarters Booking Applications</h2>
+<table id="requester-bookings-table">
+    <thead>
+        <tr>
+            <th>Applicant Name</th>
+            <th>Submitted Date</th>
+            <th>Event Date</th>
+            <th>AO Approval</th>
+            <th>AGA Approval</th>
+            <th>GA Approval</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+</table>
 
 {{-- Transparent Overlay for Review/Modify --}}
 <div id="review-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1001; justify-content: center; align-items: center;">
@@ -47,6 +63,7 @@
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
                 <button type="submit" id="overlay-modify-btn" class="action-btn" style="background-color: #007bff; color: white;">Modify</button>
                 <button type="button" id="overlay-cancel-btn" class="action-btn" style="background-color: #dc3545; color: white;">Cancel Booking</button>
+                <button type="button" id="overlay-download-btn" class="action-btn" style="background-color: #29f00f; color: white;">Download</button>
             </div>
         </form>
     </div>
@@ -142,6 +159,7 @@
         const overlayFormContent = document.getElementById('overlay-form-content');
         const overlayModifyBtn = document.getElementById('overlay-modify-btn');
         const overlayCancelBtn = document.getElementById('overlay-cancel-btn');
+        const overlayDownloadBtn = document.getElementById('overlay-download-btn');
         const overlayForm = document.getElementById('overlay-form');
 
         // Global confirmation overlay elements
@@ -432,6 +450,17 @@
                     showInfoOverlay('An error occurred while cancelling the booking. Please try again.'); // Use info overlay
                 });
             });
+        });
+
+        // --- Download Button Logic ---
+        overlayDownloadBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            if (currentBookingId) {
+                // Redirect to the download route
+                window.location.href = `{{ url('hall-bookings') }}/${currentBookingId}/download`;
+            } else {
+                showInfoOverlay("No booking selected for download.");
+            }
         });
     });
 </script>

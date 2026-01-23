@@ -199,6 +199,12 @@
                         </select>
                     </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="special_notice">Special Notice</label>
+                        <textarea id="special_notice" name="special_notice" placeholder="Enter notice if the hall is temporary unavailable, including reasons and time period." maxlength="1200">{{ old('special_notice') }}</textarea>
+                    </div>
+                </div>
                 <div class="button-group">
                     <button type="submit" class="submit-btn">Add Hall</button>
                     <button type="reset" class="reset-btn">Reset Form</button>
