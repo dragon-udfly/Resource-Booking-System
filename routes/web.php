@@ -40,16 +40,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::patch('/halls/{hall}', [HallController::class, 'update'])->name('halls.update');
     Route::delete('/halls/{hall}', [HallController::class, 'destroy'])->name('halls.destroy');
 
-    Route::get('/addquarter', function(){
-        return view('addquarter');
-    });
-
     Route::get('/modifyaccount', function(){
         return view('modifyaccount');
-    });
-
-    Route::get('/modifyquarter', function(){
-        return view('modifyquarter');
     });
 
         Route::get('/modifyhall', function(){
@@ -112,3 +104,19 @@ Route::get('/api/halls/available', [HallController::class, 'getAvailableHalls'])
 Route::get('/hall-overview', [HallController::class, 'showOverview'])->name('halls.overview');
 
 Route::get('/hallschedule', [HallBookingController::class, 'showSchedule'])->name('halls.schedule');
+
+Route::get('/quarters', function () {
+    return view('quarters');
+});
+
+Route::get('/seequarters', function () {
+    return view('seequarters');
+});
+
+Route::get('/addquarter', function(){
+    return view('addquarter');
+});
+
+Route::get('/modifyquarter', function(){
+    return view('modifyquarter');
+});
