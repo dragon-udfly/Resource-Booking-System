@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Quarter;
+use App\Models\AuditLog;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
-
+use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 
 class QuarterController extends Controller
@@ -62,9 +64,14 @@ class QuarterController extends Controller
 
             Quarter::create($data);
 
-            Log::info('New quarter created successfully with ID: ' . $newQuarterId);
+            AuditLog::create([
+                'log_title' => 'Added New Quarter ' . $newQuarterId,
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
 
-            return redirect()->route('quarters')->with('success', 'Quarter added successfully with ID ' . $newQuarterId . '!');
+            return redirect()->route('quarters.index')->with('success', 'Quarter added successfully with ID ' . $newQuarterId . '!');
         
         } catch (QueryException $e) {
             Log::error('Failed to create quarter (QueryException): ' . $e->getMessage());
@@ -89,6 +96,66 @@ class QuarterController extends Controller
             return redirect()->route('addquarter')
                         ->with('error', 'An unexpected error occurred. Failed to add quarter.')
                         ->withInput();
+        }
+    }
+
+    public function index()
+    {
+        $quarters = Quarter::all();
+        return view('quarters', ['quarters' => $quarters]);
+    }
+
+    public function edit(Quarter $quarter)
+    {
+        return view('modifyquarter', ['quarter' => $quarter]);
+    }
+
+    public function update(Request $request, Quarter $quarter)
+    {
+        $request->validate([
+            'quarter_type' => 'required|string|max:50',
+            'status' => 'required|string|max:50',
+            'old_quarter_no' => 'nullable|string|max:50',
+            'new_quarter_no' => 'nullable|string|max:50',
+            'location' => 'required|string|max:100',
+        ]);
+
+        $quarter->update([
+            'quarter_type' => $request->quarter_type,
+            'status' => $request->status,
+            'old_quarter_no' => $request->old_quarter_no,
+            'new_quarter_no' => $request->new_quarter_no,
+            'location' => $request->location,
+            'date_modified' => Carbon::now(),
+        ]);
+
+        AuditLog::create([
+            'log_title' => 'Modified Quarter ' . $quarter->quarter_id,
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('quarters.index')->with('success', 'Quarter updated successfully!');
+    }
+
+    public function destroy(Quarter $quarter)
+    {
+        try {
+            $quarterId = $quarter->quarter_id;
+            $quarter->delete();
+
+            AuditLog::create([
+                'log_title' => 'Deleted Quarter ' . $quarterId,
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            return redirect()->route('quarters.index')->with('success', 'Quarter deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Failed to delete quarter: ' . $e->getMessage());
+            return redirect()->route('quarters.index')->with('error', 'Failed to delete quarter.');
         }
     }
 }

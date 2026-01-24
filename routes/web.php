@@ -59,9 +59,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/bookings/clear-rejected', [HallBookingController::class, 'clearRejectedBookings'])->name('bookings.clearRejected');
     Route::delete('/users/clear', [UserController::class, 'clearUsers'])->name('users.clear');
 
-    Route::get('/quarters', function () {
-        return view('quarters');
-    })->name('quarters');
+    Route::get('/quarters', [QuarterController::class, 'index'])->name('quarters.index');
+    Route::get('/quarters/{quarter}/edit', [QuarterController::class, 'edit'])->name('quarters.edit');
+    Route::delete('/quarters/{quarter}', [QuarterController::class, 'destroy'])->name('quarters.destroy');
+    Route::patch('/quarters/{quarter}', [QuarterController::class, 'update'])->name('quarters.update');
 
     Route::get('/addquarter', function(){
         return view('addquarter');
