@@ -30,7 +30,7 @@ class AdminUserSeeder extends Seeder
                 'role' => 'admin',
                 'passcode'=> Hash::make('Abc@3210'),
                 'created_datetime' => $now,
-                'modified_datatime' => $now,
+                'modified_datetime' => $now,
             ]
         );
 
