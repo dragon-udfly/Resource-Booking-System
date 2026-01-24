@@ -138,30 +138,31 @@
             background-color: #0056b3;
             transform: translateY(-1px);
         }
+
+        .child-block {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            flex-basis: 100%;
+        }
+        h3 { font-size: 1.2em; font-weight: bold; margin-bottom: 15px; color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; width:100%;}
     </style>
 @endsection
 
 @section('content')
     <section class="banner">
-        <div class="button-bar">
-            <a href="{{ Auth::check() ? route('homepage') : route('home') }}" class="btn home-btn">Home</a>
-            <a href="javascript:history.back()" class="btn back-btn">Back</a>
-            <a href="#" class="btn details-btn">Details</a>
-        </div>
-
         <div class="page-header">
             <h2>Quarters Application</h2>
-            <p>Step 1 of 4: Officer Details</p>
+            <p>Please fill in all details accurately.</p>
         </div>
 
         <div class="form-container">
-            <div class="form-info">
-                <p>Please fill in your details accurately.</p>
-            </div>
-
             <form action="/quarters/application/store" method="POST" id="applicationForm">
                 @csrf
                 
+                <h3>Officer Details</h3>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="quarter_type">Quarter Type</label>
@@ -171,7 +172,6 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label for="officer_name">Name of Officer</label>
@@ -186,7 +186,6 @@
                         <input type="date" id="dob" name="dob">
                     </div>
                 </div>
-                
                 <div class="form-row">
                     <div class="form-group">
                         <label for="designation">Designation</label>
@@ -214,7 +213,6 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group" style="flex-basis: 100%;">
                         <label for="permanent_address">Permanent Address</label>
@@ -225,7 +223,6 @@
                         <textarea id="temporary_address" name="temporary_address" rows="3"></textarea>
                     </div>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label for="distance_of_residency">Distance of Residency</label>
@@ -240,7 +237,6 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label for="monthly_salary">Monthly Salary</label>
@@ -255,7 +251,6 @@
                         <input type="date" id="duty_assumed_date" name="duty_assumed_date">
                     </div>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label for="email">Email Address</label>
@@ -266,9 +261,101 @@
                         <input type="tel" id="phone" name="phone">
                     </div>
                 </div>
+                
+                {{-- Merged Family & Children Details --}}
+                <h3>Spouse & Dependants</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="marital_status">Marital Status</label>
+                        <select id="marital_status" name="marital_status">
+                            <option value="MARRIED">Married</option>
+                            <option value="SINGLE">Single</option>
+                            <option value="WIDOWED">Widowed</option>
+                            <option value="DIVORCED">Divorced</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dependants">Number of Dependants</label>
+                        <select id="dependants" name="dependants">
+                            <option value="">Select Number</option>
+                            <option value="01_PERSON">01 person</option>
+                            <option value="02_PERSONS">02 persons</option>
+                            <option value="03_PERSONS">03 persons</option>
+                            <option value="04_PERSONS">04 persons</option>
+                            <option value="05_OR_ABOVE">05 or above persons</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <h3>Spouse Employment Details</h3>
+                <div class="form-row">
+                     <div class="form-group">
+                        <label for="spouse_employed">Is spouse employed in government service?</label>
+                        <select id="spouse_employed" name="spouse_employed">
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="spouse_designation">Spouse's Designation</label>
+                        <input type="text" id="spouse_designation" name="spouse_designation" placeholder="e.g. Clerk">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="spouse_salary">Spouse's Monthly Salary</label>
+                        <input type="number" id="spouse_salary" name="spouse_salary" placeholder="LKR">
+                    </div>
+                     <div class="form-group">
+                        <label for="spouse_last_increment">Spouse's Last Salary Increment Date</label>
+                        <input type="date" id="spouse_last_increment" name="spouse_last_increment">
+                    </div>
+                </div>
+
+                <h3>Children Information</h3>
+                <div class="form-row">
+                    <div class="child-block">
+                        <h4>Child 1</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="child_name_1">Child Name</label>
+                                <input type="text" id="child_name_1" name="children[0][child_name]">
+                            </div>
+                            <div class="form-group">
+                                <label for="child_age_1">Age</label>
+                                <input type="number" id="child_age_1" name="children[0][age]">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="child_grade_1">Grade</label>
+                                <input type="text" id="child_grade_1" name="children[0][grade]">
+                            </div>
+                            <div class="form-group">
+                                <label for="child_school_1">School Name</label>
+                                <input type="text" id="child_school_1" name="children[0][school]">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Property Ownership Within 5 km of Vavuniya Town</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="property_within_km">Do you or your spouse own any house or land within a 5 km radius of Vavuniya town?</label>
+                        <select id="property_within_km" name="property_within_km">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="property_duration_years">Duration of Ownership (Years)</label>
+                        <input type="number" id="property_duration_years" name="duration_years" min="0" step="0.5">
+                    </div>
+                </div>
 
                 <div class="button-group">
-                    <button type="submit" class="submit-btn">Save & Continue</button>
+                    <button type="submit" class="submit-btn">Submit Application</button>
                 </div>
             </form>
         </div>
