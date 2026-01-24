@@ -116,6 +116,7 @@
 
         .reset-btn {
             background-color: #6c757d;
+            text-decoration: none;
             color: white;
         }
 
