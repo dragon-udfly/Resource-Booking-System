@@ -138,66 +138,47 @@
                 <p>Fields marked with <span style="color: #ff0000;">*</span> are required. Please ensure all information is accurate before submitting.</p>
             </div>
 
-            <form action="/admin/accounts/store" method="POST">
+            <form action="/admin/quarters/store" method="POST">
+                @csrf
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="quarter_title">Quarter Title <span class="required">*</span></label>
-                        <input type="text" id="quarter_title" name="quarter_title" placeholder="Enter quarter title" required>
+                        <label for="quarter_type">Quarter Type <span class="required">*</span></label>
+                        <select id="quarter_type" name="quarter_type" required>
+                            <option value="">Select Quarter Type</option>
+                            <option value="NORMAL">Normal</option>
+                            <option value="FAMILY">Family</option>
+                        </select>
                     </div>
-                    <div class="form-group">
-                        <label for="quarter_address">Quarter Address <span class="required">*</span></label>
-                        <input type="text" id="quarter_address" name="quarter_address" placeholder="Enter quarter address" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="grade">Quarter Grade <span class="required">*</span></label>
-                        <input type="text" id="grade" name="grade" placeholder="Enter quarter grade" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="department">Department (Quarter belongs) <span class="required">*</span></label>
-                        <input type="text" id="department" name="department" placeholder="Enter department of quarter" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="land_size">Land Size <span class="required">*</span></label>
-                        <input type="text" id="land_size" name="land_size" placeholder="Enter land size of the quarter" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="eligible_salary">Eligibility Salary <span class="required">*</span></label>
-                        <input type="text" id="eligible_salary" name="eligible_salary" placeholder="Enter eligible salary" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="distance">Distance (to office)<span class="required">*</span></label>
-                        <input type="text" id="distance" name="distance" placeholder="Enter distance to main office" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="occupants">Expected Occupants <span class="required">*</span></label>
-                        <input type="text" id="occupants" name="occupants" placeholder="Enter expected occupants" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="contact_person">Contact Person <span class="required">*</span></label>
-                        <input type="text" id="contact_person" name="contact_person" placeholder="Enter person to contact about quarter" required>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="description">Description <span class="required">*</span></label>
-                        <textarea id="description" name="description" placeholder="Enter detailed description of the quarter" required></textarea>
-                    </div>
-                </div>
-                <div class="form-row">
                     <div class="form-group">
                         <label for="status">Quarter Status <span class="required">*</span></label>
                         <select id="status" name="status" required>
-                            <option value="available">Select status</option>
-                            <option value="available" selected>Available</option>
-                            <option value="unavailable">Unavailable</option>
-                            <option value="occupied">Occupied</option>
+                            <option value="">Select status</option>
+                            <option value="NOT_ALLOCATED" selected>Not Allocated</option>
+                            <option value="OCCUPIED">Occupied</option>
+                            <option value="REPAIR">Repair</option>
+                            <option value="DEMOLISHED">Demolished</option>
                         </select>
                     </div>
                 </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="old_quarter_no">Old Quarter No.</label>
+                        <input type="text" id="old_quarter_no" name="old_quarter_no" placeholder="e.g. SC 01, IRDP 02">
+                    </div>
+                    <div class="form-group">
+                        <label for="new_quarter_no">New Quarter No.</label>
+                        <input type="text" id="new_quarter_no" name="new_quarter_no" placeholder="e.g. Q-01 (G-V)">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="location">Location / Address</label>
+                        <input type="text" id="location" name="location" placeholder="Enter quarter address">
+                    </div>
+                </div>
+
                 <div class="button-group">
                     <button type="submit" class="submit-btn">Add Quarter</button>
                     <button type="reset" class="reset-btn">Reset Form</button>
