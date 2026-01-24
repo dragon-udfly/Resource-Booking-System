@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\HallController;
 use App\Http\Controllers\HallBookingController;
+use App\Http\Controllers\QuarterController;
 
 Route::get('/', function () {
     return view('home');
@@ -64,7 +65,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/addquarter', function(){
         return view('addquarter');
-    });
+    })->name('addquarter');
+
+    Route::post('/quarters', [QuarterController::class, 'store'])->name('quarters.store');
 });
 
 Route::middleware(['auth'])->group(function () {
