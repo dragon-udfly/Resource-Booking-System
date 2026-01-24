@@ -100,8 +100,8 @@ Route::get('/halldashboard', function(){
     return view('halldashboard');
 });
 
-Route::get('/quarterdashboard', function(){
-    return view('quarterdashboard');
+Route::get('/quarterapplication', function(){
+    return view('quarterapplication');
 });
 
 Route::get('/bookhall', [HallBookingController::class, 'create'])->name('halls.book');
