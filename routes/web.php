@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\HallController;
 use App\Http\Controllers\HallBookingController;
+use App\Http\Controllers\QuarterController;
 
 Route::get('/', function () {
     return view('home');
@@ -57,6 +58,17 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/bookings/clear', [HallBookingController::class, 'clearBookings'])->name('bookings.clear');
     Route::delete('/bookings/clear-rejected', [HallBookingController::class, 'clearRejectedBookings'])->name('bookings.clearRejected');
     Route::delete('/users/clear', [UserController::class, 'clearUsers'])->name('users.clear');
+
+    Route::get('/quarters', [QuarterController::class, 'index'])->name('quarters.index');
+    Route::get('/quarters/{quarter}/edit', [QuarterController::class, 'edit'])->name('quarters.edit');
+    Route::delete('/quarters/{quarter}', [QuarterController::class, 'destroy'])->name('quarters.destroy');
+    Route::patch('/quarters/{quarter}', [QuarterController::class, 'update'])->name('quarters.update');
+
+    Route::get('/addquarter', function(){
+        return view('addquarter');
+    })->name('addquarter');
+
+    Route::post('/quarters', [QuarterController::class, 'store'])->name('quarters.store');
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -88,13 +100,9 @@ Route::middleware(['auth'])->group(function () {
 
 Route::post('/verify-requester', [HallBookingController::class, 'verifyRequester'])->name('requester.verify');
 
-Route::get('/halldashboard', function(){
-    return view('halldashboard');
-});
-
-Route::get('/quarterdashboard', function(){
-    return view('quarterdashboard');
-});
+Route::get('/quarterapplication', function(){
+    return view('quarterapplication');
+})->name('quarterapplication');
 
 Route::get('/bookhall', [HallBookingController::class, 'create'])->name('halls.book');
 Route::post('/bookhall', [HallBookingController::class, 'store'])->name('hall_bookings.store');
@@ -105,18 +113,16 @@ Route::get('/hall-overview', [HallController::class, 'showOverview'])->name('hal
 
 Route::get('/hallschedule', [HallBookingController::class, 'showSchedule'])->name('halls.schedule');
 
-Route::get('/quarters', function () {
-    return view('quarters');
-});
 
 Route::get('/seequarters', function () {
     return view('seequarters');
 });
 
-Route::get('/addquarter', function(){
-    return view('addquarter');
-});
 
 Route::get('/modifyquarter', function(){
     return view('modifyquarter');
+});
+
+Route::get('/developers', function () {
+    return view('developers');
 });
