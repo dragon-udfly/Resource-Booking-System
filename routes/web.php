@@ -122,3 +122,7 @@ Route::get('/seequarters', function () {
 Route::get('/modifyquarter', function(){
     return view('modifyquarter');
 });
+
+Route::get('/developers', function () {
+    return view('developers');
+});
