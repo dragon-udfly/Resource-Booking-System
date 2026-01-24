@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('quarters', function (Blueprint $table) {
-            $table->increments('quarter_id'); // Primary key with custom name
+            $table->string('quarter_id', 20)->primary(); // Set as primary key
             $table->string('old_quarter_no', 50)->nullable();
             $table->string('new_quarter_no', 50)->nullable();
-            $table->enum('quarter_type', ['NORMAL', 'FAMILY'])->nullable(false);
+            $table->string('quarter_type', 50)->nullable(false);
             $table->string('location', 100)->nullable();
-            $table->enum('status', ['OCCUPIED', 'NOT_ALLOCATED', 'REPAIR', 'DEMOLISHED'])->nullable(false)->default('NOT_ALLOCATED');
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('modified_at')->useCurrent()->useCurrentOnUpdate();
+            $table->string('status', 50)->nullable(false)->default('NOT_ALLOCATED');
+            $table->dateTime('date_created');
+            $table->dateTime('date_modified')->nullable();
         });
     }
 
