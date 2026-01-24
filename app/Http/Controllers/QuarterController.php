@@ -41,9 +41,10 @@ class QuarterController extends Controller
             $lastQuarter = Quarter::orderBy('quarter_id', 'desc')->first();
             $nextIdNumber = 1;
             if ($lastQuarter) {
-                // More robust way to extract number
-                $lastIdNumber = (int) substr(strrchr($lastQuarter->quarter_id, 'r'), 1);
-                $nextIdNumber = $lastIdNumber + 1;
+                if (preg_match('/(\d+)$/', $lastQuarter->quarter_id, $matches)) {
+                    $lastIdNumber = (int) $matches[1];
+                    $nextIdNumber = $lastIdNumber + 1;
+                }
             }
             $newQuarterId = 'quarter' . str_pad($nextIdNumber, 3, '0', STR_PAD_LEFT);
 
@@ -56,11 +57,14 @@ class QuarterController extends Controller
             ]);
             $data['quarter_id'] = $newQuarterId;
 
+            $data['date_created'] = now();
+            $data['date_modified'] = now();
+
             Quarter::create($data);
 
             Log::info('New quarter created successfully with ID: ' . $newQuarterId);
 
-            return redirect()->route('addquarter')->with('success', 'Quarter added successfully with ID ' . $newQuarterId . '!');
+            return redirect()->route('quarters')->with('success', 'Quarter added successfully with ID ' . $newQuarterId . '!');
         
         } catch (QueryException $e) {
             Log::error('Failed to create quarter (QueryException): ' . $e->getMessage());
@@ -80,7 +84,7 @@ class QuarterController extends Controller
                         ->withInput();
 
         } catch (\Exception $e) {
-            Log::error('Failed to create quarter (Exception): ' . $e->getMessage());
+            Log::error('Failed to create quarter (Exception): ' . $e);
             
             return redirect()->route('addquarter')
                         ->with('error', 'An unexpected error occurred. Failed to add quarter.')
