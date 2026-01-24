@@ -19,6 +19,35 @@
             font-size: 1.1em;
             color: #555;
         }
+
+        .button-bar {
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 90%;
+            max-width: 900px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .home-btn { background-color: #6c757d; } /* Grey */
+        .back-btn { background-color: #007bff; } /* Blue */
+        .details-btn { background-color: #28a745; } /* Green */
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
         
         .form-container {
             background-color: #fff;
@@ -114,6 +143,12 @@
 
 @section('content')
     <section class="banner">
+        <div class="button-bar">
+            <a href="{{ Auth::check() ? route('homepage') : route('home') }}" class="btn home-btn">Home</a>
+            <a href="javascript:history.back()" class="btn back-btn">Back</a>
+            <a href="#" class="btn details-btn">Details</a>
+        </div>
+
         <div class="page-header">
             <h2>Quarters Application</h2>
             <p>Step 1 of 4: Officer Details</p>
