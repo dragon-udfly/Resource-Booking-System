@@ -139,6 +139,28 @@
             background-color: #6c757d;
             color: white;
         }
+
+        /* Alert Styles */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .alert-danger ul {
+            margin: 0;
+            padding-left: 20px;
+        }
     </style>
 @endsection
 
@@ -153,11 +175,32 @@
         </div>
 
         <div class="form-container">
+            <!-- Session Messages -->
+            @if(session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <div class="form-info">
                 <p>Fields marked with <span style="color: #ff0000;">*</span> are required. Please ensure all information is accurate before submitting.</p>
             </div>
 
-            <form action="/admin/quarters/store" method="POST">
+            <form action="{{ route('quarters.store') }}" method="POST" onsubmit="return confirm('Are you sure you want to add this quarter?');">
                 @csrf
                 <div class="form-row">
                     <div class="form-group">
@@ -193,8 +236,8 @@
 
                 <div class="form-row">
                     <div class="form-group full-width">
-                        <label for="location">Location / Address</label>
-                        <input type="text" id="location" name="location" placeholder="Enter quarter address">
+                        <label for="location">Location / Address <span class="required">*</span></label>
+                        <input type="text" id="location" name="location" placeholder="Enter quarter address" required>
                     </div>
                 </div>
 
