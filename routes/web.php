@@ -61,7 +61,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/quarters', function () {
         return view('quarters');
-    });
+    })->name('quarters');
 
     Route::get('/addquarter', function(){
         return view('addquarter');
