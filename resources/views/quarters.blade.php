@@ -79,15 +79,16 @@
             opacity: 0.9;
         }
 
-        .action-btn:nth-of-type(1) { /* View button */
-            background-color: #007bff;
-        }
-
-        .action-btn:nth-of-type(2) { /* Modify button */
+        .action-btn:nth-of-type(1) { /* Modify button */
             background-color: #ffc107;
             color: #333;
         }
 
+        .action-btn:nth-of-type(2) { /* Delete button */
+            background-color: #dc3545;
+        }
+
+        /* Generic button styles */
         .btn {
             padding: 10px 20px;
             border: none;
@@ -99,13 +100,13 @@
             color: white;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
-
+        /* Specific back button styles */
         .back-button {
             background-color: #6c757d;
         }
-
-        .action-btn:nth-of-type(3) { /* Delete button */
-            background-color: #dc3545;
+        .back-button:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
         }
     </style>
 @endsection
@@ -117,72 +118,62 @@
                 {{ session('success') }}
             </div>
         @endif
+        @if(session('error'))
+            <div class="alert alert-danger" style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 4px; width: 90%; max-width: 900px;">
+                {{ session('error') }}
+            </div>
+        @endif
          <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
             <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
         </div>
         <div class="page-header">
-            <h2>Quarters List</h2>
-            <p>Manage officers by modifying or deleting entries</p>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Quarters List</h2>
+            <p>Available Quarters In The System.</p>
         </div>
 
-        <!-- Add Officer Button -->
         <div style="text-align: center; margin-bottom: 20px;">
-            <a href="/addquarter" class="add-officer-btn">Add Quarters</a>
+            <a href="{{ route('addquarter') }}" class="add-officer-btn">Add Quarter</a>
         </div>
 
-        <!-- Officer Table -->
-        <table>
+        <table id="quarter-details">
             <thead>
                 <tr>
                     <th>No</th>
                     <th>Quarter ID</th>
-                    <th>Title</th>
-                    <th>Grade</th>
-                    <th>Department</th>
+                    <th>Old Quarter No</th>
+                    <th>New Quarter No</th>
+                    <th>Quarter Type</th>
+                    <th>Location</th>
                     <th>Status</th>
+                    <th>Date Created</th>
+                    <th>Date Modified</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>V_DSQ0001</td>
-                    <td>Goverment Agent Quarter</td>
-                    <td>A</td>
-                    <td>Home Affairs</td>
-                    <td>Occupied</td>
-                    <td>
-                        <button class="action-btn" onclick=viewOfficer()>View</button>
-                        <button class="action-btn" onclick="modifyOfficer()">Modify</button>
-                        <button class="action-btn" onclick="deleteOfficer()">Delete</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>V_DSQ0003</td>
-                    <td>Additional Goverment Agent Quarter</td>
-                    <td>A</td>
-                    <td>Home Affairs</td>
-                    <td>Occupied</td>
-                    <td>
-                        <button class="action-btn" onclick=viewOfficer()>View</button>
-                        <button class="action-btn" onclick="modifyOfficer()">Modify</button>
-                        <button class="action-btn" onclick="deleteOfficer()">Delete</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>V_DSQ0002</td>
-                    <td>Administrative Officer Block</td>
-                    <td>1</td>
-                    <td>Home Affairs</td>
-                    <td>Occupied</td>
-                    <td>
-                        <button class="action-btn" onclick=viewOfficer()>View</button>
-                        <button class="action-btn" onclick="modifyOfficer()">Modify</button>
-                        <button class="action-btn" onclick="deleteOfficer()">Delete</button>
-                    </td>
-                </tr>
+                @if($quarters->isEmpty())
+                    <tr>
+                        <td colspan="10" style="text-align: center;">No quarters found.</td>
+                    </tr>
+                @else
+                    @foreach($quarters as $index => $quarter)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $quarter->quarter_id }}</td>
+                            <td>{{ $quarter->old_quarter_no }}</td>
+                            <td>{{ $quarter->new_quarter_no }}</td>
+                            <td>{{ $quarter->quarter_type }}</td>
+                            <td>{{ $quarter->location }}</td>
+                            <td>{{ $quarter->status }}</td>
+                            <td>{{ \Carbon\Carbon::parse($quarter->date_created)->format('Y-m-d h:i A') }}</td>
+                            <td>{{ $quarter->date_modified ? \Carbon\Carbon::parse($quarter->date_modified)->format('Y-m-d h:i A') : 'N/A' }}</td>
+                            <td>
+                                <button class="action-btn" onclick="modifyQuarter('{{ $quarter->quarter_id }}')">Modify</button>
+                                <button class="action-btn" onclick="deleteQuarter('{{ $quarter->quarter_id }}')">Delete</button>
+                            </td>
+                        </tr>
+                    @endforeach
+                @endif
             </tbody>
         </table>
     </section>
@@ -190,16 +181,31 @@
 
 @push('scripts')
     <script>
-        function viewQuarter(){
-            window.location.href= "/viewofficer";
+        function modifyQuarter(quarterId) {
+            window.location.href = '/quarters/' + quarterId + '/edit';
         }
 
-        function modifyQuarter() {
-            // add code
-        }
+        function deleteQuarter(quarterId) {
+            if (confirm('Are you sure you want to delete this quarter? This action cannot be undone.')) {
+                let form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/quarters/' + quarterId;
 
-        function deleteQuarter() {
-            // add code
+                let csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                form.appendChild(csrfToken);
+
+                let methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'DELETE';
+                form.appendChild(methodInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
         }
     </script>
 @endpush
