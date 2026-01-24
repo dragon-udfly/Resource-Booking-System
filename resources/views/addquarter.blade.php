@@ -114,6 +114,22 @@
             color: white;
         }
 
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .back-button {
+            background-color: #6c757d;
+        }
+
         .submit-btn:hover {
             background-color: #0056b3;
             transform: translateY(-1px);
@@ -128,6 +144,9 @@
 
 @section('content')
     <section class="banner">
+        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+            <a href="#" onclick="history.back(); return false;" class="submit-btn" style="background-color: #6c757d; text-decoration: none">Back</a>
+        </div>
         <div class="page-header">
             <h2>Add New Quarter</h2>
             <p>Fill in the details below to add a new quarter to the system</p>
