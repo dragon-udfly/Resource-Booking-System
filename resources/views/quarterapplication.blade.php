@@ -153,6 +153,10 @@
 
 @section('content')
     <section class="banner">
+        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px; display: flex; gap: 15px;">
+            <a href="#" onclick="history.back(); return false;" class="btn back-btn">Back</a>
+            <a href="{{ Auth::check() ? route('homepage') : route('home') }}" class="btn home-btn">Home</a>
+        </div>
         <div class="page-header">
             <h2>Quarters Application</h2>
             <p>Please fill in all details accurately.</p>
