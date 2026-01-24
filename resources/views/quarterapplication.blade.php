@@ -261,8 +261,11 @@
                         <input type="tel" id="phone" name="phone">
                     </div>
                 </div>
-                
+                <br />
                 {{-- Merged Family & Children Details --}}
+                <hr />
+                <br />
+                <br />
                 <h3>Spouse & Dependants</h3>
                 <div class="form-row">
                     <div class="form-group">
@@ -286,7 +289,10 @@
                         </select>
                     </div>
                 </div>
-                
+                <br />
+                <hr />
+                <br />
+                <br />
                 <h3>Spouse Employment Details</h3>
                 <div class="form-row">
                      <div class="form-group">
@@ -311,7 +317,10 @@
                         <input type="date" id="spouse_last_increment" name="spouse_last_increment">
                     </div>
                 </div>
-
+                <br />
+                <hr />
+                <br />
+                <br />
                 <h3>Children Information</h3>
                 <div class="form-row">
                     <div class="child-block">
@@ -338,7 +347,10 @@
                         </div>
                     </div>
                 </div>
-
+                <br />
+                <hr />
+                <br />
+                <br />
                 <h3>Property Ownership Within 5 km of Vavuniya Town</h3>
                 <div class="form-row">
                     <div class="form-group">
