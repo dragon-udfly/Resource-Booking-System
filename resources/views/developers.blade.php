@@ -51,6 +51,10 @@
             text-decoration: none;
             color: white;
         }
+
+        a:hover{
+            color: #f20343;
+        }
     </style>
 </head>
 <body>
@@ -58,14 +62,15 @@
         <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
             <a href="{{ Auth::check() ? route('homepage') : route('home') }}" style="background-color: #6c757d;" class="btn">Home</a>
         </div>
-        <h2>Our Developers</h2>
+        <h2>Developers</h2>
+        <h3>University Of Vavuniya, Sri Lanka</h3>
         <ul>
-            <li>John Doe</li>
-            <li>Jane Smith</li>
-            <li>Robert Johnson</li>
-            <li>Emily Davis</li>
-            <li>Michael Brown</li>
-            <li>Jessica Wilson</li>
+            <li>K.M.I.U. Perera - 2021/ICT/13</li>
+            <li>M.Z.F. Zaheeda - 2021/ICT/37 </li>
+            <li>V. Thanuharan- 2021/ICT/104 </li>
+            <li>W.P.T.D. Sunilaka - 2021/ICT/118</li>
+            <li>W.R.W.M.R.N.W.N.R. Nugegoda - 2021/ICT/67 </li>
+            <li>M.Z.F. Zaheeda - 2021/ICT/37</li>
         </ul>
     </div>
 </body>
