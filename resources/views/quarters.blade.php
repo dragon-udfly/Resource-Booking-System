@@ -88,6 +88,22 @@
             color: #333;
         }
 
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .back-button {
+            background-color: #6c757d;
+        }
+
         .action-btn:nth-of-type(3) { /* Delete button */
             background-color: #dc3545;
         }
@@ -96,6 +112,14 @@
 
 @section('content')
     <section class="banner">
+        @if(session('success'))
+            <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px; width: 90%; max-width: 900px;">
+                {{ session('success') }}
+            </div>
+        @endif
+         <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+            <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
+        </div>
         <div class="page-header">
             <h2>Quarters List</h2>
             <p>Manage officers by modifying or deleting entries</p>
@@ -103,7 +127,7 @@
 
         <!-- Add Officer Button -->
         <div style="text-align: center; margin-bottom: 20px;">
-            <a href="/admin-create-account.html" class="add-officer-btn">Add Quarter</a>
+            <a href="/addquarter" class="add-officer-btn">Add Quarters</a>
         </div>
 
         <!-- Officer Table -->

@@ -57,6 +57,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/bookings/clear', [HallBookingController::class, 'clearBookings'])->name('bookings.clear');
     Route::delete('/bookings/clear-rejected', [HallBookingController::class, 'clearRejectedBookings'])->name('bookings.clearRejected');
     Route::delete('/users/clear', [UserController::class, 'clearUsers'])->name('users.clear');
+
+    Route::get('/quarters', function () {
+        return view('quarters');
+    });
+
+    Route::get('/addquarter', function(){
+        return view('addquarter');
+    });
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -105,17 +113,11 @@ Route::get('/hall-overview', [HallController::class, 'showOverview'])->name('hal
 
 Route::get('/hallschedule', [HallBookingController::class, 'showSchedule'])->name('halls.schedule');
 
-Route::get('/quarters', function () {
-    return view('quarters');
-});
 
 Route::get('/seequarters', function () {
     return view('seequarters');
 });
 
-Route::get('/addquarter', function(){
-    return view('addquarter');
-});
 
 Route::get('/modifyquarter', function(){
     return view('modifyquarter');
