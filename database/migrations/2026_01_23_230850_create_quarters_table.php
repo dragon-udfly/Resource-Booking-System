@@ -15,7 +15,7 @@ return new class extends Migration
             $table->increments('quarter_id'); // Primary key with custom name
             $table->string('old_quarter_no', 50)->nullable();
             $table->string('new_quarter_no', 50)->nullable();
-            $table->enum('quarter_type', ['NORMAL', 'FAMILY', 'OFFICIAL'])->nullable(false);
+            $table->enum('quarter_type', ['NORMAL', 'FAMILY'])->nullable(false);
             $table->string('location', 100)->nullable();
             $table->enum('status', ['OCCUPIED', 'NOT_ALLOCATED', 'REPAIR', 'DEMOLISHED'])->nullable(false)->default('NOT_ALLOCATED');
             $table->timestamp('created_at')->useCurrent();
