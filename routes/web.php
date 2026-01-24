@@ -96,10 +96,6 @@ Route::middleware(['auth'])->group(function () {
 
 Route::post('/verify-requester', [HallBookingController::class, 'verifyRequester'])->name('requester.verify');
 
-Route::get('/halldashboard', function(){
-    return view('halldashboard');
-});
-
 Route::get('/quarterapplication', function(){
     return view('quarterapplication');
 });
