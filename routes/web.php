@@ -61,6 +61,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/quarters', function () {
         return view('quarters');
     });
+
+    Route::get('/addquarter', function(){
+        return view('addquarter');
+    });
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -114,9 +118,6 @@ Route::get('/seequarters', function () {
     return view('seequarters');
 });
 
-Route::get('/addquarter', function(){
-    return view('addquarter');
-});
 
 Route::get('/modifyquarter', function(){
     return view('modifyquarter');
