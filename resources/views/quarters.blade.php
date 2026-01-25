@@ -139,7 +139,6 @@
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Quarter ID</th>
                     <th>Old Quarter No</th>
                     <th>New Quarter No</th>
                     <th>Quarter Type</th>
@@ -162,7 +161,6 @@
                     @foreach($quarters as $index => $quarter)
                         <tr>
                             <td>{{ $index + 1 }}</td>
-                            <td>{{ $quarter->quarter_id }}</td>
                             <td>{{ $quarter->old_quarter_no }}</td>
                             <td>{{ $quarter->new_quarter_no }}</td>
                             <td>{{ $quarter->quarter_type }}</td>
