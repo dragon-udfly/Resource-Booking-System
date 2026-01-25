@@ -145,7 +145,7 @@
                     <th>Quarter Type</th>
                     <th>Location</th>
                     <th>Status</th>
-                    <th>Number of Occupants</th>
+                    <th>Number of Allowed Occupants</th>
                     <th>Date Created</th>
                     <th>Date Modified</th>
                     <th>Actions</th>
