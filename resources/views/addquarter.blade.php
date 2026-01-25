@@ -257,6 +257,13 @@
                     </div>
                 </div>
 
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="special_notice">Special Notice</label>
+                        <textarea id="special_notice" name="special_notice" rows="3"></textarea>
+                    </div>
+                </div>
+
                 <div class="button-group">
                     <button type="submit" class="submit-btn">Add Quarter</button>
                     <button type="reset" class="reset-btn">Reset Form</button>

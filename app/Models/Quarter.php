@@ -22,6 +22,7 @@ class Quarter extends Model
         'status',
         'occupant_number',
         'allowed_gender',
+        'special_notice',
         'date_created',
         'date_modified',
     ];
