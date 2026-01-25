@@ -74,6 +74,7 @@
     <section class="banner">
          <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
             <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
+            <a href="{{ route('occupantdetails') }}" class="btn back-button" style="background-color:rgb(38, 209, 11)">Occupant Details</a>
         </div>
         <div class="page-header">
             <h2 style="color: rgb(6, 4, 60); font-weight: bold">Quarters Details</h2>

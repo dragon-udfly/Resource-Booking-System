@@ -176,4 +176,10 @@ class QuarterController extends Controller
         $quarters = Quarter::all();
         return view('seequarters', ['quarters' => $quarters]);
     }
+
+    public function showOccupantDetails()
+    {
+        // For now, no data is passed as we don't have a way to get occupant info
+        return view('occupantdetails');
+    }
 }
