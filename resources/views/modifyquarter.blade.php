@@ -140,7 +140,7 @@
                 <p>Fields marked with <span class="required">*</span> are required. Please ensure all information is accurate before submitting.</p>
             </div>
 
-            <form action="{{ route('quarters.update', $quarter) }}" method="POST">
+            <form action="{{ route('quarters.update', $quarter) }}" method="POST" onsubmit="return confirm('Are you sure you want to update this quarter?');">
                 @csrf
                 @method('PATCH')
                 <div class="form-row">
@@ -179,6 +179,14 @@
                     <div class="form-group">
                         <label for="occupant_number">Number of Allowed Occupants</label>
                         <input type="number" id="occupant_number" name="occupant_number" value="{{ old('occupant_number', $quarter->occupant_number) }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="allowed_gender">Occupant Gender</label>
+                        <select id="allowed_gender" name="allowed_gender">
+                            <option value="" {{ old('allowed_gender', $quarter->allowed_gender) == '' ? 'selected' : '' }}>Not Specified</option>
+                            <option value="F" {{ old('allowed_gender', $quarter->allowed_gender) == 'F' ? 'selected' : '' }}>Female</option>
+                            <option value="M" {{ old('allowed_gender', $quarter->allowed_gender) == 'M' ? 'selected' : '' }}>Male</option>
+                        </select>
                     </div>
                 </div>
                 <div class="button-group">
