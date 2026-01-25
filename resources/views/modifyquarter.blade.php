@@ -60,6 +60,7 @@
 
         .form-group input[type="text"],
         .form-group input[type="tel"],
+        .form-group input[type="number"],
         .form-group select,
         .form-group textarea {
             width: 100%;
@@ -174,6 +175,10 @@
                             <option value="ALLOCATED" {{ old('status', $quarter->status) == 'ALLOCATED' ? 'selected' : '' }}>Allocated</option>
                             <option value="OCCUPIED" {{ old('status', $quarter->status) == 'OCCUPIED' ? 'selected' : '' }}>Occupied</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="occupant_number">Number of Allowed Occupants</label>
+                        <input type="number" id="occupant_number" name="occupant_number" value="{{ old('occupant_number', $quarter->occupant_number) }}">
                     </div>
                 </div>
                 <div class="button-group">

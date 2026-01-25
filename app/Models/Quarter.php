@@ -20,6 +20,7 @@ class Quarter extends Model
         'quarter_type',
         'location',
         'status',
+        'occupant_number',
         'date_created',
         'date_modified',
     ];
