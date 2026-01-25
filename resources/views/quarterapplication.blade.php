@@ -156,6 +156,7 @@
         <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px; display: flex; gap: 15px;">
             <a href="#" onclick="history.back(); return false;" class="btn back-btn">Back</a>
             <a href="{{ Auth::check() ? route('homepage') : route('home') }}" class="btn home-btn">Home</a>
+            <a href="#" class="btn back-btn" style="background-color:#28a745">Details</a>
         </div>
         <div class="page-header">
             <h2>Quarters Application</h2>
