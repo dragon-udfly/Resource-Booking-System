@@ -1,4 +1,4 @@
-@extends('layouts.admin_body_layout')
+@extends('layouts.user_body_layout')
 
 @section('title', 'Occupant Details - District Secretariat Vavuniya')
 
