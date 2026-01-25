@@ -171,9 +171,11 @@
                     <div class="form-group">
                         <label for="status">Quarter Status <span class="required">*</span></label>
                         <select id="status" name="status" required>
+                            <option value="">Select status</option>
                             <option value="NOT_ALLOCATED" {{ old('status', $quarter->status) == 'NOT_ALLOCATED' ? 'selected' : '' }}>Not Allocated</option>
-                            <option value="ALLOCATED" {{ old('status', $quarter->status) == 'ALLOCATED' ? 'selected' : '' }}>Allocated</option>
                             <option value="OCCUPIED" {{ old('status', $quarter->status) == 'OCCUPIED' ? 'selected' : '' }}>Occupied</option>
+                            <option value="REPAIR" {{ old('status', $quarter->status) == 'REPAIR' ? 'selected' : '' }}>Repair</option>
+                            <option value="DEMOLISHED" {{ old('status', $quarter->status) == 'DEMOLISHED' ? 'selected' : '' }}>Demolished</option>
                         </select>
                     </div>
                     <div class="form-group">
