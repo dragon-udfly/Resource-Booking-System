@@ -76,7 +76,7 @@
             <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
         </div>
         <div class="page-header">
-            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Occupant Details</h2>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Occupant Details {{ date('Y') }}</h2>
             <p>Details of Occupants in Quarters</p>
         </div>
 
