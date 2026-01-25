@@ -207,8 +207,8 @@
                         <label for="quarter_type">Quarter Type <span class="required">*</span></label>
                         <select id="quarter_type" name="quarter_type" required>
                             <option value="">Select Quarter Type</option>
-                            <option value="NORMAL">Normal</option>
                             <option value="FAMILY">Family</option>
+                            <option value="SCHEDULED_QUARTERS">Scheduled Quarters</option>
                         </select>
                     </div>
                     <div class="form-group">
