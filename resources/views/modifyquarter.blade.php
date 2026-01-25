@@ -191,6 +191,12 @@
                         </select>
                     </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="special_notice">Special Notice</label>
+                        <textarea id="special_notice" name="special_notice" rows="3">{{ old('special_notice', $quarter->special_notice) }}</textarea>
+                    </div>
+                </div>
                 <div class="button-group">
                     <button type="submit" class="submit-btn">Update Quarter</button>
                     <a href="{{ route('quarters.index') }}" class="reset-btn">Back</a>

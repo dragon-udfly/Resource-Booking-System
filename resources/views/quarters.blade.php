@@ -139,7 +139,6 @@
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Quarter ID</th>
                     <th>Old Quarter No</th>
                     <th>New Quarter No</th>
                     <th>Quarter Type</th>
@@ -147,6 +146,7 @@
                     <th>Status</th>
                     <th>Number of Allowed Occupants</th>
                     <th>Allowed Gender</th>
+                    <th>Special Notice</th>
                     <th>Date Created</th>
                     <th>Date Modified</th>
                     <th>Actions</th>
@@ -155,13 +155,12 @@
             <tbody>
                 @if($quarters->isEmpty())
                     <tr>
-                        <td colspan="12" style="text-align: center;">No quarters found.</td>
+                        <td colspan="13" style="text-align: center;">No quarters found.</td>
                     </tr>
                 @else
                     @foreach($quarters as $index => $quarter)
                         <tr>
                             <td>{{ $index + 1 }}</td>
-                            <td>{{ $quarter->quarter_id }}</td>
                             <td>{{ $quarter->old_quarter_no }}</td>
                             <td>{{ $quarter->new_quarter_no }}</td>
                             <td>{{ $quarter->quarter_type }}</td>
@@ -169,6 +168,7 @@
                             <td>{{ $quarter->status }}</td>
                             <td>{{ $quarter->occupant_number }}</td>
                             <td>{{ $quarter->allowed_gender }}</td>
+                            <td>{{ $quarter->special_notice }}</td>
                             <td>{{ \Carbon\Carbon::parse($quarter->date_created)->format('Y-m-d h:i A') }}</td>
                             <td>{{ $quarter->date_modified ? \Carbon\Carbon::parse($quarter->date_modified)->format('Y-m-d h:i A') : 'N/A' }}</td>
                             <td>
