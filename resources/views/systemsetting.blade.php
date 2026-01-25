@@ -153,31 +153,16 @@
                 <p>Configure general system parameters and preferences.</p>
             </div>
 
-            <form action="#" method="POST">
+            {{-- <form action="#" method="POST">
                 @csrf
                 <div class="settings-group">
-                    <h3>Organization Details</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="contact_email">System Contact Email</label>
-                            <input type="email" id="contact_email" name="contact_email" value="info@vavuniya.ds.gov.lk">
-                        </div>
-                    </div>
-                </div>
-                <div class="settings-group">
-                    <h3>Notification Settings</h3>
-                    <div class="form-row">
-                        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" id="email_notifications" name="email_notifications" checked style="width: 20px; height: 20px;">
-                            <label for="email_notifications" style="margin-bottom: 0;">Enable Email Notifications</label>
-                        </div>
-                    </div>
+                    
                 </div>
 
                 <div style="text-align: right; margin-top: 20px;">
                     <button type="submit" class="btn-save">Save Changes</button>
                 </div>
-            </form>
+            </form> --}}
             <br><br><br>
             <h3 style="text-align: center; color:rgb(255, 136, 0)">Danger Zone</h3>
             

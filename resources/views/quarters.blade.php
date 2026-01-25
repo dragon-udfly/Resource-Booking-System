@@ -145,6 +145,7 @@
                     <th>Quarter Type</th>
                     <th>Location</th>
                     <th>Status</th>
+                    <th>Number of Occupants</th>
                     <th>Date Created</th>
                     <th>Date Modified</th>
                     <th>Actions</th>
@@ -153,7 +154,7 @@
             <tbody>
                 @if($quarters->isEmpty())
                     <tr>
-                        <td colspan="10" style="text-align: center;">No quarters found.</td>
+                        <td colspan="11" style="text-align: center;">No quarters found.</td>
                     </tr>
                 @else
                     @foreach($quarters as $index => $quarter)
@@ -165,6 +166,7 @@
                             <td>{{ $quarter->quarter_type }}</td>
                             <td>{{ $quarter->location }}</td>
                             <td>{{ $quarter->status }}</td>
+                            <td>{{ $quarter->occupant_number }}</td>
                             <td>{{ \Carbon\Carbon::parse($quarter->date_created)->format('Y-m-d h:i A') }}</td>
                             <td>{{ $quarter->date_modified ? \Carbon\Carbon::parse($quarter->date_modified)->format('Y-m-d h:i A') : 'N/A' }}</td>
                             <td>

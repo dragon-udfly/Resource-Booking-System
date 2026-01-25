@@ -60,6 +60,7 @@
 
         .form-group input[type="text"],
         .form-group input[type="tel"],
+        .form-group input[type="number"],
         .form-group select,
         .form-group textarea {
             width: 100%;
@@ -207,8 +208,8 @@
                         <label for="quarter_type">Quarter Type <span class="required">*</span></label>
                         <select id="quarter_type" name="quarter_type" required>
                             <option value="">Select Quarter Type</option>
-                            <option value="NORMAL">Normal</option>
                             <option value="FAMILY">Family</option>
+                            <option value="SCHEDULED_QUARTERS">Scheduled Quarters</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -231,6 +232,10 @@
                     <div class="form-group">
                         <label for="new_quarter_no">New Quarter No.</label>
                         <input type="text" id="new_quarter_no" name="new_quarter_no" placeholder="e.g. Q-01 (G-V)">
+                    </div>
+                    <div class="form-group">
+                        <label for="occupant_number">Number of Allowd Occupants (Specially for Chummary)</label>
+                        <input type="number" id="occupant_number" name="occupant_number">
                     </div>
                 </div>
 
