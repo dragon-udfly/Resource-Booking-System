@@ -22,6 +22,7 @@
             display: flex;
             flex-direction: column;
             background-color: #f4f4f4;
+            position: relative; /* Added for absolute positioning context */
         }
 
         /* Standard Banner Style */
