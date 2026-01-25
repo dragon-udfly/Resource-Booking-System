@@ -170,4 +170,10 @@ class QuarterController extends Controller
             return redirect()->route('quarters.index')->with('error', 'Failed to delete quarter.');
         }
     }
+
+    public function seeQuarters()
+    {
+        $quarters = Quarter::all();
+        return view('seequarters', ['quarters' => $quarters]);
+    }
 }

@@ -114,9 +114,7 @@ Route::get('/hall-overview', [HallController::class, 'showOverview'])->name('hal
 Route::get('/hallschedule', [HallBookingController::class, 'showSchedule'])->name('halls.schedule');
 
 
-Route::get('/seequarters', function () {
-    return view('seequarters');
-});
+Route::get('/seequarters', [QuarterController::class, 'seeQuarters'])->name('seequarters');
 
 
 Route::get('/modifyquarter', function(){
