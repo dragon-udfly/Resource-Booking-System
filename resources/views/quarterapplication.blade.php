@@ -164,210 +164,186 @@
         </div>
 
         <div class="form-container">
-            <form action="/quarters/application/store" method="POST" id="applicationForm">
+            <form action="{{ route('quarterapplication.store') }}" method="POST" id="applicationForm">
                 @csrf
                 
                 <h3>Officer Details</h3>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="quarter_type">Quarter Type</label>
-                        <select id="quarter_type" name="quarter_type">
-                            <option value="FAMILY">Family</option>
-                            <option value="NORMAL">Normal</option>
+                        <select id="quarter_type" name="quarter_type" required>
+                            <option value="">Select Quarter Type</option>
+                            <option value="Family">Family</option>
+                            <option value="Scheduled">Scheduled</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="officer_name">Name of Officer</label>
-                        <input type="text" id="officer_name" name="officer_name">
+                        <input type="text" id="officer_name" name="officer_name" required>
                     </div>
                     <div class="form-group">
                         <label for="nic">NIC Number</label>
-                        <input type="text" id="nic" name="nic">
-                    </div>
-                    <div class="form-group">
-                        <label for="dob">Date of Birth</label>
-                        <input type="date" id="dob" name="dob">
+                        <input type="text" id="nic" name="nic" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="designation">Designation</label>
-                        <input type="text" id="designation" name="designation">
+                        <input type="text" id="designation" name="designation" required>
                     </div>
                     <div class="form-group">
                         <label for="service_grade">Service and Grade</label>
-                        <select id="service_grade" name="service_grade">
-                            <option disabled selected value="">Select Grade</option>
+                        <select id="service_grade" name="service_grade" required>
+                            <option value="">Select Grade</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
                             <option value="4">4</option>
                             <option value="5">5</option>
-                            <option value="5a">5A</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="department">Department Selection</label>
-                        <select id="department" name="department">
-                            <option disabled selected value="">Select Department</option>
-                            <option value="MINISTRY_HOME_AFFAIRS">Ministry of Home Affairs</option>
-                            <option value="DISTRICT_DIVISIONAL_SECRETARIAT">District & Divisional Secretariats</option>
-                            <option value="OTHER_OFFICERS">Other</option>
+                            <option value="5A">5A</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group" style="flex-basis: 100%;">
                         <label for="permanent_address">Permanent Address</label>
-                        <textarea id="permanent_address" name="permanent_address" rows="3"></textarea>
+                        <textarea id="permanent_address" name="permanent_address" rows="3" required></textarea>
                     </div>
                     <div class="form-group" style="flex-basis: 100%;">
                         <label for="temporary_address">Temporary Address</label>
-                        <textarea id="temporary_address" name="temporary_address" rows="3"></textarea>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="distance_of_residency">Distance of Residency</label>
-                        <select id="distance_of_residency" name="distance_of_residency">
-                            <option disabled selected value="">Select Distance Range</option>
-                            <option value="OUT_DISTRICT_ABOVE_100KM">Out District - above 100km</option>
-                            <option value="OUT_DISTRICT_51_TO_100KM">Out District - between 51km and 100km</option>
-                            <option value="OUT_DISTRICT_26_TO_50KM">Out District - between 26km and 50km</option>
-                            <option value="OUR_DISTRICT_BELOW_25KM">Our District - Below 25km</option>
-                            <option value="OUT_URBAN_ABOVE_30KM">Out of Urban Council Area above 30km</option>
-                            <option value="OUT_URBAN_0_TO_30KM">Out of Urban Council Area between 00km and 30km</option>
-                        </select>
+                        <textarea id="temporary_address" name="temporary_address" rows="3" required></textarea>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="monthly_salary">Monthly Salary</label>
-                        <input type="number" id="monthly_salary" name="monthly_salary">
+                        <input type="number" id="monthly_salary" name="monthly_salary" required>
                     </div>
                     <div class="form-group">
-                        <label for="date_of_last_salary_increment">Last Increment Date</label>
-                        <input type="date" id="date_of_last_salary_increment" name="date_of_last_salary_increment">
-                    </div>
-                    <div class="form-group">
-                        <label for="duty_assumed_date">Date of Assumption of Duties in Vavuniya</label>
-                        <input type="date" id="duty_assumed_date" name="duty_assumed_date">
+                        <label for="date_of_assumption_of_duties">Date of Assumption of Duties</label>
+                        <input type="date" id="date_of_assumption_of_duties" name="date_of_assumption_of_duties" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email">
+                        <input type="email" id="email" name="email" required>
                     </div>
                     <div class="form-group">
-                        <label for="phone">Telephone Number</label>
-                        <input type="tel" id="phone" name="phone">
+                        <label for="phone_number">Phone Number</label>
+                        <input type="tel" id="phone_number" name="phone_number" required>
                     </div>
                 </div>
-                <br />
-                {{-- Merged Family & Children Details --}}
-                <hr />
-                <br />
-                <br />
-                <h3>Spouse & Dependants</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="marital_status">Marital Status</label>
-                        <select id="marital_status" name="marital_status">
-                            <option value="MARRIED">Married</option>
-                            <option value="SINGLE">Single</option>
-                            <option value="WIDOWED">Widowed</option>
-                            <option value="DIVORCED">Divorced</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="dependants">Number of Dependants</label>
-                        <select id="dependants" name="dependants">
-                            <option value="">Select Number</option>
-                            <option value="01_PERSON">01 person</option>
-                            <option value="02_PERSONS">02 persons</option>
-                            <option value="03_PERSONS">03 persons</option>
-                            <option value="04_PERSONS">04 persons</option>
-                            <option value="05_OR_ABOVE">05 or above persons</option>
-                        </select>
-                    </div>
-                </div>
-                <br />
-                <hr />
-                <br />
-                <br />
-                <h3>Spouse Employment Details</h3>
-                <div class="form-row">
-                     <div class="form-group">
-                        <label for="spouse_employed">Is spouse employed in government service?</label>
-                        <select id="spouse_employed" name="spouse_employed">
-                            <option value="1">Yes</option>
-                            <option value="0">No</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="spouse_designation">Spouse's Designation</label>
-                        <input type="text" id="spouse_designation" name="spouse_designation" placeholder="e.g. Clerk">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="spouse_salary">Spouse's Monthly Salary</label>
-                        <input type="number" id="spouse_salary" name="spouse_salary" placeholder="LKR">
-                    </div>
-                     <div class="form-group">
-                        <label for="spouse_last_increment">Spouse's Last Salary Increment Date</label>
-                        <input type="date" id="spouse_last_increment" name="spouse_last_increment">
-                    </div>
-                </div>
-                <br />
-                <hr />
-                <br />
-                <br />
-                <h3>Children Information</h3>
-                <div class="form-row">
-                    <div class="child-block">
-                        <h4>Child 1</h4>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="child_name_1">Child Name</label>
-                                <input type="text" id="child_name_1" name="children[0][child_name]">
-                            </div>
-                            <div class="form-group">
-                                <label for="child_age_1">Age</label>
-                                <input type="number" id="child_age_1" name="children[0][age]">
-                            </div>
+
+                {{-- Family Quarter Application Fields --}}
+                <div id="familyQuarterFields" style="display: none;">
+                    <br /><hr /><br />
+                    <h3>Family Quarter Specific Details</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="f_dob">Date of Birth</label>
+                            <input type="date" id="f_dob" name="f_dob">
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="child_grade_1">Grade</label>
-                                <input type="text" id="child_grade_1" name="children[0][grade]">
-                            </div>
-                            <div class="form-group">
-                                <label for="child_school_1">School Name</label>
-                                <input type="text" id="child_school_1" name="children[0][school]">
-                            </div>
+                        <div class="form-group">
+                            <label for="f_date_of_last_salary_increment">Date of Last Salary Increment</label>
+                            <input type="date" id="f_date_of_last_salary_increment" name="f_date_of_last_salary_increment">
+                        </div>
+                        <div class="form-group">
+                            <label for="f_marital_status">Marital Status</label>
+                            <select id="f_marital_status" name="f_marital_status">
+                                <option value="">Select Marital Status</option>
+                                <option value="Married">Married</option>
+                                <option value="Widowed">Widowed</option>
+                                <option value="Divorced">Divorced</option>
+                                <option value="Separated">Separated</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="f_is_spouse_employed">Is spouse employed?</label>
+                            <select id="f_is_spouse_employed" name="f_is_spouse_employed">
+                                <option value="">Select Option</option>
+                                <option value="1">Yes</option>
+                                <option value="0">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="f_spouse_designation">Spouse's Designation</label>
+                            <input type="text" id="f_spouse_designation" name="f_spouse_designation">
+                        </div>
+                        <div class="form-group">
+                            <label for="f_spouse_department_office">Spouse's Department/Office</label>
+                            <input type="text" id="f_spouse_department_office" name="f_spouse_department_office">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="f_spouse_monthly_salary">Spouse's Monthly Salary</label>
+                            <input type="number" id="f_spouse_monthly_salary" name="f_spouse_monthly_salary">
+                        </div>
+                        <div class="form-group">
+                            <label for="f_spouse_last_increment_date">Spouse's Last Increment Date</label>
+                            <input type="date" id="f_spouse_last_increment_date" name="f_spouse_last_increment_date">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex-basis: 100%;">
+                            <label for="f_children_details_description">Children Details (Name, Age, School, Grade etc.)</label>
+                            <textarea id="f_children_details_description" name="f_children_details_description" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex-basis: 100%;">
+                            <label for="f_property_ownership_details">Property Ownership Details (within 5km of Vavuniya town)</label>
+                            <textarea id="f_property_ownership_details" name="f_property_ownership_details" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="f_previous_government_quarter_duration">Previous Government Quarter Duration (in years)</label>
+                            <input type="number" id="f_previous_government_quarter_duration" name="f_previous_government_quarter_duration">
                         </div>
                     </div>
                 </div>
-                <br />
-                <hr />
-                <br />
-                <br />
-                <h3>Property Ownership Within 5 km of Vavuniya Town</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="property_within_km">Do you or your spouse own any house or land within a 5 km radius of Vavuniya town?</label>
-                        <select id="property_within_km" name="property_within_km">
-                            <option value="0">No</option>
-                            <option value="1">Yes</option>
-                        </select>
+
+                {{-- Scheduled Quarter Application Fields --}}
+                <div id="scheduledQuarterFields" style="display: none;">
+                    <br /><hr /><br />
+                    <h3>Scheduled Quarter Specific Details</h3>
+                    <div class="form-row">
+                        <div class="form-group" style="flex-basis: 100%;">
+                            <label for="sq_transfered_officer_priority_request">Transferred Officer Priority Request (if applicable)</label>
+                            <textarea id="sq_transfered_officer_priority_request" name="sq_transfered_officer_priority_request" rows="3"></textarea>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="property_duration_years">Duration of Ownership (Years)</label>
-                        <input type="number" id="property_duration_years" name="duration_years" min="0" step="0.5">
+                    <div class="form-row">
+                        <div class="form-group" style="flex-basis: 100%;">
+                            <label for="sq_night_duty_priority_request">Night Duty Priority Request (if applicable)</label>
+                            <textarea id="sq_night_duty_priority_request" name="sq_night_duty_priority_request" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex-basis: 100%;">
+                            <label for="sq_other_special_reason_priority_request">Other Special Reason Priority Request</label>
+                            <textarea id="sq_other_special_reason_priority_request" name="sq_other_special_reason_priority_request" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex-basis: 100%;">
+                            <label for="sq_property_ownership_details">Property Ownership Details</label>
+                            <textarea id="sq_property_ownership_details" name="sq_property_ownership_details" rows="3"></textarea>
+                        </div>
                     </div>
                 </div>
 
@@ -377,4 +353,49 @@
             </form>
         </div>
     </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const quarterTypeSelect = document.getElementById('quarter_type');
+            const familyQuarterFields = document.getElementById('familyQuarterFields');
+            const scheduledQuarterFields = document.getElementById('scheduledQuarterFields');
+
+            function toggleQuarterFields() {
+                const selectedType = quarterTypeSelect.value;
+                if (selectedType === 'Family') {
+                    familyQuarterFields.style.display = 'block';
+                    scheduledQuarterFields.style.display = 'none';
+                    setRequired(familyQuarterFields, true);
+                    setRequired(scheduledQuarterFields, false);
+                } else if (selectedType === 'Scheduled') {
+                    familyQuarterFields.style.display = 'none';
+                    scheduledQuarterFields.style.display = 'block';
+                    setRequired(familyQuarterFields, true);
+                    setRequired(scheduledQuarterFields, false);
+                } else {
+                    familyQuarterFields.style.display = 'none';
+                    scheduledQuarterFields.style.display = 'none';
+                    setRequired(familyQuarterFields, false);
+                    setRequired(scheduledQuarterFields, false);
+                }
+            }
+
+            function setRequired(element, isRequired) {
+                element.querySelectorAll('input, select, textarea').forEach(field => {
+                    if (field.name !== '_token') { // Don't set required for _token
+                        if (isRequired) {
+                            field.setAttribute('required', 'required');
+                        } else {
+                            field.removeAttribute('required');
+                        }
+                    }
+                });
+            }
+
+            quarterTypeSelect.addEventListener('change', toggleQuarterFields);
+
+            // Initial call to set the correct fields based on default selection (if any)
+            toggleQuarterFields();
+        });
+    </script>
 @endsection
