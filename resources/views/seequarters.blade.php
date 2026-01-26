@@ -89,7 +89,7 @@
                     <th>Location</th>
                     <th>Type</th>
                     <th>Status</th>
-                    <th>Allowed Gender</th>
+                    <th>Allowed/Occupant Gender</th>
                     <th>Special Notice</th>
                     <th>Number of Allowed/Max Occupants</th>
                     <th>Number of Current Occupants</th>
