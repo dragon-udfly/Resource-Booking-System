@@ -91,9 +91,9 @@
                     <th>Status</th>
                     <th>Allowed Gender</th>
                     <th>Special Notice</th>
-                    <th>Number of Allowed Occupants</th>
+                    <th>Number of Allowed/Max Occupants</th>
                     <th>Number of Current Occupants</th>
-                    <th>Number of Vacant Occupants</th>
+                    <th>Number of Vacancies in Quarter</th>
                 </tr>
             </thead>
             <tbody>
@@ -113,8 +113,8 @@
                             <td>{{ $quarter->allowed_gender }}</td>
                             <td>{{ $quarter->special_notice }}</td>
                             <td>{{ $quarter->occupant_number }}</td>
-                            <td>0</td>
-                            <td>{{ $quarter->occupant_number }}</td>
+                            <td>{{ $quarter->current_occupant_number }}</td>
+                            <td>{{ $quarter->occupant_number - $quarter->current_occupant_number }}</td>
                         </tr>
                     @endforeach
                 @endif
