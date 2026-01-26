@@ -15,6 +15,10 @@ use Illuminate\Validation\Rule;
 
 class QuarterController extends Controller
 {
+    public function create()
+    {
+        return view('bookquarter');
+    }
     /**
      * Store a newly created quarter in storage.
      *

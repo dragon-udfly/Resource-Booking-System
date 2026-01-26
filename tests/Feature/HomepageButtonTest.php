@@ -45,7 +45,7 @@ class HomepageButtonTest extends TestCase
         $response = $this->get('/');
         $response->assertStatus(200);
 
-        $response = $this->get(route('quarterapplication'));
+        $response = $this->get(route('bookquarter'));
         $response->assertStatus(200);
     }
 

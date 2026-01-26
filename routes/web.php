@@ -103,9 +103,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::post('/verify-requester', [HallBookingController::class, 'verifyRequester'])->name('requester.verify');
 
-Route::get('/quarterapplication', function(){
-    return view('quarterapplication');
-})->name('quarterapplication');
+Route::get('/bookquarter', [QuarterController::class, 'create'])->name('bookquarter');
 
 Route::get('/bookhall', [HallBookingController::class, 'create'])->name('halls.book');
 Route::post('/bookhall', [HallBookingController::class, 'store'])->name('hall_bookings.store');
