@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 
+use Illuminate\Validation\Rule;
+
 class QuarterController extends Controller
 {
     /**
@@ -23,13 +25,13 @@ class QuarterController extends Controller
     {
         // Validate the request data
         $validator = Validator::make($request->all(), [
-            'quarter_type' => 'required|string|max:50',
-            'status' => 'required|string|max:50',
+            'quarter_type' => ['required', Rule::in(['Family', 'Scheduled'])],
+            'status' => ['required', Rule::in(['Unallocated', 'Allocated', 'Repair', 'Demolished'])],
             'old_quarter_no' => 'nullable|string|max:50',
             'new_quarter_no' => 'nullable|string|max:50',
             'location' => 'required|string|max:100',
             'occupant_number' => 'nullable|integer',
-            'allowed_gender' => 'nullable|string|max:20',
+            'allowed_gender' => ['nullable', Rule::in(['Male', 'Female'])],
             'special_notice' => 'nullable|string',
             'current_occupant_number' => 'nullable|integer',
         ]);
@@ -124,13 +126,13 @@ class QuarterController extends Controller
     public function update(Request $request, Quarter $quarter)
     {
         $request->validate([
-            'quarter_type' => 'required|string|max:50',
-            'status' => 'required|string|max:50',
+            'quarter_type' => ['required', Rule::in(['Family', 'Scheduled'])],
+            'status' => ['required', Rule::in(['Unallocated', 'Allocated', 'Repair', 'Demolished'])],
             'old_quarter_no' => 'nullable|string|max:50',
             'new_quarter_no' => 'nullable|string|max:50',
             'location' => 'required|string|max:100',
             'occupant_number' => 'nullable|integer',
-            'allowed_gender' => 'nullable|string|max:20',
+            'allowed_gender' => ['nullable', Rule::in(['Male', 'Female'])],
             'special_notice' => 'nullable|string',
             'current_occupant_number' => 'nullable|integer',
         ]);
