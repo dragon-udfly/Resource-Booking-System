@@ -52,8 +52,8 @@
                     <tr>
                         <th>Applicant Name</th>
                         <th>Submitted Date</th>
-                        <th>AO Approval</th>
-                        <th>AGA Approval</th>
+                        <th>AO Verification</th>
+                        <th>AGA Verification</th>
                         <th>GA Approval</th>
                         <th>Actions</th>
                     </tr>
