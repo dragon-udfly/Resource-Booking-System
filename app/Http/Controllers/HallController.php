@@ -33,7 +33,6 @@ class HallController extends Controller
             'hall_type' => 'required|string|max:200',
             'capacity' => 'required|integer',
             'description' => 'required|string|max:1200',
-            'booking_status' => 'required|string',
             'hall_status' => 'required|string',
             'special_notice' => 'nullable|string',
         ]);
@@ -54,7 +53,6 @@ class HallController extends Controller
             'description' => $request->description,
             'current_state' => $request->hall_status,
             'special_notice' => $request->special_notice,
-            'booking_state' => $request->booking_status,
             'date_created' => Carbon::now(),
             'date_modified' => Carbon::now(),
         ]);
@@ -118,7 +116,6 @@ class HallController extends Controller
             'hall_type' => 'required|string|max:200',
             'capacity' => 'required|integer',
             'description' => 'required|string|max:1200',
-            'booking_state' => 'required|string',
             'current_state' => 'required|string',
             'special_notice' => 'nullable|string',
         ]);
@@ -129,7 +126,6 @@ class HallController extends Controller
             'description' => $request->description,
             'current_state' => $request->current_state,
             'special_notice' => $request->special_notice,
-            'booking_state' => $request->booking_state,
             'date_modified' => Carbon::now(),
         ]);
 

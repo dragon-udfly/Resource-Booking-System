@@ -141,15 +141,7 @@
                         <textarea id="description" name="description" required>{{ old('description', $hall->description) }}</textarea>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="booking_state">Booking Status <span class="required">*</span></label>
-                        <select id="booking_state" name="booking_state" required>
-                            <option value="available" @if(old('booking_state', $hall->booking_state) == 'available') selected @endif>Available</option>
-                            <option value="booked" @if(old('booking_state', $hall->booking_state) == 'booked') selected @endif>Booked</option>
-                        </select>
-                    </div>
-                </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="current_state">Hall Status <span class="required">*</span></label>

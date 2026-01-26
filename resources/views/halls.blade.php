@@ -143,7 +143,6 @@
                     <th id="capacity">Capacity</th>
                     <th id="description">Specail Notice</th>
                     <th id="current_state">Hall Status</th>
-                    <th id="booking_state">Booking Status</th>
                     <th id="date_created">Date Created</th>
                     <th id="date_modified">Date Modified</th>
                     <th id="actions">Actions</th>
@@ -152,7 +151,7 @@
             <tbody>
                 @if($halls->isEmpty())
                     <tr>
-                        <td colspan="10" style="text-align: center;">No halls found.</td>
+                        <td colspan="9" style="text-align: center;">No halls found.</td>
                     </tr>
                 @else
                     @foreach($halls as $index => $hall)
@@ -163,7 +162,6 @@
                             <td>{{ $hall->capacity }}</td>
                             <td>{{ $hall->special_notice }}</td>
                             <td>{{ $hall->current_state }}</td>
-                            <td>{{ $hall->booking_state }}</td>
                             <td>{{ \Carbon\Carbon::parse($hall->date_created)->format('Y-m-d h:i A') }}</td>
                             <td>{{ $hall->date_modified ? \Carbon\Carbon::parse($hall->date_modified)->format('Y-m-d h:i A') : 'N/A' }}</td>
                             <td>
