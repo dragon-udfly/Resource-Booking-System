@@ -106,6 +106,8 @@
         
         <div class="page-header">
             <h2>Book Quarters</h2>
+            <p>Applications for requesting accommodation in the government quarters administered by the Ministry of Public Administration in Vavuniya</p>
+            <br />
             <p>Select a quarter type to proceed with booking or view available quarters.</p>
         </div>
 

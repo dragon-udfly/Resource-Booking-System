@@ -118,7 +118,7 @@
         </div>
         
         <div class="page-header">
-            <h2>Requesting Scheduled Quarters <br />under the administration of the Ministry of Public Administration in Vavuniya</h2>
+            <h2>Application for Scheduled Quarters</h2>
         </div>
 
         <div class="form-container">
