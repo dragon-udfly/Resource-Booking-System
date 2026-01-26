@@ -205,4 +205,9 @@ class QuarterController extends Controller
     {
         return view('familyquarter');
     }
+
+    public function bookScheduledQuarters()
+    {
+        return view('scheduledquarter');
+    }
 }

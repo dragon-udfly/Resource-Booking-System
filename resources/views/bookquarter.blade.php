@@ -111,7 +111,7 @@
 
         <div style="text-align: center; margin-bottom: 30px;">
             <a href="{{ route('familyquarter') }}" class="book-quarter-btn">Book Family Quarters</a>
-            <a href="#" class="book-quarter-btn">Book Scheduled Quarters</a>
+            <a href="{{ route('scheduledquarter') }}" class="book-quarter-btn">Book Scheduled Quarters</a>
         </div>
 
         <div class="form-container">

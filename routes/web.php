@@ -105,6 +105,7 @@ Route::post('/verify-requester', [HallBookingController::class, 'verifyRequester
 
 Route::get('/bookquarter', [QuarterController::class, 'create'])->name('bookquarter');
 Route::get('/familyquarter', [QuarterController::class, 'bookFamilyQuarters'])->name('familyquarter');
+Route::get('/scheduledquarter', [QuarterController::class, 'bookScheduledQuarters'])->name('scheduledquarter');
 
 Route::get('/bookhall', [HallBookingController::class, 'create'])->name('halls.book');
 Route::post('/bookhall', [HallBookingController::class, 'store'])->name('hall_bookings.store');
