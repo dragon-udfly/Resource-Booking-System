@@ -244,7 +244,7 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="allowed_gender">Occupant Gender (for chummary and other allocated quarters)</label>
+                        <label for="allowed_gender">Allowed Occupant Gender (for chummary and other allocated quarters)</label>
                         <select id="allowed_gender" name="allowed_gender" required>
                             <option value="">Select Gender</option>
                             <option value="" selected>Not Specified</option>
