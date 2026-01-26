@@ -284,7 +284,53 @@
                     </div>
                 </div>
 
-                <h3 class="form-section-title">F) Requester Details (Enter details to add this application to system)</h3> 
+                <h3 class="form-section-title">F) Marking Scheme and Marking </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="marking_f_department">1. Select Applicant's Department <span class="required">*</span></label>
+                        <select id="marking_f_department" name="marking_f_department" required>
+                            <option value="">Select Department</option>
+                            <option value="Officers_attached_under_the_Ministry_of_Home_Affairs">Officers attached under the Ministry of Home Affairs</option>
+                            <option value="Officers_attached_to_District_and_Divisional_Secretariats">Officers attached to District and Divisional Secretariats</option>
+                            <option value="Other_Officers">Other Officers</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="number_of_dependant">2. Select Number of Dependant <span class="required">*</span></label>
+                        <select id="number_of_dependant" name="number_of_dependant" required>
+                            <option value="">Select Dependants</option>
+                            <option value="01_person">01 person</option>
+                            <option value="02_person">02 person</option>
+                            <option value="03_person">03 person</option>
+                            <option value="04_person">04 person</option>
+                            <option value="05_or_above_05_person">05 or Above 05 person</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="is_dependant_with_disability">3. Dependant(s) with Disability <span class="required">*</span></label>
+                        <select id="is_dependant_with_disability" name="is_dependant_with_disability" required>
+                            <option value="">Select Yes or No</option>
+                            <option value="0">Yes</option>
+                            <option value="1">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="f_distance_of_residency">3. Distance of Residency <span class="required">*</span></label>
+                        <select id="f_distance_of_residency" name="f_distance_of_residency" required>
+                            <option value="">Select Distance</option>
+                            <option value="Out_District_above_100km">Out District above 100km</option>
+                            <option value="Out_District_between_51km_and_100km">Out District between 51km and 100km</option>
+                            <option value="Out_District_between_26km_and_50km">Out District between 26km and 50km</option>
+                            <option value="Out_District_below_25km">Out District below 25km</option>
+                            <option value="Out_of_Urban_Council_Area_above_30km">Out of Urban Council Area above 30km</option>
+                            <option value="Out_of_Urban_Council_Area_between_00km_and_30km">Out of Urban Council Area between 0km and 30km</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h3 class="form-section-title">G) Requester Details (Enter details to add this application to system)</h3> 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="filled_by_nic">Requester Officer's NIC <span class="required">*</span></label>
