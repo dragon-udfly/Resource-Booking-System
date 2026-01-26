@@ -67,6 +67,9 @@ class QuarterController extends Controller
             ]);
             $data['quarter_id'] = $newQuarterId;
 
+            $data['occupant_number'] = $data['occupant_number'] ?? 0;
+            $data['current_occupant_number'] = $data['current_occupant_number'] ?? 0;
+
             $data['date_created'] = now();
             $data['date_modified'] = now();
 
@@ -138,10 +141,10 @@ class QuarterController extends Controller
             'old_quarter_no' => $request->old_quarter_no,
             'new_quarter_no' => $request->new_quarter_no,
             'location' => $request->location,
-            'occupant_number' => $request->occupant_number,
+            'occupant_number' => $request->occupant_number ?? 0,
             'allowed_gender' => $request->allowed_gender,
             'special_notice' => $request->special_notice,
-            'current_occupant_number' => $request->current_occupant_number,
+            'current_occupant_number' => $request->current_occupant_number ?? 0,
             'date_modified' => Carbon::now(),
         ]);
 
