@@ -88,6 +88,7 @@
                     <th>Quarters No. (new)</th>
                     <th>Location</th>
                     <th>Type</th>
+                    <th>Grade</th>
                     <th>Status</th>
                     <th>Allowed/Occupant Gender</th>
                     <th>Special Notice</th>
@@ -109,6 +110,7 @@
                             <td>{{ $quarter->new_quarter_no }}</td>
                             <td>{{ $quarter->location }}</td>
                             <td>{{ $quarter->quarter_type }}</td>
+                            <td>{{ $quarter->service_grade }}</td>
                             <td>{{ $quarter->status }}</td>
                             <td>{{ $quarter->allowed_gender }}</td>
                             <td>{{ $quarter->special_notice }}</td>
