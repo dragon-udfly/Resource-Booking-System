@@ -196,4 +196,9 @@ class QuarterController extends Controller
         // For now, no data is passed as we don't have a way to get occupant info
         return view('occupantdetails');
     }
+
+    public function bookFamilyQuarters()
+    {
+        return view('familyquarter');
+    }
 }
