@@ -141,7 +141,7 @@
                     <th id="hall_id">Hall ID</th>
                     <th id="hall_type">Hall Type</th>
                     <th id="capacity">Capacity</th>
-                    <th id="description">Description</th>
+                    <th id="description">Specail Notice</th>
                     <th id="current_state">Hall Status</th>
                     <th id="booking_state">Booking Status</th>
                     <th id="date_created">Date Created</th>
@@ -161,7 +161,7 @@
                             <td>{{ $hall->hall_id }}</td>
                             <td>{{ $hall->hall_type }}</td>
                             <td>{{ $hall->capacity }}</td>
-                            <td>{{ $hall->description }}</td>
+                            <td>{{ $hall->special_notice }}</td>
                             <td>{{ $hall->current_state }}</td>
                             <td>{{ $hall->booking_state }}</td>
                             <td>{{ \Carbon\Carbon::parse($hall->date_created)->format('Y-m-d h:i A') }}</td>
