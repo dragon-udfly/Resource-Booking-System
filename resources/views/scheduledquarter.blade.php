@@ -118,7 +118,7 @@
         </div>
         
         <div class="page-header">
-            <h2>Requesting Family Quarters <br />under the administration of the Ministry of Public Administration in Vavuniya</h2>
+            <h2>Requesting Scheduled Quarters <br />under the administration of the Ministry of Public Administration in Vavuniya</h2>
         </div>
 
         <div class="form-container">
@@ -139,18 +139,14 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="dob">3. Date of Birth: <span class="required">*</span></label>
-                        <input type="date" id="dob" name="dob" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="designation">4. Designation <span class="required">*</span></label>
+                        <label for="designation">3. Designation <span class="required">*</span></label>
                         <input type="text" id="designation" name="designation" required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="gender">5. Gender <span class="required">*</span></label>
+                        <label for="gender">4. Gender <span class="required">*</span></label>
                         <select id="gender" name="gender" required>
                             <option value="">Select Gender</option>
                             <option value="Male">Male</option>
@@ -158,7 +154,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="service_and_grade">6. Service and Grade: <span class="required">*</span></label>
+                        <label for="service_and_grade">5. Service and Grade: <span class="required">*</span></label>
                         <select id="service_and_grade" name="service_and_grade" required>
                             <option value="">Select Service and Grade</option>
                             <option value="1">1 (G I)</option>
@@ -173,118 +169,67 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="permanent_address">7. Permanent Address: <span class="required">*</span></label>
+                        <label for="permanent_address">6. Permanent Address: <span class="required">*</span></label>
                         <textarea id="permanent_address" name="permanent_address" placeholder="with Grama Niladhari Division:" maxlength="1200" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="temporary_address">8. Temporary Address: </label>
+                        <label for="temporary_address">7. Temporary Address: </label>
                         <textarea id="temporary_address" name="temporary_address" placeholder="with Grama Niladhari Division:" maxlength="1200"></textarea>
                     </div>
                 </div> 
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="phone_number">10. Telephone Number:<span class="required">*</span></label>
+                        <label for="phone_number">8. Telephone Number:<span class="required">*</span></label>
                         <input type="tel" id="phone_number" name="phone_number" required>
                     </div>
                     <div class="form-group">
-                        <label for="email">11. Email Address: </label>
+                        <label for="email">9. Email Address: </label>
                         <input type="email" id="email" name="email">
                     </div>
                 </div> 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="monthly_salary">9.  Monthly Salary (excluding allowances): <span class="required">*</span></label>
+                        <label for="monthly_salary">10.  Monthly Salary (excluding allowances): <span class="required">*</span></label>
                         <input type="number" id="monthly_salary" name="monthly_salary" required>
                     </div>
-                    <div class="form-group">
-                        <label for="f_date_of_last_salary_increment">13.  Date of Last Salary Increment: <span class="required">*</span></label>
-                        <input type="date" id="f_date_of_last_salary_increment" name="f_date_of_last_salary_increment" required>
-                    </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="date_of_assumption_of_duties">12.  Date of Assumption of Duties in Vavuniya: <span class="required">*</span></label>
+                        <label for="date_of_assumption_of_duties">11.  Date of Assumption of Duties in Vavuniya: <span class="required">*</span></label>
                         <input type="date" id="date_of_assumption_of_duties" name="date_of_assumption_of_duties" required>
                     </div>
-                    <div class="form-group">
-                        <label for="transformed_officer">14.  Is applicant a transferred officer? If yes, assigned from the District Secretariat?: </label>
-                        <input type="text" id="is_transformed_officer" name="is_transformed_officer">
-                    </div>
                 </div>
 
-                <h3 class="form-section-title">B) Spouse Details</h3>
+                <h3 class="form-section-title">B)  Special Reasons for Priority Request</h3>
                 <div class="form-row">
                    <div class="form-group">
-                        <label for="f_marital_status">1. Marital Status: </label>
-                        <select id="f_marital_status" name="f_marital_status">
-                            <option value="">Select Marital Status</option>
-                            <option value="Married">Married</option>
-                            <option value="Widowed">Widowed</option>
-                            <option value="Divorced">Divorced</option>
-                            <option value="Separated">Separated</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="f_is_spouse_employed">2. Is your spouse employed in government service? </label>
-                        <select id="f_is_spouse_employed" name="f_is_spouse_employed">
-                            <option value="">Select Yes or No</option>
-                            <option value="1">Yes</option>
-                            <option value="0">No</option>
-                        </select>
+                        <label for="sq_transfered_officer_priority_request">1. Are you a transferred officer? (Provide descripiton, if available)</label>
+                        <textarea id="sq_transfered_officer_priority_request" name="sq_transfered_officer_priority_request" placeholder="Enter description" maxlength="2000" cols="50", rows="7"></textarea>
                     </div>
                 </div> 
-
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="f_spouse_designation">3. Spouse’s Designation: </label>
-                        <input type="text" id="f_spouse_designation" name="f_spouse_designation">
+                        <label for="sq_night_duty_priority_request">2. Are you frequently called for night duty? (Provide descripiton, if available)</label>
+                        <textarea id="sq_night_duty_priority_request" name="sq_night_duty_priority_request" placeholder="Enter description" maxlength="2000" cols="50", rows="7"></textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="f_spouse_department_office">4. Department / Office Name: </label>
-                        <input type="text" id="f_spouse_department_office" name="f_spouse_department_office">
-                    </div>
-                </div>
+                </div> 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="f_spouse_monthly_salary">5. Monthly Salary (excluding allowances): </label>
-                        <input type="number" id="f_spouse_monthly_salary" name="f_spouse_monthly_salary">
+                        <label for="sq_other_special_reason_priority_request">3. Any other special reason? (Provide descripiton, if available)</label>
+                        <textarea id="sq_other_special_reason_priority_request" name="sq_other_special_reason_priority_request" placeholder="Enter description" maxlength="2000" cols="50", rows="7"></textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="f_spouse_last_increment_date">6. Date of Last Salary Increment: </label>
-                        <input type="date" id="f_spouse_last_increment_date" name="f_spouse_last_increment_date">
-                    </div>
-                </div>
-
-                <h3 class="form-section-title">C) Children Details</h3>
+                </div> 
+                
+                <h3 class="form-section-title">C)  Property Ownership Within 5 km of Vavuniya Town </h3>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="f_children_details_description">1. Enter Description of Children (Write a clear description or use following format with new line pressing Enter): </label>
-                        <label>Name: child one name Age: child one age Grade: child one grade School: child one school <br />
-                            Name: child two name Age: child two age Grade: child two grade School: child two school <br />
-                            Name: child three name Age: child three age Grade: child three grade School: child three school
-                        </label>
-                        <textarea id="f_children_details_description" name="f_children_details_description" placeholder="Name: John Deo Age: 12 Grade: 5A School: National Colledge, Vavuniya" maxlength="2000" cols="50", rows="15"></textarea>
+                        <label for="sq_property_ownership_details">1. Do you or your spouse own any house or land within a 5 km radius of Vavuniya town? If yes, provide details. </label>
+                        <textarea id="sq_property_ownership_details" name="sq_property_ownership_details" placeholder="Enter description" maxlength="2000" cols="50", rows="10"></textarea>
                     </div>
                 </div>
 
-                <h3 class="form-section-title">D) Property Ownership in Vavuniya District</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="f_property_ownership_details">1. Do you or your spouse or children under 18 own any land or house in Vavuniya District? If yes, provide details: </label>
-                        <textarea id="f_property_ownership_details" name="f_property_ownership_details" placeholder="Enter description" maxlength="2000" cols="50", rows="10"></textarea>
-                    </div>
-                </div>
-
-                <h3 class="form-section-title">E) Previous Stay in Government Quarters</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="f_previous_government_quarter_duration">Have you previously stayed in government quarters? If yes, mention the duration (Years): </label>
-                        <input type="number" id="f_previous_government_quarter_duration" name="f_previous_government_quarter_duration">
-                    </div>
-                </div>
-
-                <h3 class="form-section-title">F) Requester Details (Enter details to add this application to system)</h3> 
+                <h3 class="form-section-title">D) Requester Details (Enter details to add this application to system)</h3> 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="filled_by_nic">Requester Officer's NIC <span class="required">*</span></label>
