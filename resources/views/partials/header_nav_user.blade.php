@@ -112,7 +112,7 @@
                     <li id="nav-halls"><a href="/seehalls">Halls</a></li>
                 @endif
                 @if(Auth::user()->hasPermissionTo('view_quarters'))
-                    <li id="nav-quarter"><a href="#">Quarters</a></li>
+                    <li id="nav-quarter"><a href="{{ route('seequarters') }}">Quarters</a></li>
                 @endif
             @endauth
             <li id="nav-homepage"><a href="{{ route('homepage') }}">Homepage</a></li>

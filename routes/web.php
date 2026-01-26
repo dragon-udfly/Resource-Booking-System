@@ -96,6 +96,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/hall-bookings/{hallBooking}/cancel-approved', [HallBookingController::class, 'cancelApproved'])->name('hall_bookings.cancelApproved');
 
     Route::get('/history', [HallBookingController::class, 'showHistory'])->name('history');
+
+    Route::get('/seequarters', [QuarterController::class, 'seeQuarters'])->name('seequarters');
+    Route::get('/occupantdetails', [QuarterController::class, 'showOccupantDetails'])->name('occupantdetails');
 });
 
 Route::post('/verify-requester', [HallBookingController::class, 'verifyRequester'])->name('requester.verify');
@@ -114,9 +117,7 @@ Route::get('/hall-overview', [HallController::class, 'showOverview'])->name('hal
 Route::get('/hallschedule', [HallBookingController::class, 'showSchedule'])->name('halls.schedule');
 
 
-Route::get('/seequarters', function () {
-    return view('seequarters');
-});
+
 
 
 Route::get('/modifyquarter', function(){
