@@ -183,6 +183,10 @@
                         <input type="number" id="occupant_number" name="occupant_number" value="{{ old('occupant_number', $quarter->occupant_number) }}">
                     </div>
                     <div class="form-group">
+                        <label for="current_occupant_number">Number of Current Occupants</label>
+                        <input type="number" id="current_occupant_number" name="current_occupant_number" value="{{ old('current_occupant_number', $quarter->current_occupant_number) }}">
+                    </div>
+                    <div class="form-group">
                         <label for="allowed_gender">Occupant Gender</label>
                         <select id="allowed_gender" name="allowed_gender">
                             <option value="" {{ old('allowed_gender', $quarter->allowed_gender) == '' ? 'selected' : '' }}>Not Specified</option>

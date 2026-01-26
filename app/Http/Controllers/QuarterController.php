@@ -31,6 +31,7 @@ class QuarterController extends Controller
             'occupant_number' => 'nullable|integer',
             'allowed_gender' => 'nullable|string|max:20',
             'special_notice' => 'nullable|string',
+            'current_occupant_number' => 'nullable|integer',
         ]);
 
         if ($validator->fails()) {
@@ -62,6 +63,7 @@ class QuarterController extends Controller
                 'occupant_number',
                 'allowed_gender',
                 'special_notice',
+                'current_occupant_number',
             ]);
             $data['quarter_id'] = $newQuarterId;
 
@@ -127,6 +129,7 @@ class QuarterController extends Controller
             'occupant_number' => 'nullable|integer',
             'allowed_gender' => 'nullable|string|max:20',
             'special_notice' => 'nullable|string',
+            'current_occupant_number' => 'nullable|integer',
         ]);
 
         $quarter->update([
@@ -138,6 +141,7 @@ class QuarterController extends Controller
             'occupant_number' => $request->occupant_number,
             'allowed_gender' => $request->allowed_gender,
             'special_notice' => $request->special_notice,
+            'current_occupant_number' => $request->current_occupant_number,
             'date_modified' => Carbon::now(),
         ]);
 

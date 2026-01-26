@@ -23,6 +23,7 @@ class Quarter extends Model
         'occupant_number',
         'allowed_gender',
         'special_notice',
+        'current_occupant_number',
         'date_created',
         'date_modified',
     ];

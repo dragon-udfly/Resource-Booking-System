@@ -237,6 +237,10 @@
                         <label for="occupant_number">Number of Allowd Occupants (Specially for Chummary)</label>
                         <input type="number" id="occupant_number" name="occupant_number">
                     </div>
+                    <div class="form-group">
+                        <label for="current_occupant_number">Number of Current Occupants (Specially for Chummary)</label>
+                        <input type="number" id="current_occupant_number" name="current_occupant_number">
+                    </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
