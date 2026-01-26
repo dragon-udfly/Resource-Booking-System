@@ -51,7 +51,7 @@
         .book-quarter-btn {
             display: inline-block;
             padding: 12px 25px;
-            background-color: #007bff; /* Green for booking */
+            background-color: #25a309; /* Green for booking */
             color: white;
             text-decoration: none;
             border-radius: 5px;
@@ -126,6 +126,7 @@
                         <th>Status</th>
                         <th>Allowed/Max Occupants</th>
                         <th>Vacancies in Quarter (Not Allocated)</th>
+                        <th>Allowed Gender</th>
                         <th>Special Notice</th>
                     </tr>
                 </thead>
@@ -143,6 +144,7 @@
                                 <td>{{ $quarter->quarter_type }}</td>
                                 <td>{{ $quarter->status }}</td>
                                 <td>{{ $quarter->occupant_number }}</td>
+                                <th>{{ $quarter->allowed_gender }}</td>
                                 <td>{{ $quarter->occupant_number - ($quarter->current_occupant_number ?? 0) }}</td>
                                 <td>{{ $quarter->special_notice }}</td>
                             </tr>
