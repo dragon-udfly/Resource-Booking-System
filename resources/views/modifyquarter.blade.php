@@ -163,6 +163,18 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label for="service_grade">Service Grade</label>
+                        <select id="service_grade" name="service_grade">
+                            <option value="">Select Grade</option>
+                            <option value="1" {{ old('service_grade', $quarter->service_grade) == '1' ? 'selected' : '' }}>1</option>
+                            <option value="2" {{ old('service_grade', $quarter->service_grade) == '2' ? 'selected' : '' }}>2</option>
+                            <option value="3" {{ old('service_grade', $quarter->service_grade) == '3' ? 'selected' : '' }}>3</option>
+                            <option value="4" {{ old('service_grade', $quarter->service_grade) == '4' ? 'selected' : '' }}>4</option>
+                            <option value="5" {{ old('service_grade', $quarter->service_grade) == '5' ? 'selected' : '' }}>5</option>
+                            <option value="5A" {{ old('service_grade', $quarter->service_grade) == '5A' ? 'selected' : '' }}>5A</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="location">Location <span class="required">*</span></label>
                         <input type="text" id="location" name="location" value="{{ old('location', $quarter->location) }}" required>
                     </div>

@@ -31,6 +31,7 @@ class QuarterController extends Controller
         // Validate the request data
         $validator = Validator::make($request->all(), [
             'quarter_type' => ['required', Rule::in(['Family', 'Scheduled'])],
+            'service_grade' => ['nullable', Rule::in(['1', '2', '3', '4', '5', '5A'])],
             'status' => ['required', Rule::in(['Unallocated', 'Allocated', 'Repair', 'Demolished'])],
             'old_quarter_no' => 'nullable|string|max:50',
             'new_quarter_no' => 'nullable|string|max:50',
@@ -65,6 +66,7 @@ class QuarterController extends Controller
                 'old_quarter_no',
                 'new_quarter_no',
                 'quarter_type',
+                'service_grade',
                 'status',
                 'location',
                 'occupant_number',
@@ -132,6 +134,7 @@ class QuarterController extends Controller
     {
         $request->validate([
             'quarter_type' => ['required', Rule::in(['Family', 'Scheduled'])],
+            'service_grade' => ['nullable', Rule::in(['1', '2', '3', '4', '5', '5A'])],
             'status' => ['required', Rule::in(['Unallocated', 'Allocated', 'Repair', 'Demolished'])],
             'old_quarter_no' => 'nullable|string|max:50',
             'new_quarter_no' => 'nullable|string|max:50',
@@ -144,6 +147,7 @@ class QuarterController extends Controller
 
         $quarter->update([
             'quarter_type' => $request->quarter_type,
+            'service_grade' => $request->service_grade,
             'status' => $request->status,
             'old_quarter_no' => $request->old_quarter_no,
             'new_quarter_no' => $request->new_quarter_no,

@@ -213,6 +213,18 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label for="service_grade">Service Grade</label>
+                        <select id="service_grade" name="service_grade">
+                            <option value="">Select Grade</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="5A">5A</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="status">Quarter Status <span class="required">*</span></label>
                         <select id="status" name="status" required>
                             <option value="">Select status</option>
