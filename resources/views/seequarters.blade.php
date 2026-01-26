@@ -93,7 +93,7 @@
                     <th>Special Notice</th>
                     <th>Number of Allowed/Max Occupants</th>
                     <th>Number of Current Occupants</th>
-                    <th>Number of Vacancies in Quarter</th>
+                    <th>Vacancies in Quarter (Not Allocated)</th>
                 </tr>
             </thead>
             <tbody>
