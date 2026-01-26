@@ -53,7 +53,7 @@
         }
 
         a:hover{
-            color: #f20343;
+            color: #0056b3;
         }
     </style>
 </head>

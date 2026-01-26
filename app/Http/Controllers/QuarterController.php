@@ -29,6 +29,8 @@ class QuarterController extends Controller
             'new_quarter_no' => 'nullable|string|max:50',
             'location' => 'required|string|max:100',
             'occupant_number' => 'nullable|integer',
+            'allowed_gender' => 'nullable|string|max:20',
+            'special_notice' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -58,6 +60,8 @@ class QuarterController extends Controller
                 'status',
                 'location',
                 'occupant_number',
+                'allowed_gender',
+                'special_notice',
             ]);
             $data['quarter_id'] = $newQuarterId;
 
@@ -121,6 +125,8 @@ class QuarterController extends Controller
             'new_quarter_no' => 'nullable|string|max:50',
             'location' => 'required|string|max:100',
             'occupant_number' => 'nullable|integer',
+            'allowed_gender' => 'nullable|string|max:20',
+            'special_notice' => 'nullable|string',
         ]);
 
         $quarter->update([
@@ -130,6 +136,8 @@ class QuarterController extends Controller
             'new_quarter_no' => $request->new_quarter_no,
             'location' => $request->location,
             'occupant_number' => $request->occupant_number,
+            'allowed_gender' => $request->allowed_gender,
+            'special_notice' => $request->special_notice,
             'date_modified' => Carbon::now(),
         ]);
 
@@ -161,5 +169,17 @@ class QuarterController extends Controller
             Log::error('Failed to delete quarter: ' . $e->getMessage());
             return redirect()->route('quarters.index')->with('error', 'Failed to delete quarter.');
         }
+    }
+
+    public function seeQuarters()
+    {
+        $quarters = Quarter::all();
+        return view('seequarters', ['quarters' => $quarters]);
+    }
+
+    public function showOccupantDetails()
+    {
+        // For now, no data is passed as we don't have a way to get occupant info
+        return view('occupantdetails');
     }
 }

@@ -140,7 +140,7 @@
                 <p>Fields marked with <span class="required">*</span> are required. Please ensure all information is accurate before submitting.</p>
             </div>
 
-            <form action="{{ route('quarters.update', $quarter) }}" method="POST">
+            <form action="{{ route('quarters.update', $quarter) }}" method="POST" onsubmit="return confirm('Are you sure you want to update this quarter?');">
                 @csrf
                 @method('PATCH')
                 <div class="form-row">
@@ -171,14 +171,30 @@
                     <div class="form-group">
                         <label for="status">Quarter Status <span class="required">*</span></label>
                         <select id="status" name="status" required>
+                            <option value="">Select status</option>
                             <option value="NOT_ALLOCATED" {{ old('status', $quarter->status) == 'NOT_ALLOCATED' ? 'selected' : '' }}>Not Allocated</option>
-                            <option value="ALLOCATED" {{ old('status', $quarter->status) == 'ALLOCATED' ? 'selected' : '' }}>Allocated</option>
                             <option value="OCCUPIED" {{ old('status', $quarter->status) == 'OCCUPIED' ? 'selected' : '' }}>Occupied</option>
+                            <option value="REPAIR" {{ old('status', $quarter->status) == 'REPAIR' ? 'selected' : '' }}>Repair</option>
+                            <option value="DEMOLISHED" {{ old('status', $quarter->status) == 'DEMOLISHED' ? 'selected' : '' }}>Demolished</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="occupant_number">Number of Allowed Occupants</label>
                         <input type="number" id="occupant_number" name="occupant_number" value="{{ old('occupant_number', $quarter->occupant_number) }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="allowed_gender">Occupant Gender</label>
+                        <select id="allowed_gender" name="allowed_gender">
+                            <option value="" {{ old('allowed_gender', $quarter->allowed_gender) == '' ? 'selected' : '' }}>Not Specified</option>
+                            <option value="F" {{ old('allowed_gender', $quarter->allowed_gender) == 'F' ? 'selected' : '' }}>Female</option>
+                            <option value="M" {{ old('allowed_gender', $quarter->allowed_gender) == 'M' ? 'selected' : '' }}>Male</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="special_notice">Special Notice</label>
+                        <textarea id="special_notice" name="special_notice" rows="3">{{ old('special_notice', $quarter->special_notice) }}</textarea>
                     </div>
                 </div>
                 <div class="button-group">

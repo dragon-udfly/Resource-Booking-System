@@ -87,8 +87,11 @@ class HallController extends Controller
      */
     public function seeHalls()
     {
-        $halls = Hall::all();
-        return view('seehalls', ['halls' => $halls]);
+        if (Auth::check() && Auth::user()->hasPermissionTo('view_halls')) {
+            $halls = Hall::all();
+            return view('seehalls', ['halls' => $halls]);
+        }
+        return redirect()->route('dashboard')->with('error', 'You do not have permission to access this page.');
     }
 
     /**

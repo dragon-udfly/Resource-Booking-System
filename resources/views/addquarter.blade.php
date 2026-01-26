@@ -238,11 +238,29 @@
                         <input type="number" id="occupant_number" name="occupant_number">
                     </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="allowed_gender">Occupant Gender (for chummary and other allocated quarters)</label>
+                        <select id="allowed_gender" name="allowed_gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="" selected>Not Specified</option>
+                            <option value="F">Female</option>
+                            <option value="M">Male</option>
+                        </select>
+                    </div>
+                </div>
 
                 <div class="form-row">
                     <div class="form-group full-width">
                         <label for="location">Location / Address <span class="required">*</span></label>
                         <input type="text" id="location" name="location" placeholder="Enter quarter address" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="special_notice">Special Notice</label>
+                        <textarea id="special_notice" name="special_notice" rows="3"></textarea>
                     </div>
                 </div>
 
