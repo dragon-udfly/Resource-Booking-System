@@ -17,7 +17,8 @@ class QuarterController extends Controller
 {
     public function create()
     {
-        return view('bookquarter');
+        $quarters = Quarter::all();
+        return view('bookquarter', ['quarters' => $quarters]);
     }
     /**
      * Store a newly created quarter in storage.
