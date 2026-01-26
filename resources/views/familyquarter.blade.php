@@ -208,8 +208,8 @@
                         <input type="date" id="date_of_assumption_of_duties" name="date_of_assumption_of_duties" required>
                     </div>
                     <div class="form-group">
-                        <label for="transformed_officer">14.  Is applicant a transferred officer? If yes, assigned from the District Secretariat?: </label>
-                        <input type="text" id="is_transformed_officer" name="is_transformed_officer">
+                        <label for="f_transformed_officer">14.  Is applicant a transferred officer? If yes, assigned from the District Secretariat? (Description about  transfer order): </label>
+                        <input type="text" id="f_transformed_officer" name="f_transformed_officer">
                     </div>
                 </div>
 
@@ -325,7 +325,7 @@
                             <option value="Out_District_between_26km_and_50km">Out District between 26km and 50km</option>
                             <option value="Out_District_below_25km">Out District below 25km</option>
                             <option value="Out_of_Urban_Council_Area_above_30km">Out of Urban Council Area above 30km</option>
-                            <option value="Out_of_Urban_Council_Area_between_00km_and_30km">Out of Urban Council Area between 0km and 30km</option>
+                            <option value="Out_of_Urban_Council_Area_between_00km_and_30km">Out of Urban Council Area between 00km and 30km</option>
                         </select>
                     </div>
                 </div>

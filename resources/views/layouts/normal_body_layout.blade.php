@@ -57,6 +57,9 @@
     {{-- 4. Common Footer Partial --}}
     @include('partials.footer')
 
+    {{-- Global Message Overlay --}}
+    @include('partials.message_overlay')
+
     {{-- Slot for page-specific scripts --}}
     @stack('scripts')
 </body>
