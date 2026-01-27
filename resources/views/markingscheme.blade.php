@@ -2,8 +2,34 @@
 
 @section('title', 'Marking Scheme')
 
+@section('page_styles')
+    <style>
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .back-button {
+            background-color: #6c757d;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+        }
+    </style>
+@endsection
+
 @section('content')
 <div class="banner">
+    <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px; margin-top: 20px;">
+        <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
+    </div>
     <div class="container" style="width: 90%; max-width: 900px; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 40px auto;">
         <form action="{{ route('marking-scheme.update') }}" method="POST">
             @csrf
