@@ -129,6 +129,7 @@
         <!-- Add Officer Button -->
         <div style="text-align: center; margin-bottom: 20px;">
             <a href="createaccount" class="add-officer-btn">Add Officer</a>
+            <a href="{{ route('gradesalary.index') }}" class="add-officer-btn" style="background-color:#2372d9">Edit Salary Range for Grade</a>
         </div>
 
         <!-- Officer Table -->

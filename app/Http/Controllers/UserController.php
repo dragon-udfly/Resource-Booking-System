@@ -345,4 +345,9 @@ class UserController extends Controller
 
         return redirect()->route('systemsetting')->with('success', 'All user records (except admins) have been cleared successfully.');
     }
+
+    public function showGradeSalary()
+    {
+        return view('gradesalary');
+    }
 }

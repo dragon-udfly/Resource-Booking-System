@@ -34,6 +34,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
     Route::get('/officers', [UserController::class, 'index'])->name('officers.index');
+    Route::get('/gradesalary', [UserController::class, 'showGradeSalary'])->name('gradesalary.index');
 
     Route::get('/addhall', [HallController::class, 'create'])->name('halls.create');
     Route::post('/addhall', [HallController::class, 'store'])->name('halls.store');
