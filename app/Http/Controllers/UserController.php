@@ -14,9 +14,10 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator; // ADDED THIS LINE
-use Illuminate\Support\Facades\DB; // ADDED THIS LINE
-use App\Models\GradeSalarySetting; // ADDED THIS LINE
+use Illuminate\Support\Facades\Validator; 
+use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\Log; 
+use App\Models\GradeSalarySetting; 
 
 class UserController extends Controller
 {

@@ -19,6 +19,7 @@ class GradeSalarySettingsSeeder extends Seeder
             '3 (G III)' => ['min' => 60001, 'max' => 75000],
             '4 (G IV)' => ['min' => 75001, 'max' => 90000],
             '5 (G V)' => ['min' => 90001, 'max' => 105000],
+            '5A' => ['min' => 105000, 'max' => 200000],
         ];
 
         foreach ($grades as $gradeName => $salaries) {

@@ -92,6 +92,43 @@ class QuarterController extends Controller
 
             Quarter::create($data);
 
+            // Increment number_of_quarters in grade_salary_settings
+            $serviceGrade = $request->service_grade;
+            if ($serviceGrade) {
+                $gradeSetting = GradeSalarySetting::where('grade', $serviceGrade)->first();
+                // If grade is "1", the stored format is "1 (G I)". Need to map this correctly.
+                // Assuming service_grade is '1', '2', '3', '4', '5', '5A'.
+                // And GradeSalarySetting's 'grade' column stores '1 (G I)', '2 (G II)', etc.
+                // Let's create a mapping for this.
+                $gradeMapping = [
+                    '1' => '1 (G I)',
+                    '2' => '2 (G II)',
+                    '3' => '3 (G III)',
+                    '4' => '4 (G IV)',
+                    '5' => '5 (G V)',
+                    '5A' => '5A', 
+                ];
+                $mappedGrade = $gradeMapping[$serviceGrade] ?? null;
+
+                if ($mappedGrade) {
+                    $gradeSetting = GradeSalarySetting::where('grade', $mappedGrade)->first();
+                    if ($gradeSetting) {
+                        $gradeSetting->increment('number_of_quarters');
+                        AuditLog::create([
+                            'log_title' => "Incremented number of quarters for Grade {$mappedGrade}",
+                            'performed_by' => Auth::id(),
+                            'date_performed' => Carbon::now()->toDateString(),
+                            'time_performed' => Carbon::now()->toTimeString(),
+                            'details' => "Quarter ID: {$newQuarterId}",
+                        ]);
+                    } else {
+                        Log::warning("GradeSalarySetting not found for service_grade: {$mappedGrade}");
+                    }
+                } else {
+                    Log::warning("No mapped grade found for service_grade: {$serviceGrade}");
+                }
+            }
+
             AuditLog::create([
                 'log_title' => 'Added New Quarter ' . $newQuarterId,
                 'performed_by' => Auth::id(),
