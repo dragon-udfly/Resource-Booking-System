@@ -121,15 +121,21 @@
         <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
             <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
         </div>
+
         <div class="page-header">
-            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Officers List</h2>
-            <p>Manage officers by modifying or deleting entries</p>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Officers Management</h2>
+            <p>Add officer to system and edit salary ranges for quarters</p>
         </div>
 
         <!-- Add Officer Button -->
         <div style="text-align: center; margin-bottom: 20px;">
             <a href="createaccount" class="add-officer-btn">Add Officer</a>
             <a href="{{ route('gradesalary.index') }}" class="add-officer-btn" style="background-color:#2372d9">Edit Salary Range for Grade</a>
+        </div>
+
+        <div class="page-header">
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Officers List</h2>
+            <p>Manage officers by modifying or deleting entries</p>
         </div>
 
         <!-- Officer Table -->

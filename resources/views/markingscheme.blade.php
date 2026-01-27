@@ -39,6 +39,10 @@
             border-color: #f5c6cb;
             color: #721c24;
         }
+        .marking-input {
+            width: 100%;
+            padding: 8px;
+        }
     </style>
 @endsection
 
@@ -87,7 +91,7 @@
                                     <td rowspan="{{ count($schemes) }}"><strong>{{ $scheme->marking_title }}</strong></td>
                                 @endif
                                 <td>{{ $scheme->marking_option }}</td>
-                                <td><input type="number" name="marks[{{ $scheme->marking_option }}]" value="{{ $scheme->defined_mark }}" style="width: 100%; padding: 8px;"></td>
+                                <td><input type="number" name="marks[{{ $scheme->marking_option }}]" value="{{ $scheme->defined_mark }}" class="marking-input"></td>
                             </tr>
                         @endforeach
                     @endforeach

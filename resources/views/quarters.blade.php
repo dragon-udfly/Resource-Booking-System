@@ -127,14 +127,20 @@
          <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
             <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
         </div>
+
         <div class="page-header">
-            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Quarters List</h2>
-            <p>Available Quarters In The System.</p>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Quarters Management</h2>
+            <p>Manage Quarters In The System.</p>
         </div>
 
         <div style="text-align: center; margin-bottom: 20px;">
             <a href="{{ route('addquarter') }}" class="add-officer-btn">Add Quarter</a>
             <a href="{{ route('marking-scheme.edit') }}" class="add-officer-btn">Edit Mark Scheme</a>
+        </div>
+
+        <div class="page-header">
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Quarters List</h2>
+            <p>Available Quarters In The System.</p>
         </div>
 
         <table id="quarter-details">
