@@ -134,7 +134,7 @@
 
         <div style="text-align: center; margin-bottom: 20px;">
             <a href="{{ route('addquarter') }}" class="add-officer-btn">Add Quarter</a>
-            <a href="" class="add-officer-btn">Edit Mark Scheme</a>
+            <a href="{{ route('marking-scheme.edit') }}" class="add-officer-btn">Edit Mark Scheme</a>
         </div>
 
         <table id="quarter-details">

@@ -407,4 +407,16 @@ class QuarterController extends Controller
 
         return $total_mark;
     }
+
+    public function markingScheme()
+    {
+        return view('markingscheme');
+    }
+
+    public function updateMarkingScheme(Request $request)
+    {
+        // For now, we'll just redirect back with a success message.
+        // Later, you can add the logic to update the marking scheme in the database.
+        return redirect()->route('marking-scheme.edit')->with('success', 'Marking scheme updated successfully!');
+    }
 }
