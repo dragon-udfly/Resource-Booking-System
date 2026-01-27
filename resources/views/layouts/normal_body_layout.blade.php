@@ -52,6 +52,31 @@
 
     {{-- 3. Main Content Slot --}}
     {{-- Child views will inject their content here --}}
+    
+    <div style="width: 90%; max-width: 1200px; margin: 20px auto; padding: 0 10px;">
+        @if (session('success'))
+            <div style="background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 4px; padding: 15px; margin-bottom: 20px;">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div style="background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px; padding: 15px; margin-bottom: 20px;">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div style="background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px; padding: 15px; margin-bottom: 20px;">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+    </div>
+
     @yield('content')
 
     {{-- 4. Common Footer Partial --}}

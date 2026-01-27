@@ -219,9 +219,21 @@ class QuarterController extends Controller
 
     public function storeFamilyQuarters(Request $request)
     {
+        $messages = [
+            'nic.unique' => 'An application with this NIC has already been submitted. Please check your previous applications.',
+            'confirm_details.required' => 'You must confirm that the details are correct.',
+            'confirm_details.accepted' => 'You must confirm that the details are correct.',
+        ];
+
         $validator = Validator::make($request->all(), [
             'officer_name' => 'required|string|max:255',
-            'nic' => 'required|string|max:20|unique:quarter_application,nic',
+            // Re-introducing unique rule for NIC as per business logic.
+            'nic' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('quarter_application', 'nic'),
+            ],
             'dob' => 'required|date',
             'designation' => 'required|string|max:100',
             'gender' => ['required', Rule::in(['Male', 'Female'])],
@@ -251,7 +263,7 @@ class QuarterController extends Controller
             'filled_by_phone' => 'required|string',
             'confirm_details' => 'required|accepted',
             'f_spacial_reason' => 'nullable|string|max:2000',
-        ]);
+        ], $messages);
 
         if ($validator->fails()) {
             return redirect()->route('familyquarter')
@@ -261,70 +273,13 @@ class QuarterController extends Controller
 
         DB::beginTransaction();
         try {
-            // 1. Create QuarterApplication
-            $application_id = 'QA' . Str::uuid();
-            $quarterApplication = QuarterApplication::create([
-                'application_id' => $application_id,
-                'quarter_type' => 'Family',
-                'officer_name' => $request->officer_name,
-                'gender' => $request->gender,
-                'nic' => $request->nic,
-                'designation' => $request->designation,
-                'service_grade' => $request->service_and_grade,
-                'permanent_address' => $request->permanent_address,
-                'temporary_address' => $request->temporary_address,
-                'monthly_salary' => $request->monthly_salary,
-                'phone_number' => $request->phone_number,
-                'email' => $request->email,
-                'date_of_assumption_of_duties' => $request->date_of_assumption_of_duties,
-                'date_created' => Carbon::now(),
-                'date_modified' => Carbon::now(),
-            ]);
+            $quarterApplication = $this->_createQuarterApplication($request);
+            $familyQuarterApplication = $this->_createFamilyQuarterApplication($request, $quarterApplication->application_id);
+            $this->_createMarkingFamilyQuarter($request, $familyQuarterApplication->f_application_id);
+            $this->_createQuarterAllocation($quarterApplication->application_id);
 
-            // 2. Create FamilyQuarterApplication
-            $f_application_id = 'FQA' . Str::uuid();
-            FamilyQuarterApplication::create([
-                'f_application_id' => $f_application_id,
-                'application_id' => $application_id,
-                'f_dob' => $request->dob,
-                'f_date_of_last_salary_increment' => $request->f_date_of_last_salary_increment,
-                'f_marital_status' => $request->f_marital_status,
-                'f_is_spouse_employed' => $request->f_is_spouse_employed,
-                'f_spouse_designation' => $request->f_spouse_designation,
-                'f_spouse_department_office' => $request->f_spouse_department_office,
-                'f_spouse_monthly_salary' => $request->f_spouse_monthly_salary,
-                'f_spouse_last_increment_date' => $request->f_spouse_last_increment_date,
-                'f_children_details_description' => $request->f_children_details_description,
-                'f_property_ownership_details' => $request->f_property_ownership_details,
-                'f_previous_government_quarter_duration' => $request->f_previous_government_quarter_duration,
-                'f_transformed_officer' => $request->f_transformed_officer,
-            ]);
-
-            // 3. Create MarkingFamilyQuarter
-            $total_mark = $this->calculateFamilyQuarterMark($request);
-            $marking_data = [
-                'f_application_id' => $f_application_id,
-                'f_department' => $request->marking_f_department,
-                'f_years_since_application_created' => 0, // Default value as requested
-                'f_number_of_dependant' => $request->number_of_dependant,
-                'is_dependant_with_disability' => $request->is_dependant_with_disability,
-                'f_distance_of_residency' => $request->f_distance_of_residency,
-                'f_spacial_reason' => $request->f_spacial_reason,
-                'total_mark' => $total_mark,
-                'date_calculated' => Carbon::now(),
-            ];
-            Log::info('Attempting to create MarkingFamilyQuarter with data:', $marking_data);
-            MarkingFamilyQuarter::create($marking_data);
-
-            // 4. Create QuarterAllocation
-            QuarterAllocation::create([
-                'application_id' => $application_id,
-                'quarter_id' => null, // quarter_id is now nullable
-                'allocation_status' => 'pending',
-            ]);
-            
             AuditLog::create([
-                'log_title' => 'New Family Quarter Application Submitted: ' . $application_id,
+                'log_title' => 'New Family Quarter Application Submitted: ' . $quarterApplication->application_id,
                 'performed_by' => Auth::check() ? Auth::id() : null,
                 'details' => 'Requester NIC: ' . $request->filled_by_nic,
                 'date_performed' => Carbon::now()->toDateString(),
@@ -336,9 +291,77 @@ class QuarterController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Family Quarter Application Submission Failed: ' . $e->getMessage());
-            return redirect()->route('familyquarter')->with('error', 'An unexpected error occurred. Failed to submit application.');
+            Log::error('Family Quarter Application Submission Failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return redirect()->route('familyquarter')->with('error', 'An unexpected error occurred. Failed to submit application. Please check the logs.');
         }
+    }
+
+    private function _createQuarterApplication(Request $request)
+    {
+        return QuarterApplication::create([
+            'application_id' => 'QA' . Str::uuid(),
+            'quarter_type' => 'Family',
+            'officer_name' => $request->officer_name,
+            'gender' => $request->gender,
+            'nic' => $request->nic,
+            'designation' => $request->designation,
+            'service_grade' => $request->service_and_grade,
+            'permanent_address' => $request->permanent_address,
+            'temporary_address' => $request->temporary_address,
+            'monthly_salary' => $request->monthly_salary,
+            'phone_number' => $request->phone_number,
+            'email' => $request->email,
+            'date_of_assumption_of_duties' => $request->date_of_assumption_of_duties,
+            'date_created' => Carbon::now(),
+            'date_modified' => Carbon::now(),
+        ]);
+    }
+
+    private function _createFamilyQuarterApplication(Request $request, $application_id)
+    {
+        return FamilyQuarterApplication::create([
+            'f_application_id' => 'FQA' . Str::uuid(),
+            'application_id' => $application_id,
+            'f_dob' => $request->dob,
+            'f_date_of_last_salary_increment' => $request->f_date_of_last_salary_increment,
+            'f_marital_status' => $request->f_marital_status,
+            'f_is_spouse_employed' => $request->f_is_spouse_employed,
+            'f_spouse_designation' => $request->f_spouse_designation,
+            'f_spouse_department_office' => $request->f_spouse_department_office,
+            'f_spouse_monthly_salary' => $request->f_spouse_monthly_salary,
+            'f_spouse_last_increment_date' => $request->f_spouse_last_increment_date,
+            'f_children_details_description' => $request->f_children_details_description,
+            'f_property_ownership_details' => $request->f_property_ownership_details,
+            'f_previous_government_quarter_duration' => $request->f_previous_government_quarter_duration,
+            'f_transformed_officer' => $request->f_transformed_officer,
+        ]);
+    }
+
+    private function _createMarkingFamilyQuarter(Request $request, $f_application_id)
+    {
+        $total_mark = $this->calculateFamilyQuarterMark($request);
+        return MarkingFamilyQuarter::create([
+            'f_application_id' => $f_application_id,
+            'f_department' => $request->marking_f_department,
+            'f_years_since_application_created' => 0, // Default value
+            'f_number_of_dependant' => $request->number_of_dependant,
+            'is_dependant_with_disability' => $request->is_dependant_with_disability,
+            'f_distance_of_residency' => $request->f_distance_of_residency,
+            'f_spacial_reason' => $request->f_spacial_reason,
+            'total_mark' => $total_mark,
+            'date_calculated' => Carbon::now(),
+        ]);
+    }
+
+    private function _createQuarterAllocation($application_id)
+    {
+        return QuarterAllocation::create([
+            'application_id' => $application_id,
+            'quarter_id' => null, // quarter_id is nullable
+            'allocation_status' => 'pending',
+        ]);
     }
 
     public function verifyRequester(Request $request)
@@ -420,13 +443,24 @@ class QuarterController extends Controller
 
     public function markingScheme()
     {
-        return view('markingscheme');
+        $marking_schemes = \App\Models\MarkingScheme::all()->groupBy('marking_title');
+        return view('markingscheme', compact('marking_schemes'));
     }
 
     public function updateMarkingScheme(Request $request)
     {
-        // For now, we'll just redirect back with a success message.
-        // Later, you can add the logic to update the marking scheme in the database.
+        $request->validate([
+            'marks' => 'required|array',
+            'marks.*' => 'required|numeric|min:0',
+        ]);
+
+        foreach ($request->marks as $option => $mark) {
+            \App\Models\MarkingScheme::where('marking_option', $option)->update([
+                'defined_mark' => $mark,
+                'date_modified' => \Carbon\Carbon::now(),
+            ]);
+        }
+
         return redirect()->route('marking-scheme.edit')->with('success', 'Marking scheme updated successfully!');
     }
 }
