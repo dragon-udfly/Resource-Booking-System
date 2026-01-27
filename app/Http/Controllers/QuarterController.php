@@ -15,6 +15,7 @@ use App\Models\QuarterApplication;
 use App\Models\FamilyQuarterApplication;
 use App\Models\MarkingFamilyQuarter;
 use App\Models\QuarterAllocation;
+use App\Models\ScheduledQuarterApplication; // Added this line
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;

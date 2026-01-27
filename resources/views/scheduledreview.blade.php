@@ -124,77 +124,82 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>3. Date of Birth:</label>
-                    <p>{{ $application->scheduledQuarterApplication?->s_dob ?? 'N/A' }}</p>
-                </div>
-                <div class="form-group">
-                    <label>4. Designation:</label>
+                    <label>3. Designation:</label>
                     <p>{{ $application->designation ?? 'N/A' }}</p>
                 </div>
-            </div>
-
-            <div class="form-row">
                 <div class="form-group">
-                    <label>5. Gender:</label>
+                    <label>4. Gender:</label>
                     <p>{{ $application->gender ?? 'N/A' }}</p>
                 </div>
+            </div>
+
+            <div class="form-row">
                 <div class="form-group">
-                    <label>6. Service and Grade:</label>
+                    <label>5. Service and Grade:</label>
                     <p>{{ $application->service_grade ?? 'N/A' }}</p>
+                </div>
+                <div class="form-group">
+                    <label>6. Permanent Address:</label>
+                    <p>{{ $application->permanent_address ?? 'N/A' }}</p>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>7. Permanent Address:</label>
-                    <p>{{ $application->permanent_address ?? 'N/A' }}</p>
+                    <label>7. Temporary Address:</label>
+                    <p>{{ $application->temporary_address ?? 'N/A' }}</p>
                 </div>
                 <div class="form-group">
-                    <label>8. Temporary Address:</label>
-                    <p>{{ $application->temporary_address ?? 'N/A' }}</p>
+                    <label>8. Telephone Number:</label>
+                    <p>{{ $application->phone_number ?? 'N/A' }}</p>
                 </div>
             </div> 
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>10. Telephone Number:</label>
-                    <p>{{ $application->phone_number ?? 'N/A' }}</p>
+                    <label>9. Email Address:</label>
+                    <p>{{ $application->email ?? 'N/A' }}</p>
                 </div>
                 <div class="form-group">
-                    <label>11. Email Address:</label>
-                    <p>{{ $application->email ?? 'N/A' }}</p>
+                    <label>10. Monthly Salary (excluding allowances):</label>
+                    <p>{{ $application->monthly_salary ?? 'N/A' }}</p>
                 </div>
             </div> 
             <div class="form-row">
                 <div class="form-group">
-                    <label>9. Monthly Salary (excluding allowances):</label>
-                    <p>{{ $application->monthly_salary ?? 'N/A' }}</p>
-                </div>
-                <div class="form-group">
-                    <label>12. Date of Assumption of Duties in Vavuniya:</label>
+                    <label>11. Date of Assumption of Duties in Vavuniya:</label>
                     <p>{{ $application->date_of_assumption_of_duties ?? 'N/A' }}</p>
                 </div>
             </div>
 
-            <h3 class="form-section-title">B) Scheduled Quarter Specific Details</h3>
+            <h3 class="form-section-title">B) Special Reasons for Priority Request</h3>
             <div class="form-row">
                <div class="form-group">
-                    <label>1. Reason for Scheduled Quarter:</label>
-                    <p>{{ $application->scheduledQuarterApplication?->s_reason_for_quarter ?? 'N/A' }}</p>
-                </div>
-                <div class="form-group">
-                    <label>2. Expected Duration of Stay (Months):</label>
-                    <p>{{ $application->scheduledQuarterApplication?->s_expected_duration ?? 'N/A' }}</p>
+                    <label>1. Are you a transferred officer? (Description, if available)</label>
+                    <p>{{ $application->scheduledQuarterApplication?->sq_transfered_officer_priority_request ?? 'N/A' }}</p>
                 </div>
             </div> 
-
             <div class="form-row">
                 <div class="form-group">
-                    <label>3. Previous Government Quarter Stay:</label>
-                    <p>{{ $application->scheduledQuarterApplication?->s_previous_government_quarter ?? 'N/A' }}</p>
+                    <label>2. Are you frequently called for night duty? (Description, if available)</label>
+                    <p>{{ $application->scheduledQuarterApplication?->sq_night_duty_priority_request ?? 'N/A' }}</p>
+                </div>
+            </div> 
+            <div class="form-row">
+                <div class="form-group">
+                    <label>3. Any other special reason? (Description, if available)</label>
+                    <p>{{ $application->scheduledQuarterApplication?->sq_other_special_reason_priority_request ?? 'N/A' }}</p>
+                </div>
+            </div> 
+            
+            <h3 class="form-section-title">C) Property Ownership Within 5 km of Vavuniya Town </h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>1. Do you or your spouse own any house or land within a 5 km radius of Vavuniya town?</label>
+                    <p>{{ $application->scheduledQuarterApplication?->sq_property_ownership_details ?? 'N/A' }}</p>
                 </div>
             </div>
-            
+
             <h3 class="form-section-title">Allocation Details</h3>
             <div class="form-row">
                 <div class="form-group">
