@@ -76,6 +76,11 @@
 @section('content')
     <section class="banner">
         <div class="page-header">
+            @if(session('success'))
+                <div style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px; width: 90%; max-width: 900px;">
+                    {{ session('success') }}
+                </div>
+            @endif
             <h2>Grade Salary Settings</h2>
             <br />
             <p>Change Salary Range for Service Grade</p>
