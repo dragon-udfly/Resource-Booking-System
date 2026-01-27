@@ -221,7 +221,7 @@ class QuarterController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'officer_name' => 'required|string|max:255',
-            'nic' => 'required|string|max:20',
+            'nic' => 'required|string|max:20|unique:quarter_application,nic',
             'dob' => 'required|date',
             'designation' => 'required|string|max:100',
             'gender' => ['required', Rule::in(['Male', 'Female'])],
@@ -250,6 +250,7 @@ class QuarterController extends Controller
             'filled_by_nic' => 'required|string',
             'filled_by_phone' => 'required|string',
             'confirm_details' => 'required|accepted',
+            'f_spacial_reason' => 'nullable|string|max:2000',
         ]);
 
         if ($validator->fails()) {
@@ -308,6 +309,7 @@ class QuarterController extends Controller
                 'f_number_of_dependant' => $request->number_of_dependant,
                 'is_dependant_with_disability' => $request->is_dependant_with_disability,
                 'f_distance_of_residency' => $request->f_distance_of_residency,
+                'f_spacial_reason' => $request->f_spacial_reason,
                 'total_mark' => $total_mark,
                 'date_calculated' => Carbon::now(),
             ];
