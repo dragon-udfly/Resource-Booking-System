@@ -62,7 +62,7 @@
                 </thead>
                 <tbody>
                     @forelse ($quarterApplications as $application)
-                        <tr>
+                        <tr data-quarter-type="{{ $application->quarter_type }}">
                             <td>{{ $application->officer_name }}</td>
                             <td>{{ $application->designation }}</td>
                             <td>{{ \Carbon\Carbon::parse($application->date_created)->format('Y-m-d h:i A') }}</td>
@@ -276,8 +276,14 @@
                     document.querySelectorAll('.review-quarter-btn').forEach(button => {
                         button.addEventListener('click', function () {
                             const applicationId = this.dataset.applicationId;
-                            if (applicationId) {
-                                window.location.href = `/family-quarter-application/${applicationId}/review`;
+                            const quarterType = this.closest('tr').dataset.quarterType;
+                            
+                            if (applicationId && quarterType) {
+                                if (quarterType === 'Family') {
+                                    window.location.href = `/family-quarter-application/${applicationId}/review`;
+                                } else if (quarterType === 'Scheduled') {
+                                    window.location.href = `/scheduled-quarter-application/${applicationId}/review`;
+                                }
                             }
                         });
                     });

@@ -46,4 +46,12 @@ class QuarterApplication extends Model
     {
         return $this->hasOne(FamilyQuarterApplication::class, 'application_id', 'application_id');
     }
+
+    /**
+     * Get the scheduled quarter application record associated with the application.
+     */
+    public function scheduledQuarterApplication()
+    {
+        return $this->hasOne(ScheduledQuarterApplication::class, 'application_id', 'application_id');
+    }
 }

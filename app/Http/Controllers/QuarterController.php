@@ -364,6 +364,107 @@ class QuarterController extends Controller
         ]);
     }
 
+    public function storeScheduledQuarters(Request $request)
+    {
+        $messages = [
+            'nic.unique' => 'An application with this NIC has already been submitted for a scheduled quarter. Please check your previous applications.',
+            'confirm_details.required' => 'You must confirm that the details are correct.',
+            'confirm_details.accepted' => 'You must confirm that the details are correct.',
+        ];
+
+        $validator = Validator::make($request->all(), [
+            'officer_name' => 'required|string|max:255',
+            'nic' => [
+                'required',
+                'string',
+                'max:20',
+                // For now, checking uniqueness across all quarter applications.
+                // If specific uniqueness per quarter_type is needed, uncomment above and adjust.
+                Rule::unique('quarter_application', 'nic'),
+            ],
+            'designation' => 'required|string|max:100',
+            'gender' => ['required', Rule::in(['Male', 'Female'])],
+            'service_and_grade' => ['required', Rule::in(['1', '2', '3', '4', '5', '5A'])],
+            'permanent_address' => 'required|string|max:1200',
+            'temporary_address' => 'nullable|string|max:1200',
+            'phone_number' => 'required|string|max:20',
+            'email' => 'nullable|email|max:100',
+            'monthly_salary' => 'required|numeric',
+            'date_of_assumption_of_duties' => 'required|date',
+            'sq_transfered_officer_priority_request' => 'nullable|string|max:2000',
+            'sq_night_duty_priority_request' => 'nullable|string|max:2000',
+            'sq_other_special_reason_priority_request' => 'nullable|string|max:2000',
+            'sq_property_ownership_details' => 'nullable|string|max:2000',
+            'filled_by_nic' => 'required|string',
+            'filled_by_phone' => 'required|string',
+            'confirm_details' => 'required|accepted',
+        ], $messages);
+
+        if ($validator->fails()) {
+            return redirect()->route('scheduledquarter')
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
+        DB::beginTransaction();
+        try {
+            $quarterApplication = $this->_createQuarterApplicationForScheduled($request);
+            $this->_createScheduledQuarterApplication($request, $quarterApplication->application_id);
+            $this->_createQuarterAllocation($quarterApplication->application_id);
+
+            AuditLog::create([
+                'log_title' => 'New Scheduled Quarter Application Submitted: ' . $quarterApplication->application_id,
+                'performed_by' => Auth::check() ? Auth::id() : null,
+                'details' => 'Requester NIC: ' . $request->filled_by_nic,
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            DB::commit();
+            return redirect()->route('bookquarter')->with('success', 'Scheduled quarter application submitted successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Scheduled Quarter Application Submission Failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return redirect()->route('scheduledquarter')->with('error', 'An unexpected error occurred. Failed to submit application. Please check the logs.');
+        }
+    }
+
+    private function _createQuarterApplicationForScheduled(Request $request)
+    {
+        return QuarterApplication::create([
+            'application_id' => 'QA' . Str::uuid(),
+            'quarter_type' => 'Scheduled', // Note: Changed from 'Family' to 'Scheduled'
+            'officer_name' => $request->officer_name,
+            'gender' => $request->gender,
+            'nic' => $request->nic,
+            'designation' => $request->designation,
+            'service_grade' => $request->service_and_grade,
+            'permanent_address' => $request->permanent_address,
+            'temporary_address' => $request->temporary_address,
+            'monthly_salary' => $request->monthly_salary,
+            'phone_number' => $request->phone_number,
+            'email' => $request->email,
+            'date_of_assumption_of_duties' => $request->date_of_assumption_of_duties,
+            'date_created' => Carbon::now(),
+            'date_modified' => Carbon::now(),
+        ]);
+    }
+
+    private function _createScheduledQuarterApplication(Request $request, $application_id)
+    {
+        return ScheduledQuarterApplication::create([
+            'sq_application_id' => 'SQA' . Str::uuid(),
+            'application_id' => $application_id,
+            'sq_transfered_officer_priority_request' => $request->sq_transfered_officer_priority_request,
+            'sq_night_duty_priority_request' => $request->sq_night_duty_priority_request,
+            'sq_other_special_reason_priority_request' => $request->sq_other_special_reason_priority_request,
+            'sq_property_ownership_details' => $request->sq_property_ownership_details,
+        ]);
+    }
+
     public function verifyRequester(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -398,6 +499,16 @@ class QuarterController extends Controller
         ])->where('application_id', $id)->firstOrFail();
 
         return view('familyreview', ['application' => $application]);
+    }
+
+    public function showScheduledQuarterReview($id)
+    {
+        $application = QuarterApplication::with([
+            'scheduledQuarterApplication',
+            'quarterAllocation'
+        ])->where('application_id', $id)->firstOrFail();
+
+        return view('scheduledreview', ['application' => $application]);
     }
 
     private function calculateFamilyQuarterMark(Request $request)

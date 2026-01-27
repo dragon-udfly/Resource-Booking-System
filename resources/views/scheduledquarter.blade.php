@@ -122,7 +122,7 @@
         </div>
 
         <div class="form-container">
-            <form action="#" method="POST">
+            <form id="scheduled-quarter-form" action="{{ route('scheduledquarter.store') }}" method="POST">
                 @csrf
                 
                 <h3 class="form-section-title">A) Officer Details</h3>
@@ -251,5 +251,91 @@
                 </div>
             </form>
         </div>
+        @include('partials.requester_layout')
     </section>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const bookingForm = document.getElementById('scheduled-quarter-form'); // Updated form ID
+            const requesterOverlay = document.getElementById('requester-overlay');
+            const requesterMessage = document.getElementById('requester-message');
+            const requesterConfirmBtn = document.getElementById('requester-confirm-btn');
+            const requesterCancelBtn = document.getElementById('requester-cancel-btn');
+
+            let isAwaitingConfirmation = false;
+
+            function showOverlay(message, isConfirmation = false) {
+                requesterMessage.textContent = message;
+                requesterOverlay.style.display = 'flex';
+                isAwaitingConfirmation = isConfirmation;
+
+                if (isConfirmation) {
+                    requesterConfirmBtn.textContent = 'Submit';
+                    requesterConfirmBtn.style.display = 'inline-block';
+                    requesterCancelBtn.style.display = 'inline-block';
+                } else {
+                    requesterConfirmBtn.textContent = 'OK';
+                    requesterConfirmBtn.style.display = 'inline-block';
+                    requesterCancelBtn.style.display = 'none';
+                }
+            }
+
+            function hideOverlay() {
+                requesterOverlay.style.display = 'none';
+                requesterMessage.textContent = '';
+                isAwaitingConfirmation = false;
+            }
+
+            requesterConfirmBtn.addEventListener('click', function() {
+                if (isAwaitingConfirmation) {
+                    bookingForm.submit();
+                } else {
+                    hideOverlay();
+                }
+            });
+
+            requesterCancelBtn.addEventListener('click', hideOverlay);
+            
+            requesterOverlay.addEventListener('click', function(event) {
+                if (event.target === requesterOverlay) {
+                    hideOverlay();
+                }
+            });
+
+            bookingForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const form = event.target;
+                const nicNumber = form.querySelector('#filled_by_nic').value;
+                const contactNumber = form.querySelector('#filled_by_phone').value;
+                const csrfToken = form.querySelector('input[name="_token"]').value;
+
+                fetch('{{ route('quarters.requester.verify') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        nic_number: nicNumber,
+                        contact_number: contactNumber
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showOverlay('Requester verified. Are you sure you want to submit this application?', true);
+                    } else {
+                        showOverlay(data.message, false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showOverlay('An error occurred during verification. Please try again.', false);
+                });
+            });
+        });
+    </script>
+@endpush
