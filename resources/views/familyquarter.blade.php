@@ -329,9 +329,15 @@
                         </select>
                     </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="f_spacial_reason">4. Provide Special Reasons (Decided by Government Agent for Quarter Reservation): </label>
+                        <textarea id="f_spacial_reason" name="f_spacial_reason" placeholder="Enter Special Reason" maxlength="2000" cols="50", rows="6"></textarea>
+                    </div>
+                </div>
 
                 <h3 class="form-section-title">G) Requester Details (Enter details to add this application to system)</h3> 
-                <div class="form-row">
+                <div class="form-row" title="Filling person should have requester permission to submit this application">
                     <div class="form-group">
                         <label for="filled_by_nic">Requester Officer's NIC <span class="required">*</span></label>
                         <input type="text" id="filled_by_nic" name="filled_by_nic" required>
