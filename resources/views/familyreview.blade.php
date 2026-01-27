@@ -104,7 +104,6 @@
     <section class="banner">
         <div class="button-bar">
             <a href="#" onclick="history.back(); return false;" class="btn back-btn">Back</a>
-            <a href="{{ Auth::check() ? route('homepage') : route('home') }}" class="btn home-btn">Home</a>
         </div>
         
         <div class="page-header">
