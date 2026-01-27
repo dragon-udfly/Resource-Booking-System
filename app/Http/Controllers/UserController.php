@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\UserPermission;
 use App\Models\AuditLog;
 use App\Models\HallBooking;
+use App\Models\QuarterApplication;
+use App\Models\QuarterAllocation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -58,6 +60,7 @@ class UserController extends Controller
     public function showDashboard()
     {
         $user = Auth::user()->load('permissions');
+        $quarterApplications = collect(); // Initialize as an empty collection
 
         if ($user->hasPermissionTo('requester')) {
             $hallBookings = HallBooking::with('hall')
@@ -65,14 +68,31 @@ class UserController extends Controller
                                         ->where('final_approval', 'pending')
                                         ->orderBy('date_created', 'desc')
                                         ->get();
-            // In a real scenario, you would also fetch QuarterBookings here if they existed
-            return view('dashboard', ['user' => $user, 'requesterBookings' => $hallBookings]);
+
+            $quarterApplications = QuarterApplication::with('quarterAllocation')
+                                                    ->where('nic', $user->nic_number)
+                                                    ->orderBy('date_created', 'desc')
+                                                    ->get();
+
+            return view('dashboard', [
+                'user' => $user,
+                'requesterBookings' => $hallBookings,
+                'quarterApplications' => $quarterApplications
+            ]);
         } else {
             $bookings = HallBooking::with('hall')
                                     ->where('final_approval', 'pending')
                                     ->orderBy('date_created', 'desc')
                                     ->get();
-            return view('dashboard', ['user' => $user, 'bookings' => $bookings]);
+
+            $quarterApplications = QuarterApplication::with('quarterAllocation')
+                                                    ->orderBy('date_created', 'desc')
+                                                    ->get();
+            return view('dashboard', [
+                'user' => $user,
+                'bookings' => $bookings,
+                'quarterApplications' => $quarterApplications
+            ]);
         }
     }
 

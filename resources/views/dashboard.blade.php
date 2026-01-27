@@ -7,7 +7,7 @@
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
         @if(Auth::user()->hasPermissionTo('requester'))
-            @include('partials.requester_dashboard_layout', ['requesterBookings' => $requesterBookings])
+            @include('partials.requester_dashboard_layout', ['requesterBookings' => $requesterBookings, 'quarterApplications' => $quarterApplications])
         @else
             <div class="page-header">
                 <h2 style="color: rgb(6, 4, 60); font-weight: bold">Pending Booking Approvals</h2>
@@ -46,11 +46,12 @@
             </table>
             <br /> 
             <br />
-            <h2 style="text-align: center; color:rgb(34, 60, 4)">Quarters Booking Applications</h2>
+            <h2 style="text-align: center; color:rgb(34, 60, 4)">Quarters Reservation Applications</h2>
             <table id="approval-details">
                 <thead>
                     <tr>
                         <th>Applicant Name</th>
+                        <th>Designation</th>
                         <th>Submitted Date</th>
                         <th>Type</th>
                         <th>AO Verification</th>
@@ -59,6 +60,26 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
+                <tbody>
+                    @forelse ($quarterApplications as $application)
+                        <tr>
+                            <td>{{ $application->officer_name }}</td>
+                            <td>{{ $application->designation }}</td>
+                            <td>{{ \Carbon\Carbon::parse($application->date_created)->format('Y-m-d h:i A') }}</td>
+                            <td>{{ $application->quarter_type }}</td>
+                            <td>{{ $application->quarterAllocation ? ($application->quarterAllocation->is_oa_verified ? 'Verified' : 'Pending') : 'N/A' }}</td>
+                            <td>{{ $application->quarterAllocation ? ($application->quarterAllocation->is_aga_verified ? 'Verified' : 'Pending') : 'N/A' }}</td>
+                            <td>{{ $application->quarterAllocation ? ucfirst($application->quarterAllocation->allocation_status) : 'N/A' }}</td>
+                            <td>
+                                <button class="action-btn review-btn" data-application-id="{{ $application->application_id }}">Review</button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 12px 15px;">No pending quarter applications found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
             </table>
 
             {{-- Approver Review Overlay --}}

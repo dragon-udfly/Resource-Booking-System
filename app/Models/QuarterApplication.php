@@ -30,4 +30,12 @@ class QuarterApplication extends Model
     ];
 
     public $timestamps = false;
+
+    /**
+     * Get the quarter allocation record associated with the application.
+     */
+    public function quarterAllocation()
+    {
+        return $this->hasOne(QuarterAllocation::class, 'application_id', 'application_id');
+    }
 }

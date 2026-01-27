@@ -37,19 +37,40 @@
 </table>
 <br /> 
 <br />
-<h2 style="text-align: center; color:rgb(34, 60, 4)">Quarters Booking Applications</h2>
-<table id="requester-bookings-table">
+<h2 style="text-align: center; color:rgb(34, 60, 4)">Quarters Reservation Applications</h2>
+<table id="requester-quarters-table">
     <thead>
         <tr>
             <th>Applicant Name</th>
+            <th>Designation</th>
             <th>Submitted Date</th>
-            <th>Event Date</th>
-            <th>AO Approval</th>
-            <th>AGA Approval</th>
+            <th>Type</th>
+            <th>AO Verification</th>
+            <th>AGA Verification</th>
             <th>GA Approval</th>
             <th>Actions</th>
         </tr>
     </thead>
+    <tbody>
+        @forelse ($quarterApplications as $application)
+            <tr>
+                <td>{{ $application->officer_name }}</td>
+                <td>{{ $application->designation }}</td>
+                <td>{{ \Carbon\Carbon::parse($application->date_created)->format('Y-m-d h:i A') }}</td>
+                <td>{{ $application->quarter_type }}</td>
+                <td>{{ $application->quarterAllocation ? ($application->quarterAllocation->is_oa_verified ? 'Verified' : 'Pending') : 'N/A' }}</td>
+                <td>{{ $application->quarterAllocation ? ($application->quarterAllocation->is_aga_verified ? 'Verified' : 'Pending') : 'N/A' }}</td>
+                <td>{{ $application->quarterAllocation ? ucfirst($application->quarterAllocation->allocation_status) : 'N/A' }}</td>
+                <td>
+                    <button class="action-btn review-btn" data-application-id="{{ $application->application_id }}">Review</button>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 12px 15px;">No pending quarter applications found.</td>
+            </tr>
+        @endforelse
+    </tbody>
 </table>
 
 {{-- Transparent Overlay for Review/Modify --}}
