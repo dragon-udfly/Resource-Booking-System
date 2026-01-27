@@ -135,6 +135,23 @@
                     border-radius: 4px;
                     min-height: 38px;
                 }
+                /* Styles for review buttons */
+                .action-btn.review-btn,
+                .action-btn.review-quarter-btn {
+                    display: inline-block;
+                    padding: 8px 12px;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    color: white;
+                    font-size: 0.9em;
+                    transition: background-color 0.3s ease;
+                    background-color: #007bff; /* Example background color */
+                }
+                .action-btn.review-btn:hover,
+                .action-btn.review-quarter-btn:hover {
+                    background-color: #0056b3; /* Example hover color */
+                }
             </style>
 
             @push('scripts')
