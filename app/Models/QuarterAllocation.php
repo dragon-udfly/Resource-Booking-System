@@ -18,7 +18,7 @@ class QuarterAllocation extends Model
         'is_aga_verified',
         'aga_note',
         'is_oa_verified',
-        'oa_note',
+        'ao_note',
         'allocation_status',
         'allocation_date',
         'vacate_date',

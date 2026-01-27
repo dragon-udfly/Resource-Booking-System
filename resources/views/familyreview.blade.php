@@ -280,7 +280,7 @@
                 </div>
                  <div class="form-group">
                     <label>OA Note:</label>
-                    <p>{{ $application->quarterAllocation?->oa_note ?? 'N/A' }}</p>
+                    <p>{{ $application->quarterAllocation?->ao_note ?? 'N/A' }}</p>
                 </div>
             </div>
             <div class="form-row">

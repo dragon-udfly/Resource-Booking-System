@@ -96,7 +96,7 @@
         .form-container table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 5px;
+            margin-top: 15px; /* Keep consistent with margin-bottom above */
             margin-bottom: 20px;
         }
 
@@ -306,7 +306,7 @@
                 </div>
                  <div class="form-group">
                     <label>OA Note:</label>
-                    <p>{{ $application->quarterAllocation?->oa_note ?? 'N/A' }}</p>
+                    <p>{{ $application->quarterAllocation?->ao_note ?? 'N/A' }}</p>
                 </div>
             </div>
             <div class="form-row">
