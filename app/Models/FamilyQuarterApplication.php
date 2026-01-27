@@ -25,6 +25,7 @@ class FamilyQuarterApplication extends Model
         'f_children_details_description',
         'f_property_ownership_details',
         'f_previous_government_quarter_duration',
+        'f_transformed_officer',
     ];
 
     public $timestamps = false;

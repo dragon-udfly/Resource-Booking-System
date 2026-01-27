@@ -105,6 +105,8 @@ Route::middleware(['auth'])->group(function () {
 
 Route::post('/verify-requester', [HallBookingController::class, 'verifyRequester'])->name('requester.verify');
 
+Route::post('/verify-quarter-requester', [QuarterController::class, 'verifyRequester'])->name('quarters.requester.verify');
+
 Route::get('/bookquarter', [QuarterController::class, 'create'])->name('bookquarter');
 Route::get('/familyquarter', [QuarterController::class, 'bookFamilyQuarters'])->name('familyquarter');
 Route::get('/scheduledquarter', [QuarterController::class, 'bookScheduledQuarters'])->name('scheduledquarter');

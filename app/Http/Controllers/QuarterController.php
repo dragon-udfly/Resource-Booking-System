@@ -15,6 +15,7 @@ use App\Models\QuarterApplication;
 use App\Models\FamilyQuarterApplication;
 use App\Models\MarkingFamilyQuarter;
 use App\Models\QuarterAllocation;
+use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
@@ -322,20 +323,46 @@ class QuarterController extends Controller
             
             AuditLog::create([
                 'log_title' => 'New Family Quarter Application Submitted: ' . $application_id,
-                'performed_by' => Auth::id(),
+                'performed_by' => Auth::check() ? Auth::id() : null,
                 'details' => 'Requester NIC: ' . $request->filled_by_nic,
                 'date_performed' => Carbon::now()->toDateString(),
                 'time_performed' => Carbon::now()->toTimeString(),
             ]);
 
             DB::commit();
-            return redirect()->route('familyquarter')->with('success', 'Family quarter application submitted successfully!');
+            return redirect()->route('bookquarter')->with('success', 'Family quarter application submitted successfully!');
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Family Quarter Application Submission Failed: ' . $e->getMessage());
             return redirect()->route('familyquarter')->with('error', 'An unexpected error occurred. Failed to submit application.');
         }
+    }
+
+    public function verifyRequester(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nic_number' => 'required|string|max:50',
+            'contact_number' => 'required|string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()->first()]);
+        }
+
+        $user = User::where('nic_number', $request->nic_number)
+                               ->where('contact_number', $request->contact_number)
+                               ->first();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Invalid NIC or Contact Number.']);
+        }
+
+        if (!$user->hasPermissionTo('requester')) {
+            return response()->json(['success' => false, 'message' => 'You do not have permission to make this request.']);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Requester verified successfully.']);
     }
 
     private function calculateFamilyQuarterMark(Request $request)

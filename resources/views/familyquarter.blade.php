@@ -122,7 +122,7 @@
         </div>
 
         <div class="form-container">
-            <form action="{{ route('familyquarter.store') }}" method="POST">
+            <form id="family-quarter-form" action="{{ route('familyquarter.store') }}" method="POST">
                 @csrf
                 
                 <h3 class="form-section-title">A) Officer Details</h3>
@@ -209,7 +209,7 @@
                     </div>
                     <div class="form-group">
                         <label for="f_transformed_officer">14.  Is applicant a transferred officer? If yes, assigned from the District Secretariat? (Description about  transfer order): </label>
-                        <input type="text" id="f_transformed_officer" name="f_transformed_officer">
+                        <textarea id="f_transformed_officer" name="f_transformed_officer" placeholder="Enter a description about transfer order documents" maxlength="1200" rows="8"></textarea>
                     </div>
                 </div>
 
@@ -297,7 +297,7 @@
                     </div>
                     <div class="form-group">
                         <label for="number_of_dependant">2. Select Number of Dependant</label>
-                        <select id="number_of_dependant" name="number_of_dependant" required>
+                        <select id="number_of_dependant" name="number_of_dependant">
                             <option value="">Select Dependants</option>
                             <option value="01_person">01 person</option>
                             <option value="02_person">02 person</option>
@@ -352,5 +352,91 @@
                 </div>
             </form>
         </div>
+        @include('partials.requester_layout')
     </section>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const bookingForm = document.getElementById('family-quarter-form');
+            const requesterOverlay = document.getElementById('requester-overlay');
+            const requesterMessage = document.getElementById('requester-message');
+            const requesterConfirmBtn = document.getElementById('requester-confirm-btn');
+            const requesterCancelBtn = document.getElementById('requester-cancel-btn');
+
+            let isAwaitingConfirmation = false;
+
+            function showOverlay(message, isConfirmation = false) {
+                requesterMessage.textContent = message;
+                requesterOverlay.style.display = 'flex';
+                isAwaitingConfirmation = isConfirmation;
+
+                if (isConfirmation) {
+                    requesterConfirmBtn.textContent = 'Submit';
+                    requesterConfirmBtn.style.display = 'inline-block';
+                    requesterCancelBtn.style.display = 'inline-block';
+                } else {
+                    requesterConfirmBtn.textContent = 'OK';
+                    requesterConfirmBtn.style.display = 'inline-block';
+                    requesterCancelBtn.style.display = 'none';
+                }
+            }
+
+            function hideOverlay() {
+                requesterOverlay.style.display = 'none';
+                requesterMessage.textContent = '';
+                isAwaitingConfirmation = false;
+            }
+
+            requesterConfirmBtn.addEventListener('click', function() {
+                if (isAwaitingConfirmation) {
+                    bookingForm.submit();
+                } else {
+                    hideOverlay();
+                }
+            });
+
+            requesterCancelBtn.addEventListener('click', hideOverlay);
+            
+            requesterOverlay.addEventListener('click', function(event) {
+                if (event.target === requesterOverlay) {
+                    hideOverlay();
+                }
+            });
+
+            bookingForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const form = event.target;
+                const nicNumber = form.querySelector('#filled_by_nic').value;
+                const contactNumber = form.querySelector('#filled_by_phone').value;
+                const csrfToken = form.querySelector('input[name="_token"]').value;
+
+                fetch('{{ route('quarters.requester.verify') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        nic_number: nicNumber,
+                        contact_number: contactNumber
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showOverlay('Requester verified. Are you sure you want to submit this application?', true);
+                    } else {
+                        showOverlay(data.message, false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showOverlay('An error occurred during verification. Please try again.', false);
+                });
+            });
+        });
+    </script>
+@endpush
