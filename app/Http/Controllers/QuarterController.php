@@ -562,8 +562,33 @@ class QuarterController extends Controller
                 }
             }
         }
+
+        // 3. Retrieve available quarters based on criteria
+        $availableQuarters = Quarter::where('quarter_type', 'Scheduled')
+            ->where(function ($query) use ($application) {
+                // Matching Gender
+                if ($application->gender) {
+                    $query->where(function($q) use ($application) {
+                        $q->whereNull('allowed_gender') // If quarter has no specific gender preference
+                          ->orWhere('allowed_gender', $application->gender);
+                    });
+                }
+                // Matching Service Grade
+                if ($application->service_grade) {
+                    $query->where(function($q) use ($application) {
+                        $q->whereNull('service_grade') // If quarter has no specific service grade requirement
+                          ->orWhere('service_grade', $application->service_grade);
+                    });
+                }
+            })
+            ->where(function ($query) {
+                // Availability: Unallocated OR has vacancies
+                $query->where('status', 'Unallocated')
+                      ->orWhereRaw('occupant_number > current_occupant_number');
+            })
+            ->get();
         
-        return view('scheduledreview', compact('application', 'calculatedGrade', 'gradeSalarySettings'));
+        return view('scheduledreview', compact('application', 'calculatedGrade', 'gradeSalarySettings', 'availableQuarters'));
     }
 
     private function calculateFamilyQuarterMark(Request $request)

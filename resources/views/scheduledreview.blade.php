@@ -91,6 +91,48 @@
             padding-bottom: 10px;
             width: 100%;
         }
+
+        /* Table-specific styles for Available Scheduled Quarters */
+        .form-container table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            margin-bottom: 20px;
+        }
+
+        .form-container th,
+        .form-container td {
+            border: 1px solid #dee2e6;
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 1.2em;
+        }
+
+        .form-container th {
+            background-color: #e9ecef;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .form-container tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .form-container tr:hover {
+            background-color: #85b6e7;
+        }
+
+        .form-container input[type="radio"] {
+            width: auto;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        .form-container label {
+            display: inline-block;
+            margin-bottom: 0;
+            cursor: pointer;
+        }
     </style>
 @endsection
 
@@ -225,7 +267,36 @@
             </div>
             <h3 class="form-section-title">Available Scheduled Quarters</h3>
             <div class="form-row">
-            </dv>
+                <table style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Quarters No. (New)</th>
+                            <th>Quarters No. (Old)</th>
+                            <th>Vacancies (for Chummary)</th>
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($availableQuarters as $index => $quarter)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $quarter->new_quarter_no ?? 'N/A' }}</td>
+                                <td>{{ $quarter->old_quarter_no ?? 'N/A' }}</td>
+                                <td>{{ ($quarter->occupant_number - ($quarter->current_occupant_number ?? 0)) }}</td>
+                                <td>
+                                    <input type="radio" name="selected_quarter" value="{{ $quarter->quarter_id }}" id="quarter_{{ $quarter->quarter_id }}">
+                                    <label for="quarter_{{ $quarter->quarter_id }}">Select</label>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" style="text-align: center;">No available scheduled quarters matching the criteria.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
             <h3 class="form-section-title">Allocation Details</h3>
             <div class="form-row">
