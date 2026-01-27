@@ -22,6 +22,23 @@
             background-color: #5a6268;
             transform: translateY(-1px);
         }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            width: 90%;
+            max-width: 900px;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
     </style>
 @endsection
 
@@ -30,8 +47,24 @@
     <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px; margin-top: 20px;">
         <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
     </div>
+
     <div class="container" style="width: 90%; max-width: 900px; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 40px auto;">
-        <form action="{{ route('marking-scheme.update') }}" method="POST">
+        @if(session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form action="{{ route('marking-scheme.update') }}" method="POST" onsubmit="return confirm('Are you sure you want to update the marking scheme?');">
             @csrf
             @method('PUT')
 
@@ -47,71 +80,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td rowspan="3"><strong>1. Department</strong></td>
-                        <td>Ministry of Home Affairs</td>
-                        <td><input type="number" name="Officers_attached_under_the_Ministry_of_Home_Affairs" value="20" style="width: 100%; padding: 8px;"></td>
-                    </tr>
-                    <tr>
-                        <td>District & Divisional Secretariats</td>
-                        <td><input type="number" name="Officers_attached_to_District_and_Divisional_Secretariats" value="15" style="width: 100%; padding: 8px;"></td>
-                    </tr>
-                    <tr>
-                        <td>Other Dept.</td>
-                        <td><input type="number" name="Other_Officers" value="10" style="width: 100%; padding: 8px;"></td>
-                    </tr>
-
-                    <tr>
-                        <td rowspan="6"><strong>2. Date of Application</strong></td>
-                        <td>Above 06 years</td>
-                        <td><input type="number" name="marks[2.1]" value="20" style="width: 100%; padding: 8px;"></td>
-                    </tr>
-                    <tr>
-                        <td>05 years</td>
-                        <td><input type="number" name="marks[2.2]" value="15" style="width: 100%; padding: 8px;"></td>
-                    </tr>
-                    <tr>
-                        <td>04 years</td>
-                        <td><input type="number" name="marks[2.3]" value="12" style="width: 100%; padding: 8px;"></td>
-                    </tr>
-                    <tr>
-                        <td>03 years</td>
-                        <td><input type="number" name="marks[2.4]" value="9" style="width: 100%; padding: 8px;"></td>
-                    </tr>
-                    <tr>
-                        <td>02 years</td>
-                        <td><input type="number" name="marks[2.5]" value="6" style="width: 100%; padding: 8px;"></td>
-                    </tr>
-                    <tr>
-                        <td>01 year</td>
-                        <td><input type="number" name="marks[2.6]" value="3" style="width: 100%; padding: 8px;"></td>
-                    </tr>
-
-                    <tr>
-                        <td rowspan="6"><strong>3. Dependents</strong></td>
-                        <td>05 or Above persons</td>
-                        <td><input type="number" name="marks[3.1]" value="17" style="width: 100%; padding: 8px;"></td>
-                    </tr>
-                    <tr>
-                        <td>04 persons</td>
-                        <td><input type="number" name="marks[3.2]" value="12" style="width: 100%; padding: 8px;"></td>
-                    </tr>
-                    <tr>
-                        <td>03 persons</td>
-                        <td><input type="number" name="marks[3.3]" value="9" style="width: 100%; padding: 8px;"></td>
-                    </tr>
-                    <tr>
-                        <td>02 persons</td>
-                        <td><input type="number" name="marks[3.4]" value="6" style="width: 100%; padding: 8px;"></td>
-                    </tr>
-                    <tr>
-                        <td>01 person</td>
-                        <td><input type="number" name="marks[3.5]" value="3" style="width: 100%; padding: 8px;"></td>
-                    </tr>
-                    <tr>
-                        <td>Disability Bonus</td>
-                        <td><input type="number" name="marks[3.6]" value="3" style="width: 100%; padding: 8px;"></td>
-                    </tr>
+                    @foreach($marking_schemes as $title => $schemes)
+                        @foreach($schemes as $index => $scheme)
+                            <tr>
+                                @if($index === 0)
+                                    <td rowspan="{{ count($schemes) }}"><strong>{{ $scheme->marking_title }}</strong></td>
+                                @endif
+                                <td>{{ $scheme->marking_option }}</td>
+                                <td><input type="number" name="marks[{{ $scheme->marking_option }}]" value="{{ $scheme->defined_mark }}" style="width: 100%; padding: 8px;"></td>
+                            </tr>
+                        @endforeach
+                    @endforeach
                 </tbody>
             </table>
 
