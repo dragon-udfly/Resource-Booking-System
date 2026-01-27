@@ -104,6 +104,12 @@
             <a href="{{ Auth::check() ? route('homepage') : route('home') }}" class="btn home-btn">Home</a>
         </div>
         
+        @if(session('success'))
+            <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px; width: 90%; max-width: 900px;">
+                {{ session('success') }}
+            </div>
+        @endif
+
         <div class="page-header">
             <h2>Book Quarters</h2>
             <p>Applications for requesting accommodation in the government quarters administered by the Ministry of Public Administration in Vavuniya</p>
