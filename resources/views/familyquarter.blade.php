@@ -122,7 +122,7 @@
         </div>
 
         <div class="form-container">
-            <form action="#" method="POST">
+            <form action="{{ route('familyquarter.store') }}" method="POST">
                 @csrf
                 
                 <h3 class="form-section-title">A) Officer Details</h3>
@@ -296,7 +296,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="number_of_dependant">2. Select Number of Dependant <span class="required">*</span></label>
+                        <label for="number_of_dependant">2. Select Number of Dependant</label>
                         <select id="number_of_dependant" name="number_of_dependant" required>
                             <option value="">Select Dependants</option>
                             <option value="01_person">01 person</option>
@@ -312,8 +312,8 @@
                         <label for="is_dependant_with_disability">3. Dependant(s) with Disability <span class="required">*</span></label>
                         <select id="is_dependant_with_disability" name="is_dependant_with_disability" required>
                             <option value="">Select Yes or No</option>
-                            <option value="0">Yes</option>
-                            <option value="1">No</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
                         </select>
                     </div>
                     <div class="form-group">

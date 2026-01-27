@@ -127,8 +127,8 @@
                         <th>Type</th>
                         <th>Status</th>
                         <th>Allowed/Max Occupants</th>
-                        <th>Vacancies in Quarter (Not Allocated)</th>
                         <th>Allowed Gender</th>
+                        <th>Vacancies in Quarter (Not Allocated)</th>
                         <th>Special Notice</th>
                     </tr>
                 </thead>

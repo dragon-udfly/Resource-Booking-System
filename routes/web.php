@@ -99,6 +99,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/seequarters', [QuarterController::class, 'seeQuarters'])->name('seequarters');
     Route::get('/occupantdetails', [QuarterController::class, 'showOccupantDetails'])->name('occupantdetails');
+
+    Route::post('/familyquarter', [QuarterController::class, 'storeFamilyQuarters'])->name('familyquarter.store');
 });
 
 Route::post('/verify-requester', [HallBookingController::class, 'verifyRequester'])->name('requester.verify');
