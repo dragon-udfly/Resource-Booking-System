@@ -267,20 +267,8 @@
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>4. Special Reasons:</label>
+                    <label>4. Special Reasons (Provided by GA):</label>
                     <p>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_spacial_reason ?? 'N/A' }}</p>
-                </div>
-            </div>
-
-            <h3 class="form-section-title">G) Requester Details</h3> 
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Requester Officer's NIC:</label>
-                    <p>{{ $application->filled_by_nic ?? 'N/A' }}</p>
-                </div>
-                <div class="form-group">
-                    <label>Requester Officer's Phone:</label>
-                    <p>{{ $application->filled_by_phone ?? 'N/A' }}</p>
                 </div>
             </div>
 
