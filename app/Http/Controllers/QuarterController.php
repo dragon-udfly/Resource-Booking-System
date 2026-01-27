@@ -367,6 +367,16 @@ class QuarterController extends Controller
         return response()->json(['success' => true, 'message' => 'Requester verified successfully.']);
     }
 
+    public function showFamilyQuarterReview($id)
+    {
+        $application = QuarterApplication::with([
+            'familyQuarterApplication.markingFamilyQuarter',
+            'quarterAllocation'
+        ])->where('application_id', $id)->firstOrFail();
+
+        return view('familyreview', ['application' => $application]);
+    }
+
     private function calculateFamilyQuarterMark(Request $request)
     {
         $total_mark = 0;

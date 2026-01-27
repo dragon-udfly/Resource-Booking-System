@@ -50,15 +50,15 @@
                     <tr>
                         <td rowspan="3"><strong>1. Department</strong></td>
                         <td>Ministry of Home Affairs</td>
-                        <td><input type="number" name="marks[1.1]" value="20" style="width: 100%; padding: 8px;"></td>
+                        <td><input type="number" name="Officers_attached_under_the_Ministry_of_Home_Affairs" value="20" style="width: 100%; padding: 8px;"></td>
                     </tr>
                     <tr>
                         <td>District & Divisional Secretariats</td>
-                        <td><input type="number" name="marks[1.2]" value="15" style="width: 100%; padding: 8px;"></td>
+                        <td><input type="number" name="Officers_attached_to_District_and_Divisional_Secretariats" value="15" style="width: 100%; padding: 8px;"></td>
                     </tr>
                     <tr>
                         <td>Other Dept.</td>
-                        <td><input type="number" name="marks[1.3]" value="10" style="width: 100%; padding: 8px;"></td>
+                        <td><input type="number" name="Other_Officers" value="10" style="width: 100%; padding: 8px;"></td>
                     </tr>
 
                     <tr>

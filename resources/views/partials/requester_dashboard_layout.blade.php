@@ -62,7 +62,7 @@
                 <td>{{ $application->quarterAllocation ? ($application->quarterAllocation->is_aga_verified ? 'Verified' : 'Pending') : 'N/A' }}</td>
                 <td>{{ $application->quarterAllocation ? ucfirst($application->quarterAllocation->allocation_status) : 'N/A' }}</td>
                 <td>
-                    <button class="action-btn review-btn" data-application-id="{{ $application->application_id }}">Review</button>
+                    <button class="action-btn review-quarter-btn" data-application-id="{{ $application->application_id }}">Review</button>
                 </td>
             </tr>
         @empty
@@ -109,7 +109,7 @@
     /* Add styles for table and overlay if needed, similar to existing dashboard styles */
 
     /* Specific styles for the review button to ensure visibility */
-    .action-btn.review-btn {
+    .action-btn.review-btn, .action-btn.review-quarter-btn {
         display: inline-block;
         padding: 8px 12px;
         border: none;
@@ -121,7 +121,7 @@
         background-color: #007bff; /* Example background color */
     }
 
-    .action-btn.review-btn:hover {
+    .action-btn.review-btn:hover, .action-btn.review-quarter-btn:hover {
         background-color: #0056b3; /* Example hover color */
     }
 
@@ -370,7 +370,7 @@
             currentBookingId = null;
         }
 
-        // Event listener for all "Review" buttons
+        // Event listener for all "Review" buttons for hall bookings
         document.querySelectorAll('.review-btn').forEach(button => {
             button.addEventListener('click', function () {
                 console.log("Review button clicked!"); // Debugging log
@@ -394,6 +394,16 @@
                 } catch (e) {
                     console.error("Error parsing booking data:", e);
                     showInfoOverlay("Error: Could not parse booking data. Please check console for details.");
+                }
+            });
+        });
+
+        // Event listener for all "Review" buttons for quarter applications
+        document.querySelectorAll('.review-quarter-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const applicationId = this.dataset.applicationId;
+                if (applicationId) {
+                    window.location.href = `/family-quarter-application/${applicationId}/review`;
                 }
             });
         });

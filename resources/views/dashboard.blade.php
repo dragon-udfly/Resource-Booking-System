@@ -47,7 +47,7 @@
             <br /> 
             <br />
             <h2 style="text-align: center; color:rgb(34, 60, 4)">Quarters Reservation Applications</h2>
-            <table id="approval-details">
+            <table id="quarter-approval-details">
                 <thead>
                     <tr>
                         <th>Applicant Name</th>
@@ -71,7 +71,7 @@
                             <td>{{ $application->quarterAllocation ? ($application->quarterAllocation->is_aga_verified ? 'Verified' : 'Pending') : 'N/A' }}</td>
                             <td>{{ $application->quarterAllocation ? ucfirst($application->quarterAllocation->allocation_status) : 'N/A' }}</td>
                             <td>
-                                <button class="action-btn review-btn" data-application-id="{{ $application->application_id }}">Review</button>
+                                <button class="action-btn review-quarter-btn" data-application-id="{{ $application->application_id }}">Review</button>
                             </td>
                         </tr>
                     @empty
@@ -252,6 +252,16 @@
                             const bookingData = JSON.parse(row.dataset.booking);
                             renderApproverFields(bookingData);
                             approverReviewOverlay.style.display = 'flex';
+                        });
+                    });
+
+                    // Handle review button clicks for quarter applications
+                    document.querySelectorAll('.review-quarter-btn').forEach(button => {
+                        button.addEventListener('click', function () {
+                            const applicationId = this.dataset.applicationId;
+                            if (applicationId) {
+                                window.location.href = `/family-quarter-application/${applicationId}/review`;
+                            }
                         });
                     });
 

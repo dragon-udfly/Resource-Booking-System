@@ -34,4 +34,12 @@ class FamilyQuarterApplication extends Model
     {
         return $this->belongsTo(QuarterApplication::class, 'application_id');
     }
+
+    /**
+     * Get the marking record associated with the family quarter application.
+     */
+    public function markingFamilyQuarter()
+    {
+        return $this->hasOne(MarkingFamilyQuarter::class, 'f_application_id', 'f_application_id');
+    }
 }
