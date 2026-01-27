@@ -276,7 +276,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>OA Verified:</label>
-                    <p>{{ $application->quarterAllocation?->is_oa_verified ? 'Verified' : 'Pending' }}</p>
+                    <p>{{ $application->quarterAllocation?->is_ao_verified ? 'Verified' : 'Pending' }}</p>
                 </div>
                  <div class="form-group">
                     <label>OA Note:</label>

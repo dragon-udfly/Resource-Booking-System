@@ -587,7 +587,7 @@ class QuarterController extends Controller
                       ->orWhereRaw('occupant_number > current_occupant_number');
             })
             ->get();
-        
+
         return view('scheduledreview', compact('application', 'calculatedGrade', 'gradeSalarySettings', 'availableQuarters'));
     }
 

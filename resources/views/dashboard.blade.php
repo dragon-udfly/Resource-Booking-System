@@ -67,7 +67,7 @@
                             <td>{{ $application->designation }}</td>
                             <td>{{ \Carbon\Carbon::parse($application->date_created)->format('Y-m-d h:i A') }}</td>
                             <td>{{ $application->quarter_type }}</td>
-                            <td>{{ $application->quarterAllocation ? ($application->quarterAllocation->is_oa_verified ? 'Verified' : 'Pending') : 'N/A' }}</td>
+                            <td>{{ $application->quarterAllocation ? ($application->quarterAllocation->is_ao_verified ? 'Verified' : 'Pending') : 'N/A' }}</td>
                             <td>{{ $application->quarterAllocation ? ($application->quarterAllocation->is_aga_verified ? 'Verified' : 'Pending') : 'N/A' }}</td>
                             <td>{{ $application->quarterAllocation ? ucfirst($application->quarterAllocation->allocation_status) : 'N/A' }}</td>
                             <td>
