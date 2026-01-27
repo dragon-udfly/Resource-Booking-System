@@ -12,5 +12,6 @@ class GradeSalarySetting extends Model
         'grade',
         'min_salary',
         'max_salary',
+        'number_of_quarters', // ADDED THIS LINE
     ];
 }

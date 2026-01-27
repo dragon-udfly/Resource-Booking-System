@@ -199,6 +199,33 @@
                     <p>{{ $application->scheduledQuarterApplication?->sq_property_ownership_details ?? 'N/A' }}</p>
                 </div>
             </div>
+        </div> 
+
+        <div class="form-container">
+            <h3 class="form-section-title">Allocation Process Details</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Monthly Salary:</label>
+                    <p>{{ number_format($application->monthly_salary, 2) ?? 'N/A' }}</p>
+                </div>
+                <div class="form-group">
+                    <label>Applicant Grade (Service and Grade):</label>
+                    <p>{{ $application->service_grade ?? 'N/A' }}</p>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Grade (according to Monthly Salary):</label>
+                    <p>{{ $calculatedGrade ?? 'N/A' }}</p>
+                </div>
+                <div class="form-group">
+                    <label>Gender:</label>
+                    <p>{{ $application->gender ?? 'N/A' }}</p>
+                </div>
+            </div>
+            <h3 class="form-section-title">Available Scheduled Quarters</h3>
+            <div class="form-row">
+            </dv>
 
             <h3 class="form-section-title">Allocation Details</h3>
             <div class="form-row">

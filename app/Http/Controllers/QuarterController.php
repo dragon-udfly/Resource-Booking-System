@@ -16,6 +16,7 @@ use App\Models\FamilyQuarterApplication;
 use App\Models\MarkingFamilyQuarter;
 use App\Models\QuarterAllocation;
 use App\Models\ScheduledQuarterApplication; // Added this line
+use App\Models\GradeSalarySetting; // ADDED THIS LINE
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -509,7 +510,23 @@ class QuarterController extends Controller
             'quarterAllocation'
         ])->where('application_id', $id)->firstOrFail();
 
-        return view('scheduledreview', ['application' => $application]);
+        // 1. Fetch all GradeSalarySetting records
+        $gradeSalarySettings = \App\Models\GradeSalarySetting::all();
+        $calculatedGrade = 'N/A';
+
+        // 2. Implement logic to determine the calculatedGrade
+        $applicantMonthlySalary = $application->monthly_salary;
+
+        if ($applicantMonthlySalary !== null) {
+            foreach ($gradeSalarySettings as $setting) {
+                if ($applicantMonthlySalary >= $setting->min_salary && $applicantMonthlySalary <= $setting->max_salary) {
+                    $calculatedGrade = $setting->grade;
+                    break;
+                }
+            }
+        }
+        
+        return view('scheduledreview', compact('application', 'calculatedGrade', 'gradeSalarySettings'));
     }
 
     private function calculateFamilyQuarterMark(Request $request)
