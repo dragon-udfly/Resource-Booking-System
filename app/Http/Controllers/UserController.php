@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator; // ADDED THIS LINE
+use Illuminate\Support\Facades\DB; // ADDED THIS LINE
+use App\Models\GradeSalarySetting; // ADDED THIS LINE
 
 class UserController extends Controller
 {
@@ -348,6 +351,66 @@ class UserController extends Controller
 
     public function showGradeSalary()
     {
-        return view('gradesalary');
+        // Fetch existing settings to populate the form
+        $gradeSalarySettings = GradeSalarySetting::all()->keyBy('grade');
+        $grades = [
+            '1 (G I)', '2 (G II)', '3 (G III)', '4 (G IV)', '5 (G V)'
+        ];
+
+        return view('gradesalary', compact('gradeSalarySettings', 'grades'));
+    }
+
+    public function updateGradeSalary(Request $request)
+    {
+        // Define validation rules dynamically
+        $rules = [];
+        $grades = [
+            '1 (G I)', '2 (G II)', '3 (G III)', '4 (G IV)', '5 (G V)'
+        ];
+
+        foreach ($grades as $grade) {
+            $key = str_replace([' ', '(', ')', '-'], '_', $grade); // Convert "1 (G I)" to "1_G_I" for request keys
+            $rules["grade_{$key}_min"] = 'required|integer|min:0';
+            $rules["grade_{$key}_max"] = 'required|integer|min:0|gte:grade_' . $key . '_min'; // Max must be greater than or equal to min
+        }
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return redirect()->route('gradesalary.index')
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
+        DB::beginTransaction();
+        try {
+            foreach ($grades as $grade) {
+                $key = str_replace([' ', '(', ')', '-'], '_', $grade);
+                GradeSalarySetting::updateOrCreate(
+                    ['grade' => $grade],
+                    [
+                        'min_salary' => $request->{"grade_{$key}_min"},
+                        'max_salary' => $request->{"grade_{$key}_max"},
+                    ]
+                );
+            }
+
+            AuditLog::create([
+                'log_title' => 'Grade Salary Settings Updated',
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            DB::commit();
+            return redirect()->route('gradesalary.index')->with('success', 'Grade salary settings updated successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Grade Salary Settings Update Failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return redirect()->route('gradesalary.index')->with('error', 'An unexpected error occurred. Failed to update settings. Please check the logs.');
+        }
     }
 }

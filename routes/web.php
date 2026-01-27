@@ -35,6 +35,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/officers', [UserController::class, 'index'])->name('officers.index');
     Route::get('/gradesalary', [UserController::class, 'showGradeSalary'])->name('gradesalary.index');
+    Route::match(['put', 'patch'], '/gradesalary', [UserController::class, 'updateGradeSalary'])->name('gradesalary.update');
 
     Route::get('/addhall', [HallController::class, 'create'])->name('halls.create');
     Route::post('/addhall', [HallController::class, 'store'])->name('halls.store');

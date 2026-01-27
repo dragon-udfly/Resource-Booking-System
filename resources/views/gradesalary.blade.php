@@ -82,7 +82,7 @@
         </div>
 
         <div class="form-container">
-            <form action="" method="POST">
+            <form action="{{ route('gradesalary.update') }}" method="POST">
                 @csrf
                 @method('PATCH') {{-- Use PATCH method for updates --}}
 
@@ -95,31 +95,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1 (G I)</td>
-                            <td><input type="number" name="grade_1_min" value="30000"></td>
-                            <td><input type="number" name="grade_1_max" value="45000"></td>
-                        </tr>
-                        <tr>
-                            <td>2 (G II)</td>
-                            <td><input type="number" name="grade_2_min" value="45001"></td>
-                            <td><input type="number" name="grade_2_max" value="60000"></td>
-                        </tr>
-                        <tr>
-                            <td>3 (G III)</td>
-                            <td><input type="number" name="grade_3_min" value="60001"></td>
-                            <td><input type="number" name="grade_3_max" value="75000"></td>
-                        </tr>
-                        <tr>
-                            <td>4 (G IV)</td>
-                            <td><input type="number" name="grade_4_min" value="75001"></td>
-                            <td><input type="number" name="grade_4_max" value="90000"></td>
-                        </tr>
-                        <tr>
-                            <td>5 (G V)</td>
-                            <td><input type="number" name="grade_5_min" value="90001"></td>
-                            <td><input type="number" name="grade_5_max" value="105000"></td>
-                        </tr>
+                        @foreach($grades as $grade)
+                            @php
+                                $gradeKey = str_replace([' ', '(', ')', '-'], '_', $grade);
+                                $currentMin = $gradeSalarySettings[$grade]->min_salary ?? '';
+                                $currentMax = $gradeSalarySettings[$grade]->max_salary ?? '';
+                            @endphp
+                            <tr>
+                                <td>{{ $grade }}</td>
+                                <td><input type="number" name="grade_{{ $gradeKey }}_min" value="{{ old('grade_' . $gradeKey . '_min', $currentMin) }}" required></td>
+                                <td><input type="number" name="grade_{{ $gradeKey }}_max" value="{{ old('grade_' . $gradeKey . '_max', $currentMax) }}" required></td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
 
@@ -130,3 +117,25 @@
         </div>
     </section>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('.form-container form'); // Select the form
+
+        form.addEventListener('submit', function (event) {
+            // Prevent the default form submission
+            event.preventDefault();
+
+            // Show a confirmation dialog
+            const confirmation = confirm('Are you sure you want to save these changes to grade salary settings?');
+
+            // If the user confirms, submit the form
+            if (confirmation) {
+                form.submit();
+            }
+            // If the user cancels, do nothing (form submission is already prevented)
+        });
+    });
+</script>
+@endpush

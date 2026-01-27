@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminUserSeeder::class,
             MarkSchemeSeeder::class,
+            GradeSalarySettingsSeeder::class, // ADDED THIS LINE
         ]);
     }
 }
