@@ -82,7 +82,6 @@
                 </div>
             @endif
             <h2>Grade Salary Settings</h2>
-            <br />
             <p>Change Salary Range for Service Grade</p>
         </div>
 
