@@ -141,15 +141,7 @@
                         <textarea id="description" name="description" required>{{ old('description', $hall->description) }}</textarea>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="booking_state">Booking Status <span class="required">*</span></label>
-                        <select id="booking_state" name="booking_state" required>
-                            <option value="available" @if(old('booking_state', $hall->booking_state) == 'available') selected @endif>Available</option>
-                            <option value="booked" @if(old('booking_state', $hall->booking_state) == 'booked') selected @endif>Booked</option>
-                        </select>
-                    </div>
-                </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="current_state">Hall Status <span class="required">*</span></label>
@@ -157,6 +149,10 @@
                             <option value="available" @if(old('current_state', $hall->current_state) == 'available') selected @endif>Available</option>
                             <option value="unavailable" @if(old('current_state', $hall->current_state) == 'unavailable') selected @endif>Unavailable</option>
                         </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="special_notice">Special Notice</label>
+                        <textarea id="special_notice" name="special_notice" placeholder="Enter notice if the hall is temporary unavailable, including reasons and time period." maxlength="1200">{{ old('special_notice', $hall->special_notice) }}</textarea>
                     </div>
                 </div>
                 <div class="button-group">

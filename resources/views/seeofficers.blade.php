@@ -74,8 +74,9 @@
 @section('content')
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
-        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px; display: flex; gap: 10px;">
             <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
+            <a href="{{ route('gradesalary.index') }}" class="btn" style="background-color: #17a2b8;">Grade Salary</a>
         </div>
         <div class="page-header">
             <h2 style="color: rgb(6, 4, 60); font-weight: bold">Officers List</h2>

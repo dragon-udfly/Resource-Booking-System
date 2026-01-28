@@ -22,7 +22,7 @@ class Hall extends Model
         'capacity',
         'description',
         'current_state',
-        'booking_state',
+        'special_notice',
         'date_created',
         'date_modified',
     ];

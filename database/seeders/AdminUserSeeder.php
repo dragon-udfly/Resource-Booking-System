@@ -30,7 +30,7 @@ class AdminUserSeeder extends Seeder
                 'role' => 'admin',
                 'passcode'=> Hash::make('Abc@3210'),
                 'created_datetime' => $now,
-                'modified_datatime' => $now,
+                'modified_datetime' => $now,
             ]
         );
 
@@ -40,8 +40,8 @@ class AdminUserSeeder extends Seeder
             [
                 'view_officers' => 1, 'view_officer_details' => 1, 'view_halls' => 1,
                 'view_hall_details' => 1, 'view_quarters' => 1, 'view_quarter_details' => 1,
-                'view_audit_log' => 1, 'administrative_officer_approval' => 1,
-                'additional_government_agent_approval' => 1, 'government_agent_approval' => 1,
+                'view_audit_log' => 1, 'administrative_officer_approval' => 0,
+                'additional_government_agent_approval' => 0, 'government_agent_approval' => 0,
                 'form_history' => 1, 'account_setting' => 1,
                 'created_at' => $now, 'updated_at' => $now,
             ]

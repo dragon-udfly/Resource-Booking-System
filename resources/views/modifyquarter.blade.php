@@ -60,6 +60,7 @@
 
         .form-group input[type="text"],
         .form-group input[type="tel"],
+        .form-group input[type="number"],
         .form-group select,
         .form-group textarea {
             width: 100%;
@@ -76,11 +77,6 @@
             border-color: #80bdff;
             outline: 0;
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-        }
-
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical; /* Allow vertical resizing */
         }
 
         .form-group.full-width {
@@ -121,6 +117,7 @@
 
         .reset-btn {
             background-color: #6c757d;
+            text-decoration: none;
             color: white;
         }
 
@@ -140,72 +137,85 @@
 
         <div class="form-container">
             <div class="form-info">
-                <p>Fields marked with <span style="color: #ff0000;">*</span> are required. Please ensure all information is accurate before submitting.</p>
+                <p>Fields marked with <span class="required">*</span> are required. Please ensure all information is accurate before submitting.</p>
             </div>
 
-            <form action="/admin/accounts/store" method="POST">
+            <form action="{{ route('quarters.update', $quarter) }}" method="POST" onsubmit="return confirm('Are you sure you want to update this quarter?');">
+                @csrf
+                @method('PATCH')
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="quarter_title">Quarter Title <span class="required">*</span></label>
-                        <input type="text" id="quarter_title" name="quarter_title" placeholder="Enter quarter title" required>
+                        <label for="old_quarter_no">Old Quarter No</label>
+                        <input type="text" id="old_quarter_no" name="old_quarter_no" value="{{ old('old_quarter_no', $quarter->old_quarter_no) }}">
                     </div>
                     <div class="form-group">
-                        <label for="quarter_address">Quarter Address <span class="required">*</span></label>
-                        <input type="text" id="quarter_address" name="quarter_address" placeholder="Enter quarter address" required>
+                        <label for="new_quarter_no">New Quarter No</label>
+                        <input type="text" id="new_quarter_no" name="new_quarter_no" value="{{ old('new_quarter_no', $quarter->new_quarter_no) }}">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="grade">Quarter Grade <span class="required">*</span></label>
-                        <input type="text" id="grade" name="grade" placeholder="Enter quarter grade" required>
+                        <label for="quarter_type">Quarter Type <span class="required">*</span></label>
+                        <select id="quarter_type" name="quarter_type" required>
+                            <option value="">Select Quarter Type</option>
+                            <option value="Family" {{ old('quarter_type', $quarter->quarter_type) == 'Family' ? 'selected' : '' }}>Family</option>
+                            <option value="Scheduled" {{ old('quarter_type', $quarter->quarter_type) == 'Scheduled' ? 'selected' : '' }}>Scheduled</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label for="department">Department (Quarter belongs) <span class="required">*</span></label>
-                        <input type="text" id="department" name="department" placeholder="Enter department of quarter" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="land_size">Land Size <span class="required">*</span></label>
-                        <input type="text" id="land_size" name="land_size" placeholder="Enter land size of the quarter" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="eligible_salary">Eligibility Salary <span class="required">*</span></label>
-                        <input type="text" id="eligible_salary" name="eligible_salary" placeholder="Enter eligible salary" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="distance">Distance (to office)<span class="required">*</span></label>
-                        <input type="text" id="distance" name="distance" placeholder="Enter distance to main office" required>
+                        <label for="service_grade">Service Grade</label>
+                        <select id="service_grade" name="service_grade">
+                            <option value="">Select Grade</option>
+                            <option value="1" {{ old('service_grade', $quarter->service_grade) == '1' ? 'selected' : '' }}>1</option>
+                            <option value="2" {{ old('service_grade', $quarter->service_grade) == '2' ? 'selected' : '' }}>2</option>
+                            <option value="3" {{ old('service_grade', $quarter->service_grade) == '3' ? 'selected' : '' }}>3</option>
+                            <option value="4" {{ old('service_grade', $quarter->service_grade) == '4' ? 'selected' : '' }}>4</option>
+                            <option value="5" {{ old('service_grade', $quarter->service_grade) == '5' ? 'selected' : '' }}>5</option>
+                            <option value="5A" {{ old('service_grade', $quarter->service_grade) == '5A' ? 'selected' : '' }}>5A</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label for="occupants">Expected Occupants <span class="required">*</span></label>
-                        <input type="text" id="occupants" name="occupants" placeholder="Enter expected occupants" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="contact_person">Contact Person <span class="required">*</span></label>
-                        <input type="text" id="contact_person" name="contact_person" placeholder="Enter person to contact about quarter" required>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="description">Description <span class="required">*</span></label>
-                        <textarea id="description" name="description" placeholder="Enter detailed description of the quarter" required></textarea>
+                        <label for="location">Location <span class="required">*</span></label>
+                        <input type="text" id="location" name="location" value="{{ old('location', $quarter->location) }}" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="status">Quarter Status <span class="required">*</span></label>
                         <select id="status" name="status" required>
-                            <option value="available">Select status</option>
-                            <option value="available" selected>Available</option>
-                            <option value="unavailable">Unavailable</option>
-                            <option value="occupied">Occupied</option>
+                            <option value="">Select status</option>
+                            <option value="Unallocated" {{ old('status', $quarter->status) == 'Unallocated' ? 'selected' : '' }}>Unallocated</option>
+                            <option value="Allocated" {{ old('status', $quarter->status) == 'Allocated' ? 'selected' : '' }}>Allocated</option>
+                            <option value="Repair" {{ old('status', $quarter->status) == 'Repair' ? 'selected' : '' }}>Repair</option>
+                            <option value="Demolished" {{ old('status', $quarter->status) == 'Demolished' ? 'selected' : '' }}>Demolished</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="occupant_number">Number of Allowed Occupants</label>
+                        <input type="number" id="occupant_number" name="occupant_number" value="{{ old('occupant_number', $quarter->occupant_number) }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="current_occupant_number">Current Occupant Number</label>
+                        <input type="number" id="current_occupant_number" name="current_occupant_number" value="{{ old('current_occupant_number', $quarter->current_occupant_number) }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="allowed_gender">Allowed Occupant Gender</label>
+                        <select id="allowed_gender" name="allowed_gender">
+                            <option value="">Not Specified</option>
+                            <option value="Female" {{ old('allowed_gender', $quarter->allowed_gender) == 'Female' ? 'selected' : '' }}>Female</option>
+                            <option value="Male" {{ old('allowed_gender', $quarter->allowed_gender) == 'Male' ? 'selected' : '' }}>Male</option>
                         </select>
                     </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="special_notice">Special Notice</label>
+                        <textarea id="special_notice" name="special_notice" rows="3">{{ old('special_notice', $quarter->special_notice) }}</textarea>
+                    </div>
+                </div>
                 <div class="button-group">
-                    <button type="submit" class="submit-btn">Add Modification</button>
-                    <button type="reset" class="reset-btn">Reset Form</button>
+                    <button type="submit" class="submit-btn">Update Quarter</button>
+                    <a href="{{ route('quarters.index') }}" class="reset-btn">Back</a>
                 </div>
             </form>
         </div>

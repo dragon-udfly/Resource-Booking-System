@@ -7,11 +7,17 @@ use App\Models\User;
 use App\Models\UserPermission;
 use App\Models\AuditLog;
 use App\Models\HallBooking;
+use App\Models\QuarterApplication;
+use App\Models\QuarterAllocation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator; 
+use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\Log; 
+use App\Models\GradeSalarySetting; 
 
 class UserController extends Controller
 {
@@ -58,17 +64,38 @@ class UserController extends Controller
     public function showDashboard()
     {
         $user = Auth::user()->load('permissions');
+        $quarterApplications = collect(); // Initialize as an empty collection
 
         if ($user->hasPermissionTo('requester')) {
             $hallBookings = HallBooking::with('hall')
                                         ->where('filled_by_nic', $user->nic_number)
+                                        ->where('final_approval', 'pending')
                                         ->orderBy('date_created', 'desc')
                                         ->get();
-            // In a real scenario, you would also fetch QuarterBookings here if they existed
-            return view('dashboard', ['user' => $user, 'requesterBookings' => $hallBookings]);
+
+            $quarterApplications = QuarterApplication::with('quarterAllocation')
+                                                    ->orderBy('date_created', 'desc')
+                                                    ->get();
+
+            return view('dashboard', [
+                'user' => $user,
+                'requesterBookings' => $hallBookings,
+                'quarterApplications' => $quarterApplications
+            ]);
         } else {
-            $bookings = HallBooking::with('hall')->orderBy('date_created', 'desc')->get();
-            return view('dashboard', ['user' => $user, 'bookings' => $bookings]);
+            $bookings = HallBooking::with('hall')
+                                    ->where('final_approval', 'pending')
+                                    ->orderBy('date_created', 'desc')
+                                    ->get();
+
+            $quarterApplications = QuarterApplication::with('quarterAllocation')
+                                                    ->orderBy('date_created', 'desc')
+                                                    ->get();
+            return view('dashboard', [
+                'user' => $user,
+                'bookings' => $bookings,
+                'quarterApplications' => $quarterApplications
+            ]);
         }
     }
 
@@ -293,5 +320,97 @@ class UserController extends Controller
         ]);
 
         return redirect()->route('auditlog')->with('success', 'Audit log has been cleared successfully.');
+    }
+
+    public function clearUsers()
+    {
+        // Get all non-admin users
+        $usersToDelete = User::where('role', '!=', 'admin')->get();
+
+        foreach ($usersToDelete as $user) {
+            // Permissions are deleted via cascade if set up in DB, but we can manually ensure it
+            // Assuming cascading deletes or manual deletion if needed. 
+            // If UserPermission has user_id FK cascading on delete, just deleting User is enough.
+            // If not, we should delete permissions first.
+            // Let's assume standard Laravel relationship delete or manual.
+            if ($user->permissions) {
+                $user->permissions()->delete();
+            }
+            $user->delete();
+        }
+
+        AuditLog::create([
+            'log_title' => 'All non-admin user records deleted',
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('systemsetting')->with('success', 'All user records (except admins) have been cleared successfully.');
+    }
+
+    public function showGradeSalary()
+    {
+        // Fetch existing settings to populate the form
+        $gradeSalarySettings = GradeSalarySetting::all()->keyBy('grade');
+        $grades = [
+            '1 (G I)', '2 (G II)', '3 (G III)', '4 (G IV)', '5 (G V)'
+        ];
+
+        return view('gradesalary', compact('gradeSalarySettings', 'grades'));
+    }
+
+    public function updateGradeSalary(Request $request)
+    {
+        // Define validation rules dynamically
+        $rules = [];
+        $grades = [
+            '1 (G I)', '2 (G II)', '3 (G III)', '4 (G IV)', '5 (G V)'
+        ];
+
+        foreach ($grades as $grade) {
+            $key = str_replace([' ', '(', ')', '-'], '_', $grade); // Convert "1 (G I)" to "1_G_I" for request keys
+            $rules["grade_{$key}_min"] = 'required|integer|min:0';
+            $rules["grade_{$key}_max"] = 'required|integer|min:0|gte:grade_' . $key . '_min'; // Max must be greater than or equal to min
+        }
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return redirect()->route('gradesalary.index')
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
+        DB::beginTransaction();
+        try {
+            foreach ($grades as $grade) {
+                $key = str_replace([' ', '(', ')', '-'], '_', $grade);
+                GradeSalarySetting::updateOrCreate(
+                    ['grade' => $grade],
+                    [
+                        'min_salary' => $request->{"grade_{$key}_min"},
+                        'max_salary' => $request->{"grade_{$key}_max"},
+                    ]
+                );
+            }
+
+            AuditLog::create([
+                'log_title' => 'Grade Salary Settings Updated',
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            DB::commit();
+            return redirect()->route('gradesalary.index')->with('success', 'Grade salary settings updated successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Grade Salary Settings Update Failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return redirect()->route('gradesalary.index')->with('error', 'An unexpected error occurred. Failed to update settings. Please check the logs.');
+        }
     }
 }

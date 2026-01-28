@@ -33,8 +33,8 @@ class HallController extends Controller
             'hall_type' => 'required|string|max:200',
             'capacity' => 'required|integer',
             'description' => 'required|string|max:1200',
-            'booking_status' => 'required|string',
             'hall_status' => 'required|string',
+            'special_notice' => 'nullable|string',
         ]);
 
         // Generate hall_id
@@ -52,7 +52,7 @@ class HallController extends Controller
             'capacity' => $request->capacity,
             'description' => $request->description,
             'current_state' => $request->hall_status,
-            'booking_state' => $request->booking_status,
+            'special_notice' => $request->special_notice,
             'date_created' => Carbon::now(),
             'date_modified' => Carbon::now(),
         ]);
@@ -85,8 +85,11 @@ class HallController extends Controller
      */
     public function seeHalls()
     {
-        $halls = Hall::all();
-        return view('seehalls', ['halls' => $halls]);
+        if (Auth::check() && Auth::user()->hasPermissionTo('view_halls')) {
+            $halls = Hall::all();
+            return view('seehalls', ['halls' => $halls]);
+        }
+        return redirect()->route('dashboard')->with('error', 'You do not have permission to access this page.');
     }
 
     /**
@@ -113,8 +116,8 @@ class HallController extends Controller
             'hall_type' => 'required|string|max:200',
             'capacity' => 'required|integer',
             'description' => 'required|string|max:1200',
-            'booking_state' => 'required|string',
             'current_state' => 'required|string',
+            'special_notice' => 'nullable|string',
         ]);
 
         $hall->update([
@@ -122,7 +125,7 @@ class HallController extends Controller
             'capacity' => $request->capacity,
             'description' => $request->description,
             'current_state' => $request->current_state,
-            'booking_state' => $request->booking_state,
+            'special_notice' => $request->special_notice,
             'date_modified' => Carbon::now(),
         ]);
 
@@ -158,13 +161,13 @@ class HallController extends Controller
     }
 
     /**
-     * Display an overview of available halls.
+     * Display an overview of all halls.
      *
      * @return \Illuminate\View\View
      */
     public function showOverview()
     {
-        $halls = Hall::where('current_state', 'available')->get();
+        $halls = Hall::all();
         return view('halloverview', ['halls' => $halls]);
     }
 
@@ -177,5 +180,19 @@ class HallController extends Controller
     {
         $halls = Hall::where('current_state', 'available')->get(['hall_id', 'hall_type', 'capacity']);
         return response()->json($halls);
+    }
+
+    public function clearHalls()
+    {
+        Hall::truncate();
+
+        AuditLog::create([
+            'log_title' => 'All hall records deleted',
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('systemsetting')->with('success', 'All hall records have been cleared successfully.');
     }
 }

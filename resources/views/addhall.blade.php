@@ -183,20 +183,17 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="booking_status">Booking Status <span class="required">*</span></label>
-                        <select id="booking_status" name="booking_status" required>
-                            <option value="available" @if(old('booking_status') == 'available') selected @endif>Available</option>
-                            <option value="booked" @if(old('booking_status') == 'booked') selected @endif>Booked</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
                         <label for="hall_status">Hall Status <span class="required">*</span></label>
                         <select id="hall_status" name="hall_status" required>
                             <option value="available" @if(old('hall_status') == 'available') selected @endif>Available</option>
                             <option value="unavailable" @if(old('hall_status') == 'unavailable') selected @endif>Unavailable</option>
                         </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="special_notice">Special Notice</label>
+                        <textarea id="special_notice" name="special_notice" placeholder="Enter notice if the hall is temporary unavailable, including reasons and time period." maxlength="1200">{{ old('special_notice') }}</textarea>
                     </div>
                 </div>
                 <div class="button-group">
