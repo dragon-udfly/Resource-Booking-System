@@ -175,6 +175,12 @@
                 </thead>
                 <tbody>
                     <tr>
+                        <td>Manage Quarters in the system.</td>
+                        <td style="text-align: center;">
+                            <a href="{{ route('quarters.index') }}" class="btn-save">Manage</a>
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Clear all audit log records from the system. (This action cannot be undone)</td>
                         <td style="text-align: center;">
                             <form id="clear-audit-form" action="{{ route('auditlog.clear') }}" method="POST">
