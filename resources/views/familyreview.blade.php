@@ -1,4 +1,4 @@
-@extends('layouts.normal_body_layout')
+@extends('layouts.user_body_layout')
 
 @section('title', 'Family Quarters Application Review - District Secretariat Vavuniya')
 
@@ -91,6 +91,39 @@
             padding-bottom: 10px;
             width: 100%;
         }
+
+        .btn-success { background-color: #28a745; }
+        .btn-danger { background-color: #dc3545; }
+        .btn-info { background-color: #17a2b8; }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .marking-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+
+        .marking-table th,
+        .marking-table td {
+            border: 1px solid #dee2e6;
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 1.2em;
+        }
+
+        .marking-table th {
+            background-color: #e9ecef;
+            font-weight: bold;
+            color: #495057;
+        }
+
     </style>
 @endsection
 
@@ -247,62 +280,143 @@
             <h3 class="form-section-title">F) Marking Scheme and Marking</h3>
             <div class="form-row">
                 <div class="form-group">
-                    <label>1. Applicant's Department:</label>
-                    <p>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_department ?? 'N/A' }}</p>
-                </div>
-                <div class="form-group">
-                    <label>2. Number of Dependant:</label>
-                    <p>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_number_of_dependant ?? 'N/A' }}</p>
+                    <label>Total Mark:</label>
+                    <p>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->total_mark ?? 'N/A' }}</p>
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>3. Dependant(s) with Disability:</label>
-                     <p>{{ isset($application->familyQuarterApplication?->markingFamilyQuarter?->is_dependant_with_disability) ? ($application->familyQuarterApplication?->markingFamilyQuarter?->is_dependant_with_disability ? 'Yes' : 'No') : 'N/A' }}</p>
-                </div>
-                <div class="form-group">
-                    <label>3. Distance of Residency:</label>
-                    <p>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_distance_of_residency ?? 'N/A' }}</p>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>4. Special Reasons (Provided by GA):</label>
-                    <p>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_spacial_reason ?? 'N/A' }}</p>
-                </div>
-            </div>
+
+            <table class="marking-table">
+                <thead>
+                    <tr>
+                        <th>Criteria</th>
+                        <th>Selection</th>
+                        <th>Mark</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php
+                        $marking_schemes = \App\Models\MarkingScheme::all()->keyBy('marking_option');
+                    @endphp
+                    <tr>
+                        <td>Applicant's Department</td>
+                        <td>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_department ?? 'N/A' }}</td>
+                        <td>{{ $marking_schemes[$application->familyQuarterApplication?->markingFamilyQuarter?->f_department]['defined_mark'] ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Number of Dependant</td>
+                        <td>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_number_of_dependant ?? 'N/A' }}</td>
+                        <td>{{ $marking_schemes[$application->familyQuarterApplication?->markingFamilyQuarter?->f_number_of_dependant]['defined_mark'] ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Dependant(s) with Disability</td>
+                        <td>{{ isset($application->familyQuarterApplication?->markingFamilyQuarter?->is_dependant_with_disability) ? ($application->familyQuarterApplication?->markingFamilyQuarter?->is_dependant_with_disability ? 'Yes' : 'No') : 'N/A' }}</td>
+                        <td>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->is_dependant_with_disability ? ($marking_schemes['is_dependant_with_disability_true']['defined_mark'] ?? 'N/A') : ($marking_schemes['is_dependant_with_disability_false']['defined_mark'] ?? 'N/A') }}</td>
+                    </tr>
+                    <tr>
+                        <td>Distance of Residency</td>
+                        <td>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_distance_of_residency ?? 'N/A' }}</td>
+                        <td>{{ $marking_schemes[$application->familyQuarterApplication?->markingFamilyQuarter?->f_distance_of_residency]['defined_mark'] ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Special Reasons (Provided by GA)</td>
+                        <td>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_spacial_reason ?? 'N/A' }}</td>
+                        <td>N/A</td>
+                    </tr>
+                </tbody>
+            </table>
 
             <h3 class="form-section-title">Allocation Details</h3>
             <div class="form-row">
                 <div class="form-group">
-                    <label>OA Verified:</label>
-                    <p>{{ $application->quarterAllocation?->is_ao_verified ? 'Verified' : 'Pending' }}</p>
+                    <label>Administrative Officer Verified:</label>
+                    <form action="{{ route('quarter.verify-ao', ['id' => $application->application_id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to update Administrative Officer verification status?');">
+                        @csrf
+                        @method('PATCH')
+                        <select name="verified_status" {{ Auth::user()->hasPermissionTo('administrative_officer_approval') ? '' : 'disabled' }} style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;">
+                            <option value="1" {{ $application->quarterAllocation?->is_ao_verified ? 'selected' : '' }}>Yes</option>
+                            <option value="0" {{ !$application->quarterAllocation?->is_ao_verified ? 'selected' : '' }}>No</option>
+                        </select>
+                        @if(Auth::user()->hasPermissionTo('administrative_officer_approval'))
+                            <button type="submit" class="btn btn-success" style="margin-top: 5px;">Update</button>
+                        @endif
+                    </form>
                 </div>
                  <div class="form-group">
-                    <label>OA Note:</label>
-                    <p>{{ $application->quarterAllocation?->ao_note ?? 'N/A' }}</p>
+                    <label>Administrative Officer Note:</label>
+                    @if(Auth::user()->hasPermissionTo('administrative_officer_approval'))
+                        <textarea name="oa_note" rows="3" class="form-control" style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;" placeholder="Review notice for Administrative Officer">{{ $application->quarterAllocation?->ao_note ?? '' }}</textarea>
+                    @else
+                        <p>{{ $application->quarterAllocation?->ao_note ?? 'N/A' }}</p>
+                    @endif
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>AGA Verified:</label>
-                    <p>{{ $application->quarterAllocation?->is_aga_verified ? 'Verified' : 'Pending' }}</p>
+                    <label>Additional Government Agent Verified:</label>
+                    <form action="{{ route('quarter.verify-aga', ['id' => $application->application_id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to update Additional Government Agent verification status?');">
+                        @csrf
+                        @method('PATCH')
+                        <select name="verified_status" {{ Auth::user()->hasPermissionTo('additional_government_agent_approval') ? '' : 'disabled' }} style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;">
+                            <option value="1" {{ $application->quarterAllocation?->is_aga_verified ? 'selected' : '' }}>Yes</option>
+                            <option value="0" {{ !$application->quarterAllocation?->is_aga_verified ? 'selected' : '' }}>No</option>
+                        </select>
+                    </form>
                 </div>
                 <div class="form-group">
-                    <label>AGA Note:</label>
-                    <p>{{ $application->quarterAllocation?->aga_note ?? 'N/A' }}</p>
+                    <label>Additional Government Agent Note:</label>
+                    @if(Auth::user()->hasPermissionTo('additional_government_agent_approval'))
+                        <textarea name="aga_note" rows="3" class="form-control" style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;" placeholder="Review notice for Additional Government Agent">{{ $application->quarterAllocation?->aga_note ?? '' }}</textarea>
+                    @else
+                        <p>{{ $application->quarterAllocation?->aga_note ?? 'N/A' }}</p>
+                    @endif
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Allocation Status:</label>
-                    <p>{{ $application->quarterAllocation?->allocation_status ?? 'N/A' }}</p>
+                    <label>Government Agent Approved:</label>
+                    <form action="{{ route('quarter.verify-ga', ['id' => $application->application_id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to update Government Agent verification status?');">
+                        @csrf
+                        @method('PATCH')
+                        <select name="verified_status" {{ Auth::user()->hasPermissionTo('government_agent_approval') ? '' : 'disabled' }} style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;">
+                            <option value="1" {{ $application->quarterAllocation?->allocation_status == 'allocated' ? 'selected' : '' }}>Yes</option>
+                            <option value="0" {{ $application->quarterAllocation?->allocation_status == 'rejected' ? 'selected' : '' }}>No</option>
+                        </select>
+                    </form>
                 </div>
                  <div class="form-group">
                     <label>Allocation Date:</label>
                     <p>{{ $application->quarterAllocation?->allocation_date ?? 'N/A' }}</p>
                 </div>
             </div>
+
+            @if(Auth::user()->hasPermissionTo('administrative_officer_approval') || Auth::user()->hasPermissionTo('additional_government_agent_approval'))
+                <div class="button-group">
+                    <form action="{{ route('quarter.submit-stage-verification', ['id' => $application->application_id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to verify this application?');">
+                        @csrf @method('PATCH')
+                        @php
+                            $canSubmit = false;
+                            if (Auth::user()->hasPermissionTo('administrative_officer_approval')) {
+                                $canSubmit = $application->quarterAllocation?->is_ao_verified;
+                            } elseif (Auth::user()->hasPermissionTo('additional_government_agent_approval')) {
+                                $canSubmit = $application->quarterAllocation?->is_aga_verified;
+                            }
+                        @endphp
+                        <button type="submit" class="btn btn-success" {{ $canSubmit ? '' : 'disabled' }}>Verify Application</button>
+                    </form>
+                    <a href="{{ route('quarter.download-pdf', ['id' => $application->application_id]) }}" class="btn btn-info">Download</a>
+                </div>
+            @endif
+
+            @if(Auth::user()->hasPermissionTo('government_agent_approval'))
+                <div class="button-group">
+                    <form action="{{ route('quarter.process-ga-action', ['id' => $application->application_id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to process this application?');">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" name="action" value="allocate" class="btn btn-success">Allocate</button>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+                    </form>
+                </div>
+            @endif
         </div>
     </section>
 @endsection
