@@ -74,7 +74,6 @@ class UserController extends Controller
                                         ->get();
 
             $quarterApplications = QuarterApplication::with('quarterAllocation')
-                                                    ->where('nic', $user->nic_number)
                                                     ->orderBy('date_created', 'desc')
                                                     ->get();
 
