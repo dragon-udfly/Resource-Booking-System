@@ -109,6 +109,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/scheduledquarter', [QuarterController::class, 'storeScheduledQuarters'])->name('scheduledquarter.store');
     Route::get('/family-quarter-application/{id}/review', [QuarterController::class, 'showFamilyQuarterReview'])->name('family-quarter.review');
     Route::get('/scheduled-quarter-application/{id}/review', [QuarterController::class, 'showScheduledQuarterReview'])->name('scheduled-quarter.review');
+    Route::get('/quarter-application/{id}/download-pdf', [QuarterController::class, 'downloadPdf'])->name('quarter.download-pdf');
+    Route::patch('/quarter-application/{id}/submit-stage-verification', [QuarterController::class, 'submitStageVerification'])->name('quarter.submit-stage-verification');
+    Route::patch('/quarter-application/{id}/process-ga-action', [QuarterController::class, 'processGaAction'])->name('quarter.process-ga-action');
 });
 
 Route::post('/verify-requester', [HallBookingController::class, 'verifyRequester'])->name('requester.verify');
