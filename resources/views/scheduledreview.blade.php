@@ -426,8 +426,15 @@
                     {{-- Action Buttons for GA --}}
                     @if(Auth::user()->hasPermissionTo('government_agent_approval'))
                         <div class="button-group">
-                            <button type="submit" name="action" value="allocate" id="allocate-button" class="btn btn-success" disabled>Allocate</button>
-                            <button type="submit" name="action" value="reject" id="reject-button" class="btn btn-danger" disabled>Reject</button>
+                            <button type="submit" name="action" value="allocate" id="allocate-button" class="btn btn-success" disabled>Approve Allocate</button>
+                            <button type="submit" name="action" value="reject" id="reject-button" class="btn btn-danger" disabled>Reject Application</button>
+                        </div>
+                    @endif
+
+                     {{-- Action Buttons for AO/AGA --}}
+                    @if(Auth::user()->hasPermissionTo('additional_government_agent_approval') || Auth::user()->hasPermissionTo('administrative_officer_approval'))
+                        <div class="button-group">
+                            <button type="submit" name="action" value="Submit" id="submit-button" class="btn btn-success">Submit</button>
                         </div>
                     @endif
 
