@@ -50,6 +50,9 @@
     {{-- 2. Common Header Partial --}}
     @include('partials.header')
 
+    {{-- 3. Logout Confirmation Overlay --}}
+    @include('partials.logout_confirmation_overlay')
+
     @yield('content')
 
     {{-- 4. Common Footer Partial --}}

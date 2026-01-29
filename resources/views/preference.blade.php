@@ -128,7 +128,7 @@
             <a href="#" onclick="history.back(); return false;" class="btn btn-back">Go Back</a>
             <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                 @csrf
-                <button type="submit" class="btn btn-logout">Log Out</button>
+                <button type="submit" class="btn btn-logout logout-trigger">Log Out</button>
             </form>
         </div>
 

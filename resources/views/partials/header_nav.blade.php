@@ -113,9 +113,9 @@
                 @endauth
             </li>
             <li>
-                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: inline;">
                     @csrf
-                    <button type="submit" style="background: none; border: none; color: #007bff; font-weight: bold; cursor: pointer; font-size: 1em; padding: 0;">Log Out</button>
+                    <button type="submit" id="logout-btn" style="background: none; border: none; color: #007bff; font-weight: bold; cursor: pointer; font-size: 1em; padding: 0;">Log Out</button>
                 </form>
             </li>
         </ul>

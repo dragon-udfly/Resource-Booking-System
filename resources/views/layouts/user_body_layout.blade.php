@@ -125,6 +125,9 @@
     {{-- 2. Common Header Partial --}}
     @include('partials.header_nav_user')
 
+    {{-- 3. Logout Confirmation Overlay --}}
+    @include('partials.logout_confirmation_overlay')
+
     {{-- 3. Main Content Slot --}}
     {{-- Child views will inject their content here --}}
     @yield('content')
