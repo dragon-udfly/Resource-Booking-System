@@ -107,6 +107,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/occupantdetails', [QuarterController::class, 'showOccupantDetails'])->name('occupantdetails');
     Route::get('/family-quarter-application/{id}/review', [QuarterAllocationController::class, 'showFamilyQuarterReview'])->name('family-quarter.review');
     Route::get('/scheduled-quarter-application/{id}/review', [QuarterAllocationController::class, 'showScheduledQuarterReview'])->name('scheduled-quarter.review');
+    Route::patch('/scheduled-quarter-application/{id}/review', [QuarterAllocationController::class, 'updateScheduledQuarterReview'])->name('scheduled-quarter.review.update');
     Route::get('/quarter-application/{id}/download-pdf', [QuarterAllocationController::class, 'downloadPdf'])->name('quarter.download-pdf');
 
     Route::get('/history', [HallBookingController::class, 'showHistory'])->name('history');
