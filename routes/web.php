@@ -120,6 +120,7 @@ Route::post('/verify-quarter-requester', [QuarterAllocationController::class, 'v
 Route::get('/bookquarter', [QuarterController::class, 'create'])->name('bookquarter');
 Route::get('/familyquarter', [QuarterAllocationController::class, 'bookFamilyQuarters'])->name('familyquarter');
 Route::get('/scheduledquarter', [QuarterAllocationController::class, 'bookScheduledQuarters'])->name('scheduledquarter');
+Route::post('/scheduledquarter', [QuarterAllocationController::class, 'storeScheduledQuarters'])->name('scheduledquarter.store');
 
 // Hall
 Route::post('/verify-requester', [HallBookingController::class, 'verifyRequester'])->name('requester.verify');
