@@ -5,6 +5,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\HallController;
 use App\Http\Controllers\HallBookingController;
 use App\Http\Controllers\QuarterController;
+use App\Http\Controllers\FamilyQuarterController;
+use App\Http\Controllers\ScheduledQuarterController;
 
 Route::get('/', function () {
     return view('home');
@@ -105,10 +107,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/seequarters', [QuarterController::class, 'seeQuarters'])->name('seequarters');
     Route::get('/occupantdetails', [QuarterController::class, 'showOccupantDetails'])->name('occupantdetails');
 
-    Route::post('/familyquarter', [QuarterController::class, 'storeFamilyQuarters'])->name('familyquarter.store');
-    Route::post('/scheduledquarter', [QuarterController::class, 'storeScheduledQuarters'])->name('scheduledquarter.store');
-    Route::get('/family-quarter-application/{id}/review', [QuarterController::class, 'showFamilyQuarterReview'])->name('family-quarter.review');
-    Route::get('/scheduled-quarter-application/{id}/review', [QuarterController::class, 'showScheduledQuarterReview'])->name('scheduled-quarter.review');
+    Route::post('/familyquarter', [FamilyQuarterController::class, 'storeFamilyQuarters'])->name('familyquarter.store');
+    Route::post('/scheduledquarter', [ScheduledQuarterController::class, 'storeScheduledQuarters'])->name('scheduledquarter.store');
+    Route::get('/family-quarter-application/{id}/review', [FamilyQuarterController::class, 'showFamilyQuarterReview'])->name('family-quarter.review');
+    Route::get('/scheduled-quarter-application/{id}/review', [ScheduledQuarterController::class, 'showScheduledQuarterReview'])->name('scheduled-quarter.review');
     Route::get('/quarter-application/{id}/download-pdf', [QuarterController::class, 'downloadPdf'])->name('quarter.download-pdf');
     Route::patch('/quarter-application/{id}/submit-stage-verification', [QuarterController::class, 'submitStageVerification'])->name('quarter.submit-stage-verification');
     Route::patch('/quarter-application/{id}/process-ga-action', [QuarterController::class, 'processGaAction'])->name('quarter.process-ga-action');
@@ -119,8 +121,8 @@ Route::post('/verify-requester', [HallBookingController::class, 'verifyRequester
 Route::post('/verify-quarter-requester', [QuarterController::class, 'verifyRequester'])->name('quarters.requester.verify');
 
 Route::get('/bookquarter', [QuarterController::class, 'create'])->name('bookquarter');
-Route::get('/familyquarter', [QuarterController::class, 'bookFamilyQuarters'])->name('familyquarter');
-Route::get('/scheduledquarter', [QuarterController::class, 'bookScheduledQuarters'])->name('scheduledquarter');
+Route::get('/familyquarter', [FamilyQuarterController::class, 'bookFamilyQuarters'])->name('familyquarter');
+Route::get('/scheduledquarter', [ScheduledQuarterController::class, 'bookScheduledQuarters'])->name('scheduledquarter');
 
 
 
