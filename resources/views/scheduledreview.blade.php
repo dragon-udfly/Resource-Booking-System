@@ -436,6 +436,10 @@
                             <a href="{{ route('quarter.download-pdf', ['id' => $application->application_id]) }}" class="btn btn-info" target="_blank">Download</a>
                         </div>
                     @endif
+
+                    <div class="button-group">
+                        <a href="{{ route('quarter.download-pdf', ['id' => $application->application_id]) }}" class="btn btn-info" target="_blank">Download</a>
+                    </div>
                 </form>
             </div>
         </section>
