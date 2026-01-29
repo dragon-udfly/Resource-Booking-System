@@ -393,7 +393,7 @@
                 @endif
 
                 {{-- GA Specific Controls --}}
-                <form id="ga-action-form" action="{{ route('quarter.process-ga-action', ['id' => $application->application_id]) }}" method="POST">
+                <form id="ga-action-form" action="" method="POST">
                     @csrf
                     @method('PATCH')
                     @if(Auth::user()->hasPermissionTo('government_agent_approval'))
