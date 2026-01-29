@@ -141,11 +141,6 @@
 @endsection
 
 @section('content')
-{{--
-    This view expects an $application object (QuarterApplication model) with the following relationships loaded:
-    - scheduledQuarterApplication
-    - quarterAllocation
---}}
     <section class="banner">
         <div class="button-bar">
             <a href="#" onclick="history.back(); return false;" class="btn back-btn">Back</a>
@@ -433,7 +428,6 @@
                         <div class="button-group">
                             <button type="submit" name="action" value="allocate" id="allocate-button" class="btn btn-success" disabled>Allocate</button>
                             <button type="submit" name="action" value="reject" id="reject-button" class="btn btn-danger" disabled>Reject</button>
-                            <a href="{{ route('quarter.download-pdf', ['id' => $application->application_id]) }}" class="btn btn-info" target="_blank">Download</a>
                         </div>
                     @endif
 
