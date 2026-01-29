@@ -402,85 +402,79 @@ class QuarterAllocationController extends Controller
         $application = QuarterApplication::with([
             'scheduledQuarterApplication',
             'familyQuarterApplication.markingFamilyQuarter',
-            'quarterAllocation.quarter', // Include the allocated quarter if any
+            'quarterAllocation.quarter', 
         ])->findOrFail($applicationId);
 
-        // Determine which view to use based on quarter type
+        // --- Universal Data Preparation ---
+
+        // Calculate grade based on salary (common for both types)
+        $gradeSalarySettings = \App\Models\GradeSalarySetting::all();
+        $calculatedGrade = 'N/A';
+        $applicantMonthlySalary = $application->monthly_salary;
+        if ($applicantMonthlySalary !== null) {
+            foreach ($gradeSalarySettings as $setting) {
+                if ($applicantMonthlySalary >= $setting->min_salary && $applicantMonthlySalary <= $setting->max_salary) {
+                    $calculatedGrade = $setting->grade;
+                    break;
+                }
+            }
+        }
+
+        // --- Allocation-Dependent Logic ---
+        $allocatedQuarter = null;
+        $availableQuarters = collect(); // Default to empty collection
+
+        if ($application->quarterAllocation && $application->quarterAllocation->allocation_status === 'allocated') {
+            // If allocated, get the specific quarter from the loaded relationship
+            $allocatedQuarter = $application->quarterAllocation->quarter;
+        } else {
+            // If not allocated, find available quarters based on type
+            $quarterType = $application->quarter_type; // 'Family' or 'Scheduled'
+            
+            $quarterQuery = Quarter::where('quarter_type', $quarterType);
+
+            // Apply filtering criteria based on the application
+            if (!empty($application->gender)) {
+                $quarterQuery->where(function ($query) use ($application) {
+                    $query->whereNull('allowed_gender')
+                        ->orWhere('allowed_gender', $application->gender);
+                });
+            }
+
+            if (!empty($application->service_grade)) {
+                $quarterQuery->where(function ($query) use ($application) {
+                    $query->whereNull('service_grade')
+                        ->orWhere('service_grade', $application->service_grade);
+                });
+            }
+
+            // Robust availability filter
+            $quarterQuery->where(function ($query) {
+                $query->where('status', 'Unallocated')
+                    ->orWhereRaw('occupant_number > IFNULL(current_occupant_number, 0)');
+            });
+            
+            $availableQuarters = $quarterQuery->get();
+        }
+
+        // --- View and Data Assignment ---
+        
+        $viewName = '';
         if ($application->quarter_type === 'Family') {
             $viewName = 'pdf.family_quarter_application_form';
-
-            // Calculate grade based on salary for family applications
-            $gradeSalarySettings = \App\Models\GradeSalarySetting::all();
-            $calculatedGrade = 'N/A';
-
-            $applicantMonthlySalary = $application->monthly_salary;
-            if ($applicantMonthlySalary !== null) {
-                foreach ($gradeSalarySettings as $setting) {
-                    if ($applicantMonthlySalary >= $setting->min_salary && $applicantMonthlySalary <= $setting->max_salary) {
-                        $calculatedGrade = $setting->grade;
-                        break;
-                    }
-                }
-            }
-
-            // Prepare data for the view
-            $data = [
-                'application' => $application,
-                'calculatedGrade' => $calculatedGrade,
-                'gradeSalarySettings' => $gradeSalarySettings,
-            ];
         } else if ($application->quarter_type === 'Scheduled') {
             $viewName = 'pdf.scheduled_quarter_review';
-
-            // Calculate grade based on salary for scheduled applications
-            $gradeSalarySettings = \App\Models\GradeSalarySetting::all();
-            $calculatedGrade = 'N/A';
-
-            $applicantMonthlySalary = $application->monthly_salary;
-            if ($applicantMonthlySalary !== null) {
-                foreach ($gradeSalarySettings as $setting) {
-                    if ($applicantMonthlySalary >= $setting->min_salary && $applicantMonthlySalary <= $setting->max_salary) {
-                        $calculatedGrade = $setting->grade;
-                        break;
-                    }
-                }
-            }
-
-            // Get available quarters based on criteria for scheduled applications
-            $availableQuarters = \App\Models\Quarter::where('quarter_type', 'Scheduled')
-                ->where(function ($query) use ($application) {
-                    // Matching Gender
-                    if ($application->gender) {
-                        $query->where(function($q) use ($application) {
-                            $q->whereNull('allowed_gender') // If quarter has no specific gender preference
-                              ->orWhere('allowed_gender', $application->gender);
-                        });
-                    }
-                    // Matching Service Grade
-                    if ($application->service_grade) {
-                        $query->where(function($q) use ($application) {
-                            $q->whereNull('service_grade') // If quarter has no specific service grade requirement
-                              ->orWhere('service_grade', $application->service_grade);
-                        });
-                    }
-                })
-                ->where(function ($query) {
-                    // Availability: Unallocated OR has vacancies
-                    $query->where('status', 'Unallocated')
-                          ->orWhereRaw('occupant_number > current_occupant_number');
-                })
-                ->get();
-
-            // Prepare data for the view
-            $data = [
-                'application' => $application,
-                'calculatedGrade' => $calculatedGrade,
-                'gradeSalarySettings' => $gradeSalarySettings,
-                'availableQuarters' => $availableQuarters,
-            ];
         } else {
             abort(404, 'Application type not recognized');
         }
+
+        $data = [
+            'application' => $application,
+            'calculatedGrade' => $calculatedGrade,
+            'gradeSalarySettings' => $gradeSalarySettings, // Kept for consistency if view uses it
+            'availableQuarters' => $availableQuarters,
+            'allocatedQuarter' => $allocatedQuarter,
+        ];
 
         // Generate PDF using DomPDF
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView($viewName, $data);
