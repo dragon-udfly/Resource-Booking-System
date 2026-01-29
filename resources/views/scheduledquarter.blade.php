@@ -116,15 +116,27 @@
             <a href="#" onclick="history.back(); return false;" class="btn back-btn">Back</a>
             <a href="{{ Auth::check() ? route('homepage') : route('home') }}" class="btn home-btn">Home</a>
         </div>
-        
+
+        @if ($errors->any())
+            <div class="alert alert-danger" style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="page-header">
             <h2>Application for Scheduled Quarters</h2>
         </div>
 
         <div class="form-container">
+            <p style="text-align: right;"><span class="required">*</span> Required</p>
             <form id="scheduled-quarter-form" action="{{ route('scheduledquarter.store') }}" method="POST">
                 @csrf
-                
+
                 <h3 class="form-section-title">A) Officer Details</h3>
                 <div class="form-row">
                     <div class="form-group">
