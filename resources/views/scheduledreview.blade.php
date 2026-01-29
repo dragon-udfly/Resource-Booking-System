@@ -339,9 +339,6 @@
                             <textarea name="ao_note" id="ao_note" rows="3" class="form-control" style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;" placeholder="Review notice for Administrative Officer">{{ old('ao_note', $application->quarterAllocation?->ao_note ?? '') }}</textarea>
                         </div>
                     </div>
-                    <div class="button-group">
-                        <button type="submit" class="btn btn-primary">Update AO Verification</button>
-                    </div>
                 </form>
                 @else
                 <div class="form-row">
@@ -375,10 +372,6 @@
                             <textarea name="aga_note" id="aga_note" rows="3" class="form-control" style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;" placeholder="Review notice for Additional Government Agent">{{ old('aga_note', $application->quarterAllocation?->aga_note ?? '') }}</textarea>
                         </div>
                     </div>
-                    <div class="button-group">
-                        <button type="submit" class="btn btn-primary">Update AGA Verification</button>
-                    </div>
-                </form>
                 @else
                 <div class="form-row">
                     <div class="form-group">
@@ -435,8 +428,6 @@
                         </div>
                     </div>
         
-
-        
                     {{-- Action Buttons for GA --}}
                     @if(Auth::user()->hasPermissionTo('government_agent_approval'))
                         <div class="button-group">
@@ -449,133 +440,3 @@
             </div>
         </section>
 @endsection
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const gaApprovalStatus = document.getElementById('ga_approval_status');
-    const quarterRadios = document.querySelectorAll('.quarter-radio');
-    const allocateButton = document.getElementById('allocate-button');
-    const rejectButton = document.getElementById('reject-button');
-    const gaForm = document.getElementById('ga-action-form'); // Corrected variable name for consistency
-
-    // Ensure elements exist before proceeding
-    if (!gaApprovalStatus || !allocateButton || !rejectButton || !gaForm) {
-        console.error('One or more required DOM elements not found for GA actions.');
-
-
-
-        console.log('quarterRadios found:', quarterRadios.length); // Log the number of radio buttons found
-
-    function getSelectedQuarter() {
-        let selectedQuarter = null;
-        quarterRadios.forEach(radio => {
-            if (radio.checked) {
-                selectedQuarter = radio.value;
-            }
-        });
-        return selectedQuarter;
-    }
-
-    function updateButtonStates() {
-        console.log('--- updateButtonStates called ---');
-        const isApproved = gaApprovalStatus.value === '1';
-        const isRejected = gaApprovalStatus.value === '0';
-        const isQuarterSelected = !!getSelectedQuarter(); // Convert to boolean
-
-        console.log('gaApprovalStatus.value:', gaApprovalStatus.value);
-        console.log('isApproved:', isApproved);
-        console.log('isRejected:', isRejected);
-        console.log('isQuarterSelected:', isQuarterSelected);
-
-        // Enable allocate button only if status is 'Yes' AND a quarter is selected
-        allocateButton.disabled = !(isApproved && isQuarterSelected);
-        console.log('allocateButton.disabled:', allocateButton.disabled);
-
-        // Enable reject button only if status is 'No'
-        rejectButton.disabled = !isRejected;
-        console.log('rejectButton.disabled:', rejectButton.disabled);
-        console.log('-------------------------------');
-    }
-
-    // Initial state update
-    updateButtonStates();
-
-    // Event listeners for changes
-    gaApprovalStatus.addEventListener('change', updateButtonStates);
-    quarterRadios.forEach(radio => radio.addEventListener('change', updateButtonStates));
-
-    // Handle form submission for GA actions
-    gaForm.addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent default form submission
-        console.log('--- GA Form submit event fired ---');
-
-        const formData = new FormData(gaForm);
-        const actionButton = event.submitter; // The button that was clicked to submit the form
-
-        if (!actionButton) {
-            alert('Could not determine action. Please use the Allocate or Reject buttons.');
-            return;
-        }
-
-        const action = actionButton.value; // 'allocate' or 'reject'
-        formData.set('action', action); // Set the action explicitly in form data
-
-        if (action === 'allocate') {
-            const selectedQuarter = getSelectedQuarter();
-            if (!selectedQuarter) {
-                alert('Please select a quarter to allocate.');
-                return;
-            }
-            formData.set('selected_quarter', selectedQuarter);
-        } else if (action === 'reject') {
-            // No specific quarter needed for rejection
-        }
-
-        // Convert FormData to a plain object for JSON.stringify
-        const data = {};
-        formData.forEach((value, key) => {
-            data[key] = value;
-        });
-
-        fetch(gaForm.action, {
-            method: 'PATCH', // Controller expects PATCH
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => {
-            if (!response.ok) {
-                // If response is not OK, try to read the error message
-                return response.json().then(err => { throw err; });
-            }
-            return response.json();
-        })
-        .then(result => {
-            if (result.success) {
-                alert(result.message);
-                location.reload(); // Reload the page to show updated status
-            } else {
-                alert('Error: ' + (result.message || 'An unknown error occurred.'));
-            }
-        })
-        .catch(error => {
-            console.error('Fetch error:', error);
-            let errorMessage = 'An unexpected error occurred.';
-            if (error.message) {
-                errorMessage = error.message;
-            } else if (error.errors) { // Handle Laravel validation errors
-                errorMessage = Object.values(error.errors).flat().join('\\n');
-            }
-            alert('Submission failed: ' + errorMessage);
-        });
-    });
-
-    // Remove the disabled attribute from the HTML buttons as JS will manage their state
-    allocateButton.disabled = false;
-    rejectButton.disabled = false;
-    }
-});
