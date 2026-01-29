@@ -28,6 +28,16 @@ class QuarterAllocationController extends Controller
         return view('familyquarter');
     }
 
+    public function showFamilyQuarterReview($id)
+    {
+        $application = QuarterApplication::with([
+            'familyQuarterApplication.markingFamilyQuarter',
+            'quarterAllocation'
+        ])->where('application_id', $id)->firstOrFail();
+
+        return view('familyreview', ['application' => $application]);
+    }
+
     public function storeFamilyQuarters(Request $request)
     {
         $messages = [
@@ -144,51 +154,9 @@ class QuarterAllocationController extends Controller
         ]);
     }
 
-    public function showFamilyQuarterReview($id)
-    {
-        $application = QuarterApplication::with([
-            'familyQuarterApplication.markingFamilyQuarter',
-            'quarterAllocation'
-        ])->where('application_id', $id)->firstOrFail();
-
-        return view('familyreview', ['application' => $application]);
-    }
-
     private function calculateFamilyQuarterMark(Request $request)
     {
-        $total_mark = 0;
-
-        $department_marks = [
-            'Officers_attached_under_the_Ministry_of_Home_Affairs' => 30,
-            'Officers_attached_to_District_and_Divisional_Secretariats' => 25,
-            'Other_Officers' => 20,
-        ];
-        $total_mark += $department_marks[$request->marking_f_department] ?? 0;
-
-        $dependant_marks = [
-            '01_person' => 5,
-            '02_person' => 10,
-            '03_person' => 15,
-            '04_person' => 20,
-            '05_or_above_05_person' => 25,
-        ];
-        $total_mark += $dependant_marks[$request->number_of_dependant] ?? 0;
-
-        if ($request->is_dependant_with_disability == '1') { 
-            $total_mark += 10;
-        }
-
-        $distance_marks = [
-            'Out_District_above_100km' => 25,
-            'Out_District_between_51km_and_100km' => 20,
-            'Out_District_between_26km_and_50km' => 15,
-            'Out_District_below_25km' => 10,
-            'Out_of_Urban_Council_Area_above_30km' => 5,
-            'Out_of_Urban_Council_Area_between_00km_and_30km' => 0,
-        ];
-        $total_mark += $distance_marks[$request->f_distance_of_residency] ?? 0;
-
-        return $total_mark;
+        // implement logic
     }
 
     public function markingScheme()
@@ -302,7 +270,9 @@ class QuarterAllocationController extends Controller
         $application = QuarterApplication::with([
             'scheduledQuarterApplication',
             'quarterAllocation'
-        ])->where('application_id', $id)->firstOrFail();
+        ])->where('application_id', $id)
+        ->where('quarter_type', 'Scheduled') // Filter only scheduled quarter applications
+        ->firstOrFail();
 
         // 1. Fetch all GradeSalarySetting records
         $gradeSalarySettings = \App\Models\GradeSalarySetting::all();
@@ -373,7 +343,7 @@ class QuarterAllocationController extends Controller
     {
         return QuarterAllocation::create([
             'application_id' => $application_id,
-            'quarter_id' => null, // quarter_id is nullable
+            'quarter_id' => null,
             'allocation_status' => 'pending',
         ]);
     }
@@ -425,150 +395,14 @@ class QuarterAllocationController extends Controller
     }
 
     public function downloadPdf(string $applicationId)
-    {
-        $application = QuarterApplication::with([
-            'familyQuarterApplication.markingFamilyQuarter',
-            'scheduledQuarterApplication',
-            'quarterAllocation.quarter' // Eager load the quarter details
-        ])->where('application_id', $applicationId)->firstOrFail();
+    {   
+        // if ($application->quarter_type === 'Family') {
+        //     $viewName = 'pdf.family_quarter_application_form';
+        // } else if($application->quarter_type === 'Scheduled') {
+        //     $viewName = 'pdf.scheduled_quarter_review';
+        // }
 
-        // Replicate calculatedGrade logic from showScheduledQuarterReview
-        $gradeSalarySettings = \App\Models\GradeSalarySetting::all();
-        $calculatedGrade = 'N/A';
-        $applicantMonthlySalary = $application->monthly_salary;
-
-        if ($applicantMonthlySalary !== null) {
-            foreach ($gradeSalarySettings as $setting) {
-                if ($applicantMonthlySalary >= $setting->min_salary && $applicantMonthlySalary <= $setting->max_salary) {
-                    $calculatedGrade = $setting->grade;
-                    break;
-                }
-            }
-        }
-
-        $data = [
-            'application' => $application,
-            'calculatedGrade' => $calculatedGrade, // Pass calculatedGrade to the view
-            'date' => Carbon::now()->format('Y-m-d')
-        ];
-        
-        if ($application->quarter_type === 'Family') {
-            $viewName = 'pdf.family_quarter_application_form';
-        } else {
-            // Use the new, more detailed view for scheduled quarters
-            $viewName = 'pdf.scheduled_quarter_review';
-        }
-
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView($viewName, $data);
-        return $pdf->download('quarter_application_' . $application->application_id . '.pdf');
-    }
-
-    public function submitStageVerification(Request $request, string $applicationId)
-    {
-        $quarterAllocation = QuarterAllocation::where('application_id', $applicationId)->firstOrFail();
-
-        if (Auth::user()->hasPermissionTo('administrative_officer_approval')) {
-            $quarterAllocation->allocation_status = 'pending_aga_review'; 
-            $logTitle = 'Quarter Application ' . $applicationId . ' submitted by AO for AGA review';
-        } elseif (Auth::user()->hasPermissionTo('additional_government_agent_approval')) {
-            if (!$quarterAllocation->is_aga_verified) {
-                return redirect()->back()->with('error', 'Please verify the application first.');
-            }
-            $quarterAllocation->allocation_status = 'pending_ga_approval';
-            $logTitle = 'Quarter Application ' . $applicationId . ' submitted by AGA for GA approval';
-        } else {
-            return redirect()->back()->with('error', 'You do not have permission to perform this action.');
-        }
-        
-        $quarterAllocation->date_modified = Carbon::now();
-        $quarterAllocation->save();
-
-        AuditLog::create([
-            'log_title' => $logTitle,
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
-
-        return redirect()->back()->with('success', 'Application submitted for next stage verification successfully!');
-    }
-
-    public function processGaAction(Request $request, string $applicationId)
-    {
-        Log::info('processGaAction called with request:', $request->all());
-
-        if (!Auth::user()->hasPermissionTo('government_agent_approval')) {
-            return redirect()->back()->with('error', 'You do not have permission to perform this action.');
-        }
-
-        $validator = Validator::make($request->all(), [
-            'action' => ['required', Rule::in(['allocate', 'reject'])],
-            'ga_note' => 'nullable|string|max:2000',
-            'ga_approval_status' => ['required', Rule::in(['1', '0'])],
-            'selected_quarter' => 'required_if:action,allocate|exists:quarters,quarter_id',
-        ], [
-            'selected_quarter.required_if' => 'You must select an available quarter to allocate.',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        DB::beginTransaction();
-        try {
-            $quarterAllocation = QuarterAllocation::where('application_id', $applicationId)->firstOrFail();
-            
-            // Common updates
-            $quarterAllocation->ga_note = $request->ga_note;
-            $quarterAllocation->date_modified = Carbon::now();
-            
-            $logTitle = '';
-
-            if ($request->action === 'allocate' && $request->ga_approval_status == '1') {
-                $selectedQuarter = Quarter::findOrFail($request->selected_quarter);
-
-                // Update QuarterAllocation record
-                $quarterAllocation->quarter_id = $selectedQuarter->quarter_id;
-                $quarterAllocation->allocation_status = 'allocated';
-                $quarterAllocation->allocation_date = Carbon::now();
-                $quarterAllocation->vacate_date = Carbon::now()->addYears(5);
-                
-                // Update the Quarter record
-                $selectedQuarter->status = 'Allocated';
-                $selectedQuarter->increment('current_occupant_number');
-                $selectedQuarter->save();
-                
-                $logTitle = 'Quarter Application ' . $applicationId . ' allocated to Quarter ' . $selectedQuarter->quarter_id . ' by GA';
-
-            } elseif ($request->action === 'reject' || $request->ga_approval_status == '0') {
-                $quarterAllocation->allocation_status = 'rejected';
-                $logTitle = 'Quarter Application ' . $applicationId . ' rejected by GA';
-            } else {
-                // This case handles if action is 'allocate' but ga_approval_status is '0' (No)
-                // Or any other unexpected combination. Treat as rejection for safety.
-                $quarterAllocation->allocation_status = 'rejected';
-                $logTitle = 'Quarter Application ' . $applicationId . ' rejected by GA as approval was not granted.';
-            }
-            
-            $quarterAllocation->save();
-
-            AuditLog::create([
-                'log_title' => $logTitle,
-                'performed_by' => Auth::id(),
-                'details' => 'GA Note: ' . $request->ga_note,
-                'date_performed' => Carbon::now()->toDateString(),
-                'time_performed' => Carbon::now()->toTimeString(),
-            ]);
-
-            DB::commit();
-            return redirect()->back()->with('success', 'Application processed successfully by Government Agent!');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error("Failed to process GA action for application {$applicationId}: " . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
-            ]);
-            return redirect()->back()->with('error', 'An unexpected error occurred while processing the action. Please check logs.');
-        }
+        // $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView($viewName, $data);
+        // return $pdf->download('quarter_application_' . $application->application_id . '.pdf');
     }
 }
