@@ -20,7 +20,6 @@ Route::get('/login', function () {
 })->name('login');
 
 Route::post('/login', [UserController::class, 'login'])->name('login.submit');
-Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin', function() {
@@ -111,6 +110,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/quarter-application/{id}/download-pdf', [QuarterAllocationController::class, 'downloadPdf'])->name('quarter.download-pdf');
 
     Route::get('/history', [HallBookingController::class, 'showHistory'])->name('history');
+    Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 });
 
 // Quarter
