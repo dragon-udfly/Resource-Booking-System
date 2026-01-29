@@ -412,14 +412,13 @@ class QuarterAllocationController extends Controller
 
         $user = User::where('nic_number', $request->nic_number)
                                ->where('contact_number', $request->contact_number)
+                               ->whereHas('permissions', function ($query) {
+                                    $query->where('requester', 1);
+                                })
                                ->first();
 
         if (!$user) {
-            return response()->json(['success' => false, 'message' => 'Invalid NIC or Contact Number for Requester.']);
-        }
-
-        if (!$user->hasPermissionTo('requester')) {
-            return response()->json(['success' => false, 'message' => 'You do not have permission to make this request.']);
+            return response()->json(['success' => false, 'message' => 'Invalid NIC or Contact Number or you do not have permission to make this request.']);
         }
 
         return response()->json(['success' => true, 'message' => 'Requester verified successfully.']);
