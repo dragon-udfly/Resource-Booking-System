@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Scheduled Quarter Application - {{ $application->application_id }}</title>
+    <title>Scheduled Quarter Application</title>
     <style>
         body { font-family: 'DejaVu Sans', sans-serif; line-height: 1.6; color: #333; font-size: 10px; }
         .container { width: 90%; margin: auto; }
@@ -91,9 +91,35 @@
                 <div class="grid-item"><strong>Applicant Gender:</strong> <span>{{ $application->gender ?? 'N/A' }}</span></div>
             </div>
         </div>
+
+        <div class="section-title">E) Available Scheduled Quarters</div>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 9px;">
+            <thead>
+                <tr style="background-color: #e9ecef;">
+                    <th style="border: 1px solid #dee2e6; padding: 6px; text-align: left;">No.</th>
+                    <th style="border: 1px solid #dee2e6; padding: 6px; text-align: left;">Quarters No. (New)</th>
+                    <th style="border: 1px solid #dee2e6; padding: 6px; text-align: left;">Quarters No. (Old)</th>
+                    <th style="border: 1px solid #dee2e6; padding: 6px; text-align: left;">Vacancies (for Chummary)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($availableQuarters as $index => $quarter)
+                    <tr>
+                        <td style="border: 1px solid #dee2e6; padding: 6px;">{{ $index + 1 }}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 6px;">{{ $quarter->new_quarter_no ?? 'N/A' }}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 6px;">{{ $quarter->old_quarter_no ?? 'N/A' }}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 6px;">{{ ($quarter->occupant_number - ($quarter->current_occupant_number ?? 0)) }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" style="border: 1px solid #dee2e6; padding: 6px; text-align: center;">No available scheduled quarters matching the criteria.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
         
         @if($application->quarterAllocation && $application->quarterAllocation->allocation_status == 'allocated' && $application->quarterAllocation->quarter)
-            <div class="section-title">E) Allocated Quarter's Details</div>
+            <div class="section-title">F) Allocated Quarter's Details</div>
             <div class="details-grid">
                 <div class="grid-row">
                     <div class="grid-item"><strong>Quarter No. (New):</strong> <span>{{ $application->quarterAllocation->quarter->new_quarter_no ?? 'N/A' }}</span></div>
@@ -108,7 +134,7 @@
             </div>
         @endif
 
-        <div class="section-title">F) Allocation Details</div>
+        <div class="section-title">G) Allocation Details</div>
         <div class="details-grid">
             <div class="grid-row">
                 <div class="grid-item"><strong>Final Allocation Status:</strong> <span style="font-weight: bold; text-transform: capitalize;">{{ $application->quarterAllocation?->allocation_status ?? 'N/A' }}</span></div>
