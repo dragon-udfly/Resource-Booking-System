@@ -74,6 +74,9 @@ class UserController extends Controller
                                         ->get();
 
             $quarterApplications = QuarterApplication::with('quarterAllocation')
+                                                    ->whereHas('quarterAllocation', function($query) {
+                                                        $query->where('allocation_status', 'pending');
+                                                    })
                                                     ->orderBy('date_created', 'desc')
                                                     ->get();
 
@@ -89,6 +92,9 @@ class UserController extends Controller
                                     ->get();
 
             $quarterApplications = QuarterApplication::with('quarterAllocation')
+                                                    ->whereHas('quarterAllocation', function($query) {
+                                                        $query->where('allocation_status', 'pending');
+                                                    })
                                                     ->orderBy('date_created', 'desc')
                                                     ->get();
             return view('dashboard', [
