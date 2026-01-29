@@ -77,6 +77,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/quarters', [QuarterController::class, 'store'])->name('quarters.store');
 });
 
+Route::post('/familyquarter', [QuarterAllocationController::class, 'storeFamilyQuarters'])->name('familyquarter.store');
+Route::post('/scheduledquarter', [QuarterAllocationController::class, 'storeScheduledQuarters'])->name('scheduledquarter.store');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/preference', function(){
         return view('preference');
@@ -106,8 +109,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/seequarters', [QuarterController::class, 'seeQuarters'])->name('seequarters');
     Route::get('/occupantdetails', [QuarterController::class, 'showOccupantDetails'])->name('occupantdetails');
 
-    Route::post('/familyquarter', [QuarterAllocationController::class, 'storeFamilyQuarters'])->name('familyquarter.store');
-    Route::post('/scheduledquarter', [QuarterAllocationController::class, 'storeScheduledQuarters'])->name('scheduledquarter.store');
     Route::get('/family-quarter-application/{id}/review', [QuarterAllocationController::class, 'showFamilyQuarterReview'])->name('family-quarter.review');
     Route::get('/scheduled-quarter-application/{id}/review', [QuarterAllocationController::class, 'showScheduledQuarterReview'])->name('scheduled-quarter.review');
     Route::get('/quarter-application/{id}/download-pdf', [QuarterAllocationController::class, 'downloadPdf'])->name('quarter.download-pdf');
