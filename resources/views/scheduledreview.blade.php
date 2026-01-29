@@ -199,8 +199,52 @@
                 </div>
                 @endif
                 
-                {{-- GA Controls, Status, etc. follow here --}}
+                {{-- GA Specific Controls --}}
+                @if(Auth::user()->hasPermissionTo('government_agent_approval'))
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ga_approval_status">Government Agent Approved:</label>
+                            <select name="ga_approval_status" id="ga_approval_status" class="form-control" style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;">
+                                <option value="" selected>-- Select an Action --</option>
+                                <option value="1">Yes</option>
+                                <option value="0">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ga_note">Government Agent Note:</label>
+                            <textarea name="ga_note" id="ga_note" rows="3" class="form-control" style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;" placeholder="Review notice for Government Agent">{{ old('ga_note', optional($application->quarterAllocation)->ga_note ?? '') }}</textarea>
+                        </div>
+                    </div>
+                @else
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Government Agent Approved:</label>
+                            <p>{{ optional($application->quarterAllocation)->allocation_status !== 'pending' && optional($application->quarterAllocation)->allocation_status !== 'rejected' ? 'Yes' : 'No' }}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Government Agent Note:</label>
+                            <p>{{ optional($application->quarterAllocation)->ga_note ?? 'N/A' }}</p>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Final Allocation Status:</label>
+                        <p style="font-weight: bold; text-transform: capitalize;">{{ optional($application->quarterAllocation)->allocation_status ?? 'N/A' }}</p>
+                    </div>
+                     <div class="form-group">
+                        <label>Allocation Date:</label>
+                        <p>{{ optional($application->quarterAllocation)->allocation_date ? \Carbon\Carbon::parse($application->quarterAllocation->allocation_date)->format('Y-m-d') : 'N/A' }}</p>
+                    </div>
+                </div>
+
+                {{-- Action Buttons --}}
                 <div class="button-group">
+                     @if(Auth::user()->hasPermissionTo('government_agent_approval'))
+                        <button type="submit" name="action" value="allocate" id="allocate-button" class="btn btn-success" disabled>Allocate</button>
+                        <button type="submit" name="action" value="reject" id="reject-button" class="btn btn-danger">Reject</button>
+                    @endif
                     @if(Auth::user()->hasPermissionTo('administrative_officer_approval') || Auth::user()->hasPermissionTo('additional_government_agent_approval'))
                         <button type="submit" name="action" value="Submit" id="submit-button" class="btn btn-success">Submit</button>
                     @endif

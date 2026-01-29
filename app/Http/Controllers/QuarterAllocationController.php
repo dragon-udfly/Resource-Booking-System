@@ -486,51 +486,80 @@ class QuarterAllocationController extends Controller
     public function updateScheduledQuarterReview(Request $request, $id)
     {
         $application = QuarterApplication::with('quarterAllocation')->where('application_id', $id)->firstOrFail();
+        if (!$application->quarterAllocation) {
+            return redirect()->back()->with('error', 'Application allocation record not found.');
+        }
+
         $user = Auth::user();
         $quarterAllocation = $application->quarterAllocation;
 
-        if ($request->action === 'Submit') {
-            $validated = $request->validate([
-                'ao_verified_status' => 'nullable|boolean',
-                'ao_note' => 'nullable|string',
-                'aga_verified_status' => 'nullable|boolean',
-                'aga_note' => 'nullable|string',
-            ]);
+        DB::beginTransaction();
+        try {
+            $action = $request->input('action');
+            $noteTimestamp = 'I reviewed this application on ' . Carbon::now()->format('Y-m-d') . ' at ' . Carbon::now()->format('H:i:s') . '.';
+            $successMessage = 'Application review submitted successfully.';
 
-            $note = 'I reviewed this application on ' . Carbon::now()->format('Y-m-d') . ' at ' . Carbon::now()->format('H:i:s') . '.';
-
-            if ($user->hasPermissionTo('administrative_officer_approval') && $request->has('ao_verified_status')) {
-                $quarterAllocation->is_ao_verified = $request->ao_verified_status;
-                $quarterAllocation->ao_note = ($quarterAllocation->ao_note ? $quarterAllocation->ao_note . "\n" : '') . $note;
-
-                AuditLog::create([
-                    'log_title' => 'Scheduled Quarter Application Reviewed by AO',
-                    'performed_by' => $user->id,
-                    'details' => 'Application ID: ' . $application->application_id . '. AO Verification: ' . ($request->ao_verified_status ? 'Yes' : 'No'),
-                    'date_performed' => Carbon::now()->toDateString(),
-                    'time_performed' => Carbon::now()->toTimeString(),
+            if ($action === 'Submit') {
+                $validated = $request->validate([
+                    'ao_verified_status' => 'nullable|in:0,1',
+                    'aga_verified_status' => 'nullable|in:0,1',
                 ]);
-            }
 
-            if ($user->hasPermissionTo('additional_government_agent_approval') && $request->has('aga_verified_status')) {
-                $quarterAllocation->is_aga_verified = $request->aga_verified_status;
-                $quarterAllocation->aga_note = ($quarterAllocation->aga_note ? $quarterAllocation->aga_note . "\n" : '') . $note;
+                if ($user->hasPermissionTo('administrative_officer_approval') && $request->has('ao_verified_status')) {
+                    $quarterAllocation->is_ao_verified = $validated['ao_verified_status'];
+                    $quarterAllocation->ao_note = trim(($quarterAllocation->ao_note ?? '') . "\n" . $noteTimestamp);
+                    AuditLog::create(['log_title' => 'AO Reviewed Scheduled App', 'performed_by' => $user->id, 'details' => "App ID: {$id}, Verified: " . ($validated['ao_verified_status'] ? 'Yes' : 'No')]);
+                }
 
-                AuditLog::create([
-                    'log_title' => 'Scheduled Quarter Application Reviewed by AGA',
-                    'performed_by' => $user->id,
-                    'details' => 'Application ID: ' . $application->application_id . '. AGA Verification: ' . ($request->aga_verified_status ? 'Yes' : 'No'),
-                    'date_performed' => Carbon::now()->toDateString(),
-                    'time_performed' => Carbon::now()->toTimeString(),
-                ]);
+                if ($user->hasPermissionTo('additional_government_agent_approval') && $request->has('aga_verified_status')) {
+                    $quarterAllocation->is_aga_verified = $validated['aga_verified_status'];
+                    $quarterAllocation->aga_note = trim(($quarterAllocation->aga_note ?? '') . "\n" . $noteTimestamp);
+                    AuditLog::create(['log_title' => 'AGA Reviewed Scheduled App', 'performed_by' => $user->id, 'details' => "App ID: {$id}, Verified: " . ($validated['aga_verified_status'] ? 'Yes' : 'No')]);
+                }
+            } elseif ($action === 'allocate' && $user->hasPermissionTo('government_agent_approval')) {
+                $validated = $request->validate(['selected_quarter' => 'required|exists:quarters,quarter_id']);
+                
+                $quarterAllocation->quarter_id = $validated['selected_quarter'];
+                $quarterAllocation->allocation_status = 'allocated';
+                $quarterAllocation->allocation_date = Carbon::now();
+                if ($request->ga_note) {
+                    $quarterAllocation->ga_note = trim(($quarterAllocation->ga_note ?? '') . "\n" . $request->ga_note);
+                }
+
+                $allocatedQuarter = Quarter::find($validated['selected_quarter']);
+                $allocatedQuarter->current_occupant_number += 1;
+                if ($allocatedQuarter->current_occupant_number >= $allocatedQuarter->occupant_number) {
+                    $allocatedQuarter->status = 'Occupied';
+                }
+                $allocatedQuarter->save();
+
+                $successMessage = 'Quarter allocated successfully.';
+                AuditLog::create(['log_title' => 'GA Allocated Scheduled Quarter', 'performed_by' => $user->id, 'details' => "App ID: {$id} allocated to Quarter ID: {$validated['selected_quarter']}"]);
+
+            } elseif ($action === 'reject' && $user->hasPermissionTo('government_agent_approval')) {
+                $quarterAllocation->allocation_status = 'rejected';
+                if ($request->ga_note) {
+                    $quarterAllocation->ga_note = trim(($quarterAllocation->ga_note ?? '') . "\n" . $request->ga_note);
+                }
+                $successMessage = 'Application rejected successfully.';
+                AuditLog::create(['log_title' => 'GA Rejected Scheduled App', 'performed_by' => $user->id, 'details' => "App ID: {$id} was rejected."]);
+            } else {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'Invalid action or insufficient permissions.');
             }
 
             $quarterAllocation->save();
+            DB::commit();
 
-            return redirect()->route('dashboard')->with('success', 'Application review has been submitted successfully.');
+            return redirect()->route('dashboard')->with('success', $successMessage);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Scheduled Quarter Review Update Failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString(), 'request' => $request->all()]);
+            return redirect()->back()->with('error', 'An unexpected error occurred. Please try again.');
         }
-
-        // Handle other actions like 'allocate' and 'reject' if necessary in the future
-        return redirect()->back()->with('error', 'Invalid action.');
     }
 }
