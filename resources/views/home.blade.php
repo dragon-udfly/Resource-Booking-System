@@ -33,25 +33,6 @@
             background-color: #0056b3;
             transform: scale(1.02);
         }
-
-        #developers-link-container {
-            position: absolute;
-            bottom: 65px; /* Adjust as needed to be above the footer */
-            left: 5px;
-            text-align: left;
-            padding: 10px; /* Add some padding for better appearance */
-            z-index: 1000; /* Ensure it's above other content */
-        }
-        #developers-link-container p {
-            margin: 0; /* Remove default paragraph margin */
-        }
-        #developers-link-container a {
-            color: #0056b3; /* Link color */
-            text-decoration: none;
-        }
-        #developers-link-container a:hover {
-            font-weight: bold;
-        }
     </style>
 @endsection
 
@@ -71,10 +52,4 @@
             <a href="{{ route('bookquarter') }}" class="action-button" style="margin-left: 10px;">Book Quarters</a>
         </div>
     </section>
-
-    <div id="developers-link-container">
-        <p title="Click Me to see Developers">
-            <a href="/developers">> Developers</a>
-        </p>
-    </div>
 @endsection
