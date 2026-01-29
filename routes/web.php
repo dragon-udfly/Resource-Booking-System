@@ -109,8 +109,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/family-quarter-application/{id}/review', [QuarterAllocationController::class, 'showFamilyQuarterReview'])->name('family-quarter.review');
     Route::get('/scheduled-quarter-application/{id}/review', [QuarterAllocationController::class, 'showScheduledQuarterReview'])->name('scheduled-quarter.review');
     Route::get('/quarter-application/{id}/download-pdf', [QuarterAllocationController::class, 'downloadPdf'])->name('quarter.download-pdf');
-    Route::patch('/quarter-application/{id}/submit-stage-verification', [QuarterAllocationController::class, 'submitStageVerification'])->name('quarter.submit-stage-verification');
-    Route::patch('/quarter-application/{id}/process-ga-action', [QuarterAllocationController::class, 'processGaAction'])->name('quarter.process-ga-action');
 
     Route::get('/history', [HallBookingController::class, 'showHistory'])->name('history');
 });
