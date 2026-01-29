@@ -415,7 +415,7 @@ class QuarterAllocationController extends Controller
                                ->first();
 
         if (!$user) {
-            return response()->json(['success' => false, 'message' => 'Invalid NIC or Contact Number.']);
+            return response()->json(['success' => false, 'message' => 'Invalid NIC or Contact Number for Requester.']);
         }
 
         if (!$user->hasPermissionTo('requester')) {
