@@ -5,8 +5,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\HallController;
 use App\Http\Controllers\HallBookingController;
 use App\Http\Controllers\QuarterController;
-use App\Http\Controllers\FamilyQuarterController;
-use App\Http\Controllers\ScheduledQuarterController;
+use App\Http\Controllers\QuarterAllocationController;
 
 Route::get('/', function () {
     return view('home');
@@ -49,13 +48,18 @@ Route::middleware(['auth', 'admin'])->group(function () {
         return view('modifyaccount');
     });
 
-        Route::get('/modifyhall', function(){
-            return view('modifyhall');
-        });
+    Route::get('/modifyquarter', function(){
+        return view('modifyquarter');
+    });
+
+    Route::get('/modifyhall', function(){
+        return view('modifyhall');
+    });
     
-        Route::get('/systemsetting', function(){
-            return view('systemsetting');
-        })->name('systemsetting');
+    Route::get('/systemsetting', function(){
+        return view('systemsetting');
+    })->name('systemsetting');
+    
     Route::get('/auditlog', [UserController::class, 'showAuditLog'])->name('auditlog');
     Route::delete('/auditlog/clear', [UserController::class, 'clearAuditLog'])->name('auditlog.clear');
     Route::delete('/halls/clear', [HallController::class, 'clearHalls'])->name('halls.clear');
@@ -68,8 +72,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/quarters/{quarter}', [QuarterController::class, 'destroy'])->name('quarters.destroy');
     Route::patch('/quarters/{quarter}', [QuarterController::class, 'update'])->name('quarters.update');
 
-    Route::get('/marking-scheme', [FamilyQuarterController::class, 'markingScheme'])->name('marking-scheme.edit');
-    Route::put('/marking-scheme', [FamilyQuarterController::class, 'updateMarkingScheme'])->name('marking-scheme.update');
+    Route::get('/marking-scheme', [QuarterAllocationController::class, 'markingScheme'])->name('marking-scheme.edit');
+    Route::put('/marking-scheme', [QuarterAllocationController::class, 'updateMarkingScheme'])->name('marking-scheme.update');
 
     Route::get('/addquarter', function(){
         return view('addquarter');
@@ -107,10 +111,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/seequarters', [QuarterController::class, 'seeQuarters'])->name('seequarters');
     Route::get('/occupantdetails', [QuarterController::class, 'showOccupantDetails'])->name('occupantdetails');
 
-    Route::post('/familyquarter', [FamilyQuarterController::class, 'storeFamilyQuarters'])->name('familyquarter.store');
-    Route::post('/scheduledquarter', [ScheduledQuarterController::class, 'storeScheduledQuarters'])->name('scheduledquarter.store');
-    Route::get('/family-quarter-application/{id}/review', [FamilyQuarterController::class, 'showFamilyQuarterReview'])->name('family-quarter.review');
-    Route::get('/scheduled-quarter-application/{id}/review', [ScheduledQuarterController::class, 'showScheduledQuarterReview'])->name('scheduled-quarter.review');
+    Route::post('/familyquarter', [QuarterAllocationController::class, 'storeFamilyQuarters'])->name('familyquarter.store');
+    Route::post('/scheduledquarter', [QuarterAllocationController::class, 'storeScheduledQuarters'])->name('scheduledquarter.store');
+    Route::get('/family-quarter-application/{id}/review', [QuarterAllocationController::class, 'showFamilyQuarterReview'])->name('family-quarter.review');
+    Route::get('/scheduled-quarter-application/{id}/review', [QuarterAllocationController::class, 'showScheduledQuarterReview'])->name('scheduled-quarter.review');
     Route::get('/quarter-application/{id}/download-pdf', [QuarterController::class, 'downloadPdf'])->name('quarter.download-pdf');
     Route::patch('/quarter-application/{id}/submit-stage-verification', [QuarterController::class, 'submitStageVerification'])->name('quarter.submit-stage-verification');
     Route::patch('/quarter-application/{id}/process-ga-action', [QuarterController::class, 'processGaAction'])->name('quarter.process-ga-action');
@@ -121,8 +125,8 @@ Route::post('/verify-requester', [HallBookingController::class, 'verifyRequester
 Route::post('/verify-quarter-requester', [QuarterController::class, 'verifyRequester'])->name('quarters.requester.verify');
 
 Route::get('/bookquarter', [QuarterController::class, 'create'])->name('bookquarter');
-Route::get('/familyquarter', [FamilyQuarterController::class, 'bookFamilyQuarters'])->name('familyquarter');
-Route::get('/scheduledquarter', [ScheduledQuarterController::class, 'bookScheduledQuarters'])->name('scheduledquarter');
+Route::get('/familyquarter', [QuarterAllocationController::class, 'bookFamilyQuarters'])->name('familyquarter');
+Route::get('/scheduledquarter', [QuarterAllocationController::class, 'bookScheduledQuarters'])->name('scheduledquarter');
 
 
 
@@ -135,14 +139,6 @@ Route::get('/api/halls/available', [HallController::class, 'getAvailableHalls'])
 Route::get('/hall-overview', [HallController::class, 'showOverview'])->name('halls.overview');
 
 Route::get('/hallschedule', [HallBookingController::class, 'showSchedule'])->name('halls.schedule');
-
-
-
-
-
-Route::get('/modifyquarter', function(){
-    return view('modifyquarter');
-});
 
 Route::get('/developers', function () {
     return view('developers');
