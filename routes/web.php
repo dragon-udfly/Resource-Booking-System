@@ -68,8 +68,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/quarters/{quarter}', [QuarterController::class, 'destroy'])->name('quarters.destroy');
     Route::patch('/quarters/{quarter}', [QuarterController::class, 'update'])->name('quarters.update');
 
-    Route::get('/marking-scheme', [QuarterController::class, 'markingScheme'])->name('marking-scheme.edit');
-    Route::put('/marking-scheme', [QuarterController::class, 'updateMarkingScheme'])->name('marking-scheme.update');
+    Route::get('/marking-scheme', [FamilyQuarterController::class, 'markingScheme'])->name('marking-scheme.edit');
+    Route::put('/marking-scheme', [FamilyQuarterController::class, 'updateMarkingScheme'])->name('marking-scheme.update');
 
     Route::get('/addquarter', function(){
         return view('addquarter');
