@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Scheduled Quarter Application</title>
+    <title>Scheduled Quarter Application-{{ $application->application_id }}</title>
     <style>
         body { font-family: 'DejaVu Sans', sans-serif; line-height: 1.6; color: #333; font-size: 10px; }
         .container { width: 90%; margin: auto; }
@@ -28,7 +28,7 @@
     <div class="container">
         <div class="header">
             <h1>District Secretariat, Vavuniya</h1>
-            <h2>Scheduled Quarter Application - Application ID: {{ $application->application_id }}</h2>
+            <h2>Scheduled Quarter Application</h2>
         </div>
 
         <div class="section-title">A) Officer Details</div>
