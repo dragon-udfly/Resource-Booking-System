@@ -283,7 +283,13 @@
                                     window.location.href = `/family-quarter-application/${applicationId}/review`;
                                 } else if (quarterType === 'Scheduled') {
                                     window.location.href = `/scheduled-quarter-application/${applicationId}/review`;
+                                } else {
+                                    console.error('Unknown quarter type:', quarterType);
+                                    alert('Unknown quarter type. Cannot proceed with review.');
                                 }
+                            } else {
+                                console.error('Missing application ID or quarter type');
+                                alert('Application ID or quarter type is missing. Cannot proceed with review.');
                             }
                         });
                     });
