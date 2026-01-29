@@ -397,14 +397,95 @@ class QuarterAllocationController extends Controller
     }
 
     public function downloadPdf(string $applicationId)
-    {   
-        // if ($application->quarter_type === 'Family') {
-        //     $viewName = 'pdf.family_quarter_application_form';
-        // } else if($application->quarter_type === 'Scheduled') {
-        //     $viewName = 'pdf.scheduled_quarter_review';
-        // }
+    {
+        // Load the application with all related data
+        $application = QuarterApplication::with([
+            'scheduledQuarterApplication',
+            'familyQuarterApplication.markingFamilyQuarter',
+            'quarterAllocation.quarter', // Include the allocated quarter if any
+        ])->findOrFail($applicationId);
 
-        // $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView($viewName, $data);
-        // return $pdf->download('quarter_application_' . $application->application_id . '.pdf');
+        // Determine which view to use based on quarter type
+        if ($application->quarter_type === 'Family') {
+            $viewName = 'pdf.family_quarter_application_form';
+
+            // Calculate grade based on salary for family applications
+            $gradeSalarySettings = \App\Models\GradeSalarySetting::all();
+            $calculatedGrade = 'N/A';
+
+            $applicantMonthlySalary = $application->monthly_salary;
+            if ($applicantMonthlySalary !== null) {
+                foreach ($gradeSalarySettings as $setting) {
+                    if ($applicantMonthlySalary >= $setting->min_salary && $applicantMonthlySalary <= $setting->max_salary) {
+                        $calculatedGrade = $setting->grade;
+                        break;
+                    }
+                }
+            }
+
+            // Prepare data for the view
+            $data = [
+                'application' => $application,
+                'calculatedGrade' => $calculatedGrade,
+                'gradeSalarySettings' => $gradeSalarySettings,
+            ];
+        } else if ($application->quarter_type === 'Scheduled') {
+            $viewName = 'pdf.scheduled_quarter_review';
+
+            // Calculate grade based on salary for scheduled applications
+            $gradeSalarySettings = \App\Models\GradeSalarySetting::all();
+            $calculatedGrade = 'N/A';
+
+            $applicantMonthlySalary = $application->monthly_salary;
+            if ($applicantMonthlySalary !== null) {
+                foreach ($gradeSalarySettings as $setting) {
+                    if ($applicantMonthlySalary >= $setting->min_salary && $applicantMonthlySalary <= $setting->max_salary) {
+                        $calculatedGrade = $setting->grade;
+                        break;
+                    }
+                }
+            }
+
+            // Get available quarters based on criteria for scheduled applications
+            $availableQuarters = \App\Models\Quarter::where('quarter_type', 'Scheduled')
+                ->where(function ($query) use ($application) {
+                    // Matching Gender
+                    if ($application->gender) {
+                        $query->where(function($q) use ($application) {
+                            $q->whereNull('allowed_gender') // If quarter has no specific gender preference
+                              ->orWhere('allowed_gender', $application->gender);
+                        });
+                    }
+                    // Matching Service Grade
+                    if ($application->service_grade) {
+                        $query->where(function($q) use ($application) {
+                            $q->whereNull('service_grade') // If quarter has no specific service grade requirement
+                              ->orWhere('service_grade', $application->service_grade);
+                        });
+                    }
+                })
+                ->where(function ($query) {
+                    // Availability: Unallocated OR has vacancies
+                    $query->where('status', 'Unallocated')
+                          ->orWhereRaw('occupant_number > current_occupant_number');
+                })
+                ->get();
+
+            // Prepare data for the view
+            $data = [
+                'application' => $application,
+                'calculatedGrade' => $calculatedGrade,
+                'gradeSalarySettings' => $gradeSalarySettings,
+                'availableQuarters' => $availableQuarters,
+            ];
+        } else {
+            abort(404, 'Application type not recognized');
+        }
+
+        // Generate PDF using DomPDF
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView($viewName, $data);
+
+        // Return the PDF for download
+        return $pdf->download('quarter_application_' . $application->application_id . '.pdf');
     }
 }
