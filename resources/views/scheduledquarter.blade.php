@@ -193,8 +193,6 @@
                         <label for="monthly_salary">10.  Monthly Salary (excluding allowances): <span class="required">*</span></label>
                         <input type="number" id="monthly_salary" name="monthly_salary" required>
                     </div>
-                </div>
-                <div class="form-row">
                     <div class="form-group">
                         <label for="date_of_assumption_of_duties">11.  Date of Assumption of Duties in Vavuniya: <span class="required">*</span></label>
                         <input type="date" id="date_of_assumption_of_duties" name="date_of_assumption_of_duties" required>
