@@ -158,7 +158,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="ao_verified_status">Administrative Officer Verified:</label>
-                        <select name="ao_verified_status" id="ao_verified_status" class="form-control" style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;">
+                        <select name="ao_verified_status" id="ao_verified_status" class="form-control" style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;" required>
                             <option value="">-- Select an Action --</option>
                             <option value="1" @if(optional($application->quarterAllocation)->is_ao_verified == 1) selected @endif>Yes</option>
                             <option value="0" @if(optional($application->quarterAllocation)->is_ao_verified === 0) selected @endif>No</option>
@@ -181,7 +181,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="aga_verified_status">Additional Government Agent Verified:</label>
-                        <select name="aga_verified_status" id="aga_verified_status" class="form-control" style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;">
+                        <select name="aga_verified_status" id="aga_verified_status" class="form-control" style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;" required>
                             <option value="">-- Select an Action --</option>
                             <option value="1" @if(optional($application->quarterAllocation)->is_aga_verified == 1) selected @endif>Yes</option>
                             <option value="0" @if(optional($application->quarterAllocation)->is_aga_verified === 0) selected @endif>No</option>
@@ -204,7 +204,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="ga_approval_status">Government Agent Approved:</label>
-                            <select name="ga_approval_status" id="ga_approval_status" class="form-control" style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;">
+                            <select name="ga_approval_status" id="ga_approval_status" class="form-control" style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;" required>
                                 <option value="" selected>-- Select an Action --</option>
                                 <option value="1">Yes</option>
                                 <option value="0">No</option>
