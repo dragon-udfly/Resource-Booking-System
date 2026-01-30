@@ -242,16 +242,30 @@
                 {{-- Action Buttons --}}
                 <div class="button-group">
                     @if(Auth::user()->hasPermissionTo('government_agent_approval'))
+                        {{-- if ga_approval_status is 1(Yes) and selected_quarter is not empty--}}
+                        {{-- update quarter_id and is_ga_verified and ga_note and allocation_status and allocation_date in quarter_allocation--}}
+                        {{-- update vacate_date, allocation date + 5 years --}}
                         <button type="submit" name="action" value="allocate" id="allocate-button" class="btn btn-success" disabled>Allocate</button>
+                        {{-- if ga_approval_status in 0(No) --}}
+                        {{-- update is_ga_verified and ga_note and allocation_status in quarter_allocation--}}
                         <button type="submit" name="action" value="reject" id="reject-button" class="btn btn-danger">Reject</button>
                     @endif
                     @if(Auth::user()->hasPermissionTo('additional_government_agent_approval'))
+                        {{-- update is_aga_verified and aga_note in quarter_allocation--}}
                         <button type="submit" name="action" value="Submit" id="submit-button" class="btn btn-success">Submit</button>
-                        <button type="submit" name="action" value="reject" id="reject-button" class="btn btn-danger">Reject</button>
+                        {{-- if aga_verified_status= 0 (No) --}}
+                        {{-- update is_aga_verified and aga_note in quarter_allocation--}}
+                        <button type="submit" name="action" value="Reject" id="reject-button" class="btn btn-danger">Reject</button>
                     @endif
                     @if(Auth::user()->hasPermissionTo('administrative_officer_approval'))
+                        {{-- update is_ao_verified and ao_note --}}
                         <button type="submit" name="action" value="Submit" id="submit-button" class="btn btn-success">Submit</button>
-                        <button type="submit" name="action" value="Cancel" id="cancel-button" class="btn btn-success">Cancel</button>
+                        {{-- can cancel is_ao_verified= is 1/0 and is_aga_verified is 1/0 application and allocation_state is pending --}}
+                        <button type="submit" name="action" value="Delete" id="delete-pending-verified-button" class="btn btn-success">Delete</button>
+                    @endif
+                    @if(Auth::user()->hasPermissionTo('requester'))
+                        {{-- can cancel only is_ao_verified is 0 and is_aga_verified is 0 allocation_state is pending --}}
+                        <button type="submit" name="action" value="Cancel" id="delete-button" class="btn btn-success">Delete</button>
                     @endif
                     {{-- All users can download pdf --}}
                     <a href="{{ route('quarter.download-pdf', ['id' => $application->application_id]) }}" class="btn btn-info" target="_blank">Download</a>
