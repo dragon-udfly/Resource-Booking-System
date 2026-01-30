@@ -215,7 +215,7 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|max:200',
             'last_name' => 'required|string|max:200',
             'designation' => 'nullable|string|max:200',
@@ -225,70 +225,101 @@ class UserController extends Controller
             'permissions' => 'nullable|array',
         ]);
 
-        $updateData = [
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'designation' => $request->designation,
-            'email' => $request->email,
-            'contact_number' => $request->contact_number,
-            'modified_datetime' => Carbon::now(),
-        ];
-
-        if ($request->filled('passcode')) {
-            $updateData['passcode'] = Hash::make($request->passcode);
+        if ($validator->fails()) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $user->update($updateData);
+        try {
+            $updateData = [
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'designation' => $request->designation,
+                'email' => $request->email,
+                'contact_number' => $request->contact_number,
+                'modified_datetime' => Carbon::now(),
+            ];
 
-        // Reset all permissions to 0
-        $allPermissions = [
-            'view_officers' => 0, 'view_officer_details' => 0, 'view_halls' => 0,
-            'view_hall_details' => 0, 'view_quarters' => 0, 'view_quarter_details' => 0,
-            'view_audit_log' => 0, 'administrative_officer_approval' => 0,
-            'additional_government_agent_approval' => 0, 'government_agent_approval' => 0,
-            'form_history' => 0, 'account_setting' => 0, 'requester' => 0,
-        ];
+            if ($request->filled('passcode')) {
+                $updateData['passcode'] = Hash::make($request->passcode);
+            }
 
-        // Set submitted permissions to 1
-        if ($request->has('permissions')) {
-            foreach ($request->permissions as $permission) {
-                if (array_key_exists($permission, $allPermissions)) {
-                    $allPermissions[$permission] = 1;
+            $user->update($updateData);
+
+            $allPermissions = [
+                'view_officers' => 0, 'view_officer_details' => 0, 'view_halls' => 0,
+                'view_hall_details' => 0, 'view_quarters' => 0, 'view_quarter_details' => 0,
+                'view_audit_log' => 0, 'administrative_officer_approval' => 0,
+                'additional_government_agent_approval' => 0, 'government_agent_approval' => 0,
+                'form_history' => 0, 'account_setting' => 0, 'requester' => 0,
+            ];
+
+            if ($request->has('permissions')) {
+                foreach ($request->permissions as $permission) {
+                    if (array_key_exists($permission, $allPermissions)) {
+                        $allPermissions[$permission] = 1;
+                    }
                 }
             }
+
+            if ($user->permissions) {
+                $user->permissions()->update($allPermissions);
+            } else {
+                $user->permissions()->create($allPermissions);
+            }
+
+            AuditLog::create([
+                'log_title' => 'Modified account ' . $user->user_id,
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            $successMessage = 'Officer account updated successfully!';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('officers.index')->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            Log::error('User update failed: ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while updating the account.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->back()->with('error', $errorMessage)->withInput();
         }
-
-        // Update the permissions
-        if ($user->permissions) {
-            $user->permissions()->update($allPermissions);
-        } else {
-            // If for some reason user has no permissions record, create one
-            $user->permissions()->create($allPermissions);
-        }
-
-        AuditLog::create([
-            'log_title' => 'Modified account ' . $user->user_id,
-            'performed_by' => Auth::id(), // The admin performing the action
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
-
-        return redirect()->route('officers.index')->with('success', 'Officer account updated successfully!');
     }
 
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
-        $userId = $user->user_id;
-        $user->delete();
+        try {
+            $userId = $user->user_id;
+            $user->delete();
 
-        AuditLog::create([
-            'log_title' => 'Deleted account ' . $userId,
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
+            AuditLog::create([
+                'log_title' => 'Deleted account ' . $userId,
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
 
-        return redirect()->route('officers.index')->with('success', 'Officer account deleted successfully!');
+            $successMessage = 'Officer account ' . $userId . ' deleted successfully!';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('officers.index')->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            Log::error('User deletion failed: ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while deleting the account.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->route('officers.index')->with('error', $errorMessage);
+        }
     }
 
     public function changePassword(Request $request)
