@@ -35,7 +35,150 @@ class QuarterAllocationController extends Controller
             'quarterAllocation'
         ])->where('application_id', $id)->firstOrFail();
 
-        return view('familyreview', ['application' => $application]);
+        // 1. Fetch all GradeSalarySetting records
+        $gradeSalarySettings = \App\Models\GradeSalarySetting::all();
+        $calculatedGrade = 'N/A';
+
+        // 2. Implement logic to determine the calculatedGrade
+        $applicantMonthlySalary = $application->monthly_salary;
+
+        if ($applicantMonthlySalary !== null) {
+            foreach ($gradeSalarySettings as $setting) {
+                if ($applicantMonthlySalary >= $setting->min_salary && $applicantMonthlySalary <= $setting->max_salary) {
+                    $calculatedGrade = $setting->grade;
+                    break;
+                }
+            }
+        }
+
+        // 3. Retrieve available quarters based on criteria
+        $quarterQuery = Quarter::where('quarter_type', 'Family');
+
+        // Apply gender filter if application has gender
+        if (!empty($application->gender)) {
+            $quarterQuery->where(function ($query) use ($application) {
+                $query->whereNull('allowed_gender')
+                      ->orWhere('allowed_gender', $application->gender);
+            });
+        }
+
+        // Apply service grade filter if application has service grade
+        if (!empty($application->service_grade)) {
+            $quarterQuery->where(function ($query) use ($application) {
+                $query->whereNull('service_grade')
+                      ->orWhere('service_grade', $application->service_grade);
+            });
+        }
+
+        // Apply availability filter
+        $quarterQuery->where(function ($query) {
+            $query->where('status', 'Unallocated')
+                  ->orWhereRaw('occupant_number > current_occupant_number');
+        });
+
+        $availableQuarters = $quarterQuery->get();
+
+        return view('familyreview', [
+            'application' => $application,
+            'calculatedGrade' => $calculatedGrade,
+            'gradeSalarySettings' => $gradeSalarySettings,
+            'availableQuarters' => $availableQuarters
+        ]);
+    }
+
+    public function updateFamilyQuarterReview(Request $request, $id)
+    {
+        $application = QuarterApplication::with('quarterAllocation')->where('application_id', $id)->firstOrFail();
+        if (!$application->quarterAllocation) {
+            return redirect()->back()->with('error', 'Application allocation record not found.');
+        }
+
+        $user = Auth::user();
+        $quarterAllocation = $application->quarterAllocation;
+
+        DB::beginTransaction();
+        try {
+            $action = $request->input('action');
+            $noteTimestamp = 'I reviewed this application on ' . Carbon::now()->format('Y-m-d') . ' at ' . Carbon::now()->format('H:i:s') . '.';
+            $successMessage = 'Application review submitted successfully.';
+
+            if ($action === 'Submit') {
+                $validated = $request->validate([
+                    'ao_verified_status' => 'nullable|in:0,1',
+                    'aga_verified_status' => 'nullable|in:0,1',
+                ]);
+
+                if ($user->hasPermissionTo('administrative_officer_approval') && $request->has('ao_verified_status')) {
+                    $quarterAllocation->is_ao_verified = $validated['ao_verified_status'];
+                    $quarterAllocation->ao_note = trim(($quarterAllocation->ao_note ?? '') . "\n" . $noteTimestamp);
+                    AuditLog::create(['log_title' => 'AO Reviewed Family App', 'performed_by' => $user->id, 'details' => "App ID: {$id}, Verified: " . ($validated['ao_verified_status'] ? 'Yes' : 'No')]);
+                }
+
+                if ($user->hasPermissionTo('additional_government_agent_approval') && $request->has('aga_verified_status')) {
+                    $quarterAllocation->is_aga_verified = $validated['aga_verified_status'];
+                    $quarterAllocation->aga_note = trim(($quarterAllocation->aga_note ?? '') . "\n" . $noteTimestamp);
+                    AuditLog::create(['log_title' => 'AGA Reviewed Family App', 'performed_by' => $user->id, 'details' => "App ID: {$id}, Verified: " . ($validated['aga_verified_status'] ? 'Yes' : 'No')]);
+                }
+            } elseif ($action === 'allocate' && $user->hasPermissionTo('government_agent_approval')) {
+                $validated = $request->validate(['selected_quarter' => 'required|exists:quarters,quarter_id']);
+
+                $quarterAllocation->quarter_id = $validated['selected_quarter'];
+                $quarterAllocation->allocation_status = 'allocated';
+                $quarterAllocation->allocation_date = Carbon::now();
+                if ($request->ga_note) {
+                    $quarterAllocation->ga_note = trim(($quarterAllocation->ga_note ?? '') . "\n" . $request->ga_note);
+                }
+
+                $allocatedQuarter = Quarter::find($validated['selected_quarter']);
+                $allocatedQuarter->current_occupant_number += 1;
+                if ($allocatedQuarter->current_occupant_number >= $allocatedQuarter->occupant_number) {
+                    $allocatedQuarter->status = 'Occupied';
+                }
+                $allocatedQuarter->save();
+
+                $successMessage = 'Quarter allocated successfully.';
+                AuditLog::create(['log_title' => 'GA Allocated Family Quarter', 'performed_by' => $user->id, 'details' => "App ID: {$id} allocated to Quarter ID: {$validated['selected_quarter']}"]);
+            } elseif ($action === 'reject' && $user->hasPermissionTo('government_agent_approval')) {
+                $quarterAllocation->allocation_status = 'rejected';
+                if ($request->ga_note) {
+                    $quarterAllocation->ga_note = trim(($quarterAllocation->ga_note ?? '') . "\n" . $request->ga_note);
+                }
+                $successMessage = 'Application rejected successfully.';
+                AuditLog::create(['log_title' => 'GA Rejected Family Application', 'performed_by' => $user->id, 'details' => "App ID: {$id} - Rejected"]);
+            } elseif ($action === 'Reject' && $user->hasPermissionTo('additional_government_agent_approval')) {
+                $quarterAllocation->allocation_status = 'rejected';
+                if ($request->aga_note) {
+                    $quarterAllocation->aga_note = trim(($quarterAllocation->aga_note ?? '') . "\n" . $request->aga_note);
+                }
+                $successMessage = 'Application rejected successfully.';
+                AuditLog::create(['log_title' => 'AGA Rejected Family Application', 'performed_by' => $user->id, 'details' => "App ID: {$id} - Rejected"]);
+            } elseif ($action === 'Delete' && $user->hasPermissionTo('administrative_officer_approval')) {
+                $quarterAllocation->is_ao_verified = null;
+                $quarterAllocation->is_aga_verified = null;
+                $quarterAllocation->allocation_status = 'pending';
+                $successMessage = 'Verification reset successfully.';
+                AuditLog::create(['log_title' => 'AO Reset Family Application Verification', 'performed_by' => $user->id, 'details' => "App ID: {$id} - Verification reset"]);
+            } elseif ($action === 'Cancel' && $user->hasPermissionTo('requester')) {
+                if ($quarterAllocation->is_ao_verified === 0 && $quarterAllocation->is_aga_verified === 0 && $quarterAllocation->allocation_status === 'pending') {
+                    $quarterAllocation->allocation_status = 'cancelled';
+                    $successMessage = 'Application cancelled successfully.';
+                    AuditLog::create(['log_title' => 'Requester Cancelled Family Application', 'performed_by' => $user->id, 'details' => "App ID: {$id} - Cancelled"]);
+                } else {
+                    return redirect()->back()->with('error', 'Cannot cancel application. Conditions not met.');
+                }
+            }
+
+            $quarterAllocation->save();
+            DB::commit();
+
+            return redirect()->back()->with('success', $successMessage);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Family Quarter Review Update Failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return redirect()->back()->with('error', 'An unexpected error occurred. Failed to update application. Please check the logs.');
+        }
     }
 
     public function storeFamilyQuarters(Request $request)
