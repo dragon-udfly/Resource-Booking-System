@@ -322,12 +322,25 @@
                         {{-- <td>{{ $marking_schemes[$application->familyQuarterApplication?->markingFamilyQuarter?->f_distance_of_residency]['defined_mark'] ?? 'N/A' }}</td> --}}
                     </tr>
                     <tr>
-                        <td>Special Reasons (Provided by GA)</td>
-                        <td>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_spacial_reason ?? 'Not Mentioned' }}</td>
-                        <td>0</td>
+                        <td>Special Reasons (Provided By Government Agent): </td>
+                        <td>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_spacial_reason ?? 'Not Mentioned' }}</td> 
                     </tr>
                 </tbody>
             </table>
+           <br />
+           
+            @if(Auth::user()->hasPermissionTo('government_agent_approval'))
+                <form id="mark-calculation" class="form-group" action="" method="POST">
+                    @csrf
+                    <div class="form-row">
+                        <label for="f_special_reason">Special Reasons: (for Government Agent Review)</label>
+                        <textarea name="f_special_reason" id="f_special_reason" rows="3" class="form-control" style="width: 100%;"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <button type="submit" name="action" value="calcualte-mark" id="calculate-mark-button" class="btn btn-success">Calculate Again</button>
+                    </div>
+                </form>
+            @endif       
         </div>
         <div class="form-container">
             <form id="review-form" action="{{ route('family-quarter.review.update', ['id' => $application->application_id]) }}" method="POST">
