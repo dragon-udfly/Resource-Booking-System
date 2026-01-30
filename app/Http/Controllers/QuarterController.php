@@ -53,6 +53,9 @@ class QuarterController extends Controller
 
         if ($validator->fails()) {
             Log::error('Quarter creation validation failed', $validator->errors()->toArray());
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 422);
+            }
             return redirect()->route('addquarter')
                         ->withErrors($validator)
                         ->withInput();
@@ -84,10 +87,8 @@ class QuarterController extends Controller
                 'current_occupant_number',
             ]);
             $data['quarter_id'] = $newQuarterId;
-
             $data['occupant_number'] = $data['occupant_number'] ?? 0;
             $data['current_occupant_number'] = $data['current_occupant_number'] ?? 0;
-
             $data['date_created'] = now();
             $data['date_modified'] = now();
 
@@ -96,15 +97,9 @@ class QuarterController extends Controller
             // Increment number_of_quarters in grade_salary_settings
             $serviceGrade = $request->service_grade;
             if ($serviceGrade) {
-                $gradeSetting = GradeSalarySetting::where('grade', $serviceGrade)->first();
-
                 $gradeMapping = [
-                    '1' => '1 (G I)',
-                    '2' => '2 (G II)',
-                    '3' => '3 (G III)',
-                    '4' => '4 (G IV)',
-                    '5' => '5 (G V)',
-                    '5A' => '5A', 
+                    '1' => '1 (G I)', '2' => '2 (G II)', '3' => '3 (G III)', 
+                    '4' => '4 (G IV)', '5' => '5 (G V)', '5A' => '5A',
                 ];
                 $mappedGrade = $gradeMapping[$serviceGrade] ?? null;
 
@@ -112,13 +107,6 @@ class QuarterController extends Controller
                     $gradeSetting = GradeSalarySetting::where('grade', $mappedGrade)->first();
                     if ($gradeSetting) {
                         $gradeSetting->increment('number_of_quarters');
-                        AuditLog::create([
-                            'log_title' => "Incremented number of quarters for Grade {$mappedGrade}",
-                            'performed_by' => Auth::id(),
-                            'date_performed' => Carbon::now()->toDateString(),
-                            'time_performed' => Carbon::now()->toTimeString(),
-                            'details' => "Quarter ID: {$newQuarterId}",
-                        ]);
                     } else {
                         Log::warning("GradeSalarySetting not found for service_grade: {$mappedGrade}");
                     }
@@ -134,30 +122,20 @@ class QuarterController extends Controller
                 'time_performed' => Carbon::now()->toTimeString(),
             ]);
 
-            return redirect()->route('quarters.index')->with('success', 'Quarter added successfully with ID ' . $newQuarterId . '!');
-        
-        } catch (QueryException $e) {
-            Log::error('Failed to create quarter (QueryException): ' . $e->getMessage());
-            
-            // Provide a more specific error message
-            $errorMessage = 'Database error: Failed to add quarter.';
-            if (str_contains($e->getMessage(), 'Unknown column')) {
-                $errorMessage .= ' Please ensure database migrations are up to date.';
-            } else if (str_contains($e->getMessage(), 'Incorrect integer value')) {
-                $errorMessage .= ' The `quarter_id` might be incorrectly configured. Please ensure migrations have run.';
-            } else {
-                $errorMessage .= ' Check logs for details.';
+            $successMessage = 'Quarter added successfully with ID ' . $newQuarterId . '!';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
             }
-
+            return redirect()->route('quarters.index')->with('success', $successMessage);
+        
+        } catch (\Exception $e) {
+            Log::error('Failed to create quarter (Exception): ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred. Failed to add quarter.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
             return redirect()->route('addquarter')
                         ->with('error', $errorMessage)
-                        ->withInput();
-
-        } catch (\Exception $e) {
-            Log::error('Failed to create quarter (Exception): ' . $e);
-            
-            return redirect()->route('addquarter')
-                        ->with('error', 'An unexpected error occurred. Failed to add quarter.')
                         ->withInput();
         }
     }
