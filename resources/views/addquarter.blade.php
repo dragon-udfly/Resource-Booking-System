@@ -337,6 +337,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     headers: {
                         'X-CSRF-TOKEN': formData.get('_token'),
                         'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: formData
                 });
