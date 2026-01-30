@@ -241,13 +241,19 @@
 
                 {{-- Action Buttons --}}
                 <div class="button-group">
-                     @if(Auth::user()->hasPermissionTo('government_agent_approval'))
+                    @if(Auth::user()->hasPermissionTo('government_agent_approval'))
                         <button type="submit" name="action" value="allocate" id="allocate-button" class="btn btn-success" disabled>Allocate</button>
                         <button type="submit" name="action" value="reject" id="reject-button" class="btn btn-danger">Reject</button>
                     @endif
-                    @if(Auth::user()->hasPermissionTo('administrative_officer_approval') || Auth::user()->hasPermissionTo('additional_government_agent_approval'))
+                    @if(Auth::user()->hasPermissionTo('additional_government_agent_approval'))
                         <button type="submit" name="action" value="Submit" id="submit-button" class="btn btn-success">Submit</button>
+                        <button type="submit" name="action" value="reject" id="reject-button" class="btn btn-danger">Reject</button>
                     @endif
+                    @if(Auth::user()->hasPermissionTo('administrative_officer_approval'))
+                        <button type="submit" name="action" value="Submit" id="submit-button" class="btn btn-success">Submit</button>
+                        <button type="submit" name="action" value="Cancel" id="cancel-button" class="btn btn-success">Cancel</button>
+                    @endif
+                    {{-- All users can download pdf --}}
                     <a href="{{ route('quarter.download-pdf', ['id' => $application->application_id]) }}" class="btn btn-info" target="_blank">Download</a>
                 </div>
             </form>
