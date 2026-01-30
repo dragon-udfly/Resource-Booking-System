@@ -12,6 +12,7 @@
     <table id="history-table">
         <thead>
             <tr>
+                <th>No.</th>
                 <th>Applicant Name</th>
                 <th>Event Date</th>
                 <th>Submitted Date</th>
@@ -23,6 +24,7 @@
         <tbody>
             @forelse($bookings as $booking)
                 <tr data-booking='{{ json_encode($booking) }}'>
+                    <td>{{ $loop->iteration }}</td>
                     <td>{{ $booking->applicant_name }}</td>
                     <td>{{ \Carbon\Carbon::parse($booking->event_date)->format('Y-m-d') }}</td>
                     <td>{{ \Carbon\Carbon::parse($booking->date_created)->format('Y-m-d h:i A') }}</td>
@@ -32,13 +34,14 @@
                         </span>
                     </td>
                     <td>{{ $booking->reason_of_rejection ?? 'N/A' }}</td>
-                    <td>
-                         <button class="action-btn review-btn" data-booking-id="{{ $booking->booking_id }}">Review</button>
+                    <td class="action-cell">
+                         <button class="action-btn review-btn" style="background-color: #007bff; color: white; padding: 5px 10px; border-radius: 5px; border: none; cursor: pointer; margin-right: 5px;" data-booking-id="{{ $booking->booking_id }}">Review</button>
+                         <a href="{{ route('hall_bookings.download', ['hallBooking' => $booking->booking_id]) }}" class="action-btn" style="background-color: #28a745; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none;" target="_blank">Download</a>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" style="text-align: center;">No history found.</td>
+                    <td colspan="7" style="text-align: center;">No hall booking history found.</td>
                 </tr>
             @endforelse
         </tbody>
