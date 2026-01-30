@@ -262,32 +262,54 @@ class HallBookingController extends Controller
         return response()->json(['success' => true, 'message' => 'Booking updated successfully. Approvals reset to pending.']);
     }
 
-    public function destroyBooking(HallBooking $hallBooking)
+    public function destroyBooking(Request $request, HallBooking $hallBooking)
     {
         // Authorization: Ensure the authenticated user is the requester of this booking
         if (Auth::user()->nic_number !== $hallBooking->filled_by_nic) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
+            $errorMessage = 'Unauthorized action.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 403);
+            }
+            return redirect()->back()->with('error', $errorMessage);
         }
 
         // Check if any approval is not 'pending'
         if ($hallBooking->administrative_officer_approved !== 'pending' ||
             $hallBooking->additional_government_agent_approved !== 'pending' ||
             $hallBooking->government_agent_approved !== 'pending') {
-            return response()->json(['success' => false, 'message' => 'Booking cannot be cancelled after approval status has changed.'], 403);
+            $errorMessage = 'Booking cannot be cancelled after approval process has started.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 403);
+            }
+            return redirect()->back()->with('error', $errorMessage);
         }
 
-        $bookingId = $hallBooking->booking_id;
-        $hallBooking->delete();
+        try {
+            $bookingId = $hallBooking->booking_id;
+            $hallBooking->delete();
 
-        // Audit Log
-        AuditLog::create([
-            'log_title' => 'Hall Booking Application ' . $bookingId . ' cancelled by requester',
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
+            // Audit Log
+            AuditLog::create([
+                'log_title' => 'Hall Booking Application ' . $bookingId . ' cancelled by requester',
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
 
-        return response()->json(['success' => true, 'message' => 'Booking cancelled successfully.']);
+            $successMessage = 'Booking cancelled successfully.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->back()->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Booking deletion failed: ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while deleting the booking.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->back()->with('error', $errorMessage);
+        }
     }
 
     public function downloadPDF(HallBooking $hallBooking)
@@ -410,6 +432,15 @@ class HallBookingController extends Controller
         $bookings = HallBooking::where('final_approval', '!=', 'pending')
                                ->orderBy('date_created', 'desc')
                                ->get();
-        return view('history', ['bookings' => $bookings]);
+
+        $user = Auth::user();
+        $canManageBookings = $user->hasPermissionTo('administrative_officer_approval') ||
+                             $user->hasPermissionTo('additional_government_agent_approval') ||
+                             $user->hasPermissionTo('government_agent_approval');
+        
+        return view('history', [
+            'bookings' => $bookings,
+            'canManageBookings' => $canManageBookings,
+        ]);
     }
 }
