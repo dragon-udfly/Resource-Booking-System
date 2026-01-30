@@ -153,7 +153,7 @@ class QuarterController extends Controller
 
     public function update(Request $request, Quarter $quarter)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'quarter_type' => ['required', Rule::in(['Family', 'Scheduled'])],
             'service_grade' => ['nullable', Rule::in(['1', '2', '3', '4', '5', '5A'])],
             'status' => ['required', Rule::in(['Unallocated', 'Allocated', 'Repair', 'Demolished'])],
@@ -166,28 +166,49 @@ class QuarterController extends Controller
             'current_occupant_number' => 'nullable|integer',
         ]);
 
-        $quarter->update([
-            'quarter_type' => $request->quarter_type,
-            'service_grade' => $request->service_grade,
-            'status' => $request->status,
-            'old_quarter_no' => $request->old_quarter_no,
-            'new_quarter_no' => $request->new_quarter_no,
-            'location' => $request->location,
-            'occupant_number' => $request->occupant_number ?? 0,
-            'allowed_gender' => $request->allowed_gender,
-            'special_notice' => $request->special_notice,
-            'current_occupant_number' => $request->current_occupant_number ?? 0,
-            'date_modified' => Carbon::now(),
-        ]);
+        if ($validator->fails()) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
-        AuditLog::create([
-            'log_title' => 'Modified Quarter ' . $quarter->quarter_id,
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
+        try {
+            $quarter->update([
+                'quarter_type' => $request->quarter_type,
+                'service_grade' => $request->service_grade,
+                'status' => $request->status,
+                'old_quarter_no' => $request->old_quarter_no,
+                'new_quarter_no' => $request->new_quarter_no,
+                'location' => $request->location,
+                'occupant_number' => $request->occupant_number ?? 0,
+                'allowed_gender' => $request->allowed_gender,
+                'special_notice' => $request->special_notice,
+                'current_occupant_number' => $request->current_occupant_number ?? 0,
+                'date_modified' => Carbon::now(),
+            ]);
 
-        return redirect()->route('quarters.index')->with('success', 'Quarter updated successfully!');
+            AuditLog::create([
+                'log_title' => 'Modified Quarter ' . $quarter->quarter_id,
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            $successMessage = 'Quarter updated successfully!';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('quarters.index')->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            Log::error('Quarter update failed: ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while updating the quarter.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->back()->with('error', $errorMessage)->withInput();
+        }
     }
 
     public function destroy(Quarter $quarter)
