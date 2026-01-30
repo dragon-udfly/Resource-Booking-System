@@ -271,25 +271,25 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const submitButton = document.getElementById('submit-button');
+        const aoSelect = document.getElementById('ao_verified_status');
+        const agaSelect = document.getElementById('aga_verified_status');
         const reviewForm = document.getElementById('review-form');
         const modal = document.getElementById('confirmation-modal');
         const confirmYes = document.getElementById('confirm-yes');
         const confirmNo = document.getElementById('confirm-no');
-        
-        let statusSelect = null;
-        // Determine which select dropdown to monitor based on user permission
-        @if(Auth::user()->hasPermissionTo('administrative_officer_approval'))
-            statusSelect = document.getElementById('ao_verified_status');
-        @elseif(Auth::user()->hasPermissionTo('additional_government_agent_approval'))
-            statusSelect = document.getElementById('aga_verified_status');
-        @endif
 
-        // Function to enable/disable the submit button
+        // The dropdown that is actually present on the page for this user
+        const activeSelect = aoSelect || agaSelect;
+
         function toggleSubmitButton() {
-            if (statusSelect && statusSelect.value !== '') {
-                submitButton.disabled = false;
-            } else {
-                submitButton.disabled = true;
+            // Ensure the button exists before trying to modify it
+            if (submitButton) {
+                // Enable if the active dropdown is present and its value is not empty
+                if (activeSelect && activeSelect.value !== '') {
+                    submitButton.disabled = false;
+                } else {
+                    submitButton.disabled = true;
+                }
             }
         }
 
