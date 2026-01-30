@@ -166,7 +166,7 @@
                     </div>
                     <div class="form-group">
                         <label for="ao_note">Administrative Officer Note:</label>
-                        <textarea name="ao_note" id="ao_note" rows="3" class="form-control" style="width: 100%;" readonly>{{ optional($application->quarterAllocation)->ao_note ?? '' }}</textarea>
+                        <textarea name="ao_note" id="ao_note" rows="3" class="form-control" style="width: 100%;">{{ optional($application->quarterAllocation)->ao_note ?? '' }}</textarea>
                     </div>
                 </div>
                 @else
