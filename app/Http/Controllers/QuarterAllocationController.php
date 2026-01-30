@@ -540,6 +540,11 @@ class QuarterAllocationController extends Controller
         return response()->json(['success' => true, 'message' => 'Requester verified successfully.']);
     }
 
+    public function allocateQuarter($id)
+    {
+        // Method implementation goes here
+    }
+
     public function downloadPdf(string $applicationId)
     {
         // Load the application with all related data
