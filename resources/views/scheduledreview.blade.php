@@ -245,7 +245,7 @@
                         {{-- if ga_approval_status is 1(Yes) and selected_quarter is not empty--}}
                         {{-- update quarter_id and is_ga_verified and ga_note and allocation_status and allocation_date in quarter_allocation--}}
                         {{-- update vacate_date, allocation date + 5 years --}}
-                        <button type="submit" name="action" value="allocate" id="allocate-button" class="btn btn-success" disabled>Allocate</button>
+                        <button type="submit" name="action" value="allocate" id="allocate-button" class="btn btn-success">Allocate</button>
                         {{-- if ga_approval_status in 0(No) --}}
                         {{-- update is_ga_verified and ga_note and allocation_status in quarter_allocation--}}
                         <button type="submit" name="action" value="reject" id="reject-button" class="btn btn-danger">Reject</button>
@@ -274,7 +274,7 @@
         </div>
     </section>
 
-    <!-- Confirmation Modal -->
+    <!-- Confirmation Modal for Submit -->
     <div id="confirmation-modal" class="modal-overlay">
         <div class="modal-content">
             <h3>Confirm Submission</h3>
@@ -285,66 +285,16 @@
             </div>
         </div>
     </div>
-@endsection
 
-@section('page_scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const submitButton = document.getElementById('submit-button');
-        const aoSelect = document.getElementById('ao_verified_status');
-        const agaSelect = document.getElementById('aga_verified_status');
-        const reviewForm = document.getElementById('review-form');
-        const modal = document.getElementById('confirmation-modal');
-        const confirmYes = document.getElementById('confirm-yes');
-        const confirmNo = document.getElementById('confirm-no');
-
-        // The dropdown that is actually present on the page for this user
-        const activeSelect = aoSelect || agaSelect;
-
-        function toggleSubmitButton() {
-            // Ensure the button exists before trying to modify it
-            if (submitButton) {
-                // Enable if the active dropdown is present and its value is not empty
-                if (activeSelect && activeSelect.value !== '') {
-                    submitButton.disabled = false;
-                } else {
-                    submitButton.disabled = true;
-                }
-            }
-        }
-
-        // Attach listener if a dropdown is active
-        if (activeSelect) {
-            activeSelect.addEventListener('change', toggleSubmitButton);
-        }
-        
-        // Run on page load to set initial state
-        toggleSubmitButton();
-
-        // Modal logic (ensure all elements exist)
-        if (reviewForm && submitButton && modal) {
-            reviewForm.addEventListener('submit', function(e) {
-                // We only want to intercept the click on our specific 'Submit' button
-                if (document.activeElement === submitButton) {
-                    e.preventDefault();
-                    modal.style.display = 'flex';
-                }
-            });
-
-            confirmYes.addEventListener('click', function() {
-                reviewForm.submit();
-            });
-
-            confirmNo.addEventListener('click', function() {
-                modal.style.display = 'none';
-            });
-
-            window.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
-        }
-    });
-</script>
+    <!-- Confirmation Modal for Allocation -->
+    <div id="allocation-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Confirm Allocation</h3>
+            <p>Are you sure you want to allocate this quarter? This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button id="allocation-yes" class="btn btn-success">Yes, Allocate</button>
+                <button id="allocation-no" class="btn btn-danger">Cancel</button>
+            </div>
+        </div>
+    </div>
 @endsection
