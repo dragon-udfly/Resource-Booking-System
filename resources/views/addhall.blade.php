@@ -163,7 +163,7 @@
                 <p>Fields marked with <span style="color: #ff0000;">*</span> are required. Please ensure all information is accurate before submitting.</p>
             </div>
 
-            <form action="{{ route('halls.store') }}" method="POST">
+            <form id="addHallForm" action="{{ route('halls.store') }}" method="POST">
                 @csrf
                 <div class="form-row">
                     <div class="form-group">
@@ -201,6 +201,15 @@
                     <button type="reset" class="reset-btn">Reset Form</button>
                 </div>
             </form>
+
+            <script>
+                document.getElementById('addHallForm').addEventListener('submit', function(e) {
+                    var result = confirm('Are you sure you want to add this hall? Please verify all information is correct before submitting.');
+                    if (!result) {
+                        e.preventDefault();
+                    }
+                });
+            </script>
         </div>
     </section>
 @endsection
