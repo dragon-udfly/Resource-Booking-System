@@ -127,7 +127,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|max:200',
             'last_name' => 'required|string|max:200',
             'nic_number' => 'required|string|max:50|unique:user',
@@ -138,61 +138,74 @@ class UserController extends Controller
             'permissions' => 'nullable|array'
         ]);
 
-        $lastUser = User::orderBy('user_id', 'desc')->first();
-        $nextUserIdNumber = 1;
-        if ($lastUser) {
-            $lastUserIdNumber = (int) Str::after($lastUser->user_id, 'user');
-            $nextUserIdNumber = $lastUserIdNumber + 1;
+        if ($validator->fails()) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+            }
+            return redirect()->route('createaccount')->withErrors($validator)->withInput();
         }
-        $newUserId = 'user' . str_pad($nextUserIdNumber, 3, '0', STR_PAD_LEFT);
 
-        $user = User::create([
-            'user_id' => $newUserId,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'nic_number' => $request->nic_number,
-            'passcode' => Hash::make($request->passcode),
-            'role' => 'user',
-            'email' => $request->email,
-            'contact_number' => $request->contact_number,
-            'designation' => $request->designation,
-            'created_datetime' => Carbon::now(),
-        ]);
+        try {
+            $lastUser = User::orderBy('user_id', 'desc')->first();
+            $nextUserIdNumber = 1;
+            if ($lastUser) {
+                $lastUserIdNumber = (int) Str::after($lastUser->user_id, 'user');
+                $nextUserIdNumber = $lastUserIdNumber + 1;
+            }
+            $newUserId = 'user' . str_pad($nextUserIdNumber, 3, '0', STR_PAD_LEFT);
 
-        $permissions = [
-            'view_officers' => 0,
-            'view_officer_details' => 0,
-            'view_halls' => 0,
-            'view_hall_details' => 0,
-            'view_quarters' => 0,
-            'view_quarter_details' => 0,
-            'view_audit_log' => 0,
-            'administrative_officer_approval' => 0,
-            'additional_government_agent_approval' => 0,
-            'government_agent_approval' => 0,
-            'form_history' => 0,
-            'account_setting' => 0,
-            'requester' => 0,
-        ];
+            $user = User::create([
+                'user_id' => $newUserId,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'nic_number' => $request->nic_number,
+                'passcode' => Hash::make($request->passcode),
+                'role' => 'user',
+                'email' => $request->email,
+                'contact_number' => $request->contact_number,
+                'designation' => $request->designation,
+                'created_datetime' => Carbon::now(),
+            ]);
 
-        if ($request->has('permissions')) {
-            foreach ($request->permissions as $permission) {
-                if (array_key_exists($permission, $permissions)) {
-                    $permissions[$permission] = 1;
+            $permissions = [
+                'view_officers' => 0, 'view_officer_details' => 0, 'view_halls' => 0,
+                'view_hall_details' => 0, 'view_quarters' => 0, 'view_quarter_details' => 0,
+                'view_audit_log' => 0, 'administrative_officer_approval' => 0,
+                'additional_government_agent_approval' => 0, 'government_agent_approval' => 0,
+                'form_history' => 0, 'account_setting' => 0, 'requester' => 0,
+            ];
+
+            if ($request->has('permissions')) {
+                foreach ($request->permissions as $permission) {
+                    if (array_key_exists($permission, $permissions)) {
+                        $permissions[$permission] = 1;
+                    }
                 }
             }
+
+            UserPermission::create(array_merge(['user_id' => $user->user_id], $permissions));
+
+            AuditLog::create([
+                'log_title' => 'Created new account ' . $newUserId,
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+            
+            $successMessage = 'User account created successfully with ID ' . $newUserId . '.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('officers.index')->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            Log::error('User creation failed: ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while creating the account.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->route('createaccount')->with('error', $errorMessage)->withInput();
         }
-
-        UserPermission::create(array_merge(['user_id' => $user->user_id], $permissions));
-
-        AuditLog::create([
-            'log_title' => 'Created new account ' . $newUserId,
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
-
-        return redirect()->route('officers.index')->with('success', 'User created successfully.');
     }
 
     public function edit(User $user)
