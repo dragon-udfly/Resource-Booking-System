@@ -114,6 +114,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/processed-application/family/{id}', [QuarterAllocationController::class, 'showProcessedFamily'])->name('history.view_family');
 
     Route::get('/history', [HallBookingController::class, 'showHistory'])->name('history');
+    Route::get('/history/quarters', [QuarterAllocationController::class, 'showQuarterHistory'])->name('history.quarters');
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 });
 
