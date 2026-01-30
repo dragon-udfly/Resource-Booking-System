@@ -421,7 +421,7 @@
 
             @if(Auth::user()->hasPermissionTo('administrative_officer_approval') || Auth::user()->hasPermissionTo('additional_government_agent_approval'))
                 <div class="button-group">
-                    <form action="{{ route('quarter.submit-stage-verification', ['id' => $application->application_id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to verify this application?');">
+                    <form action="" method="POST" onsubmit="return confirm('Are you sure you want to verify this application?');">
                         @csrf @method('PATCH')
                         @php
                             $canSubmit = false;
@@ -439,7 +439,7 @@
 
             @if(Auth::user()->hasPermissionTo('government_agent_approval'))
                 <div class="button-group">
-                    <form action="{{ route('quarter.process-ga-action', ['id' => $application->application_id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to process this application?');">
+                    <form action="" method="POST">
                         @csrf
                         @method('PATCH')
                         <button type="submit" name="action" value="allocate" class="btn btn-success">Allocate</button>
