@@ -111,6 +111,12 @@
             <p>Select a quarter type to proceed with booking or view available quarters.</p>
         </div>
 
+        @if(session('success'))
+            <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                {{ session('success') }}
+            </div>
+        @endif
+
         <div style="text-align: center; margin-bottom: 30px;">
             <a href="{{ route('familyquarter') }}" class="book-quarter-btn">Book Family Quarters</a>
             <a href="{{ route('scheduledquarter') }}" class="book-quarter-btn">Book Scheduled Quarters</a>

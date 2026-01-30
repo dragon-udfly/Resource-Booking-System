@@ -116,24 +116,32 @@
             <a href="#" onclick="history.back(); return false;" class="btn back-btn">Back</a>
             <a href="{{ Auth::check() ? route('homepage') : route('home') }}" class="btn home-btn">Home</a>
         </div>
-        
+
+        @if ($errors->any())
+            <div class="alert alert-danger" style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="page-header">
             <h2>Application for Scheduled Quarters</h2>
         </div>
 
         <div class="form-container">
+            <p style="text-align: right;"><span class="required">*</span> Required</p>
             <form id="scheduled-quarter-form" action="{{ route('scheduledquarter.store') }}" method="POST">
                 @csrf
-                
+
                 <h3 class="form-section-title">A) Officer Details</h3>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="officer_name">1. Name of Officer:<span class="required">*</span></label>
                         <input type="text" id="officer_name" name="officer_name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="nic">2. National Identity Card Number:<span class="required">*</span></label>
-                        <input type="text" id="nic" name="nic" required>
                     </div>
                 </div>
 
@@ -141,6 +149,10 @@
                     <div class="form-group">
                         <label for="designation">3. Designation <span class="required">*</span></label>
                         <input type="text" id="designation" name="designation" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nic">2. National Identity Card Number:<span class="required">*</span></label>
+                        <input type="text" id="nic" name="nic" required>
                     </div>
                 </div>
 
@@ -193,8 +205,6 @@
                         <label for="monthly_salary">10.  Monthly Salary (excluding allowances): <span class="required">*</span></label>
                         <input type="number" id="monthly_salary" name="monthly_salary" required>
                     </div>
-                </div>
-                <div class="form-row">
                     <div class="form-group">
                         <label for="date_of_assumption_of_duties">11.  Date of Assumption of Duties in Vavuniya: <span class="required">*</span></label>
                         <input type="date" id="date_of_assumption_of_duties" name="date_of_assumption_of_duties" required>
@@ -290,7 +300,7 @@
 
             requesterConfirmBtn.addEventListener('click', function() {
                 if (isAwaitingConfirmation) {
-                    bookingForm.submit();
+                    bookingForm.submit(); // This submits the form to the controller
                 } else {
                     hideOverlay();
                 }
@@ -304,14 +314,32 @@
                 }
             });
 
+            // --- Modified Submit Event Listener ---
             bookingForm.addEventListener('submit', function(event) {
-                event.preventDefault();
+                event.preventDefault(); // Prevent default submission
 
                 const form = event.target;
-                const nicNumber = form.querySelector('#filled_by_nic').value;
-                const contactNumber = form.querySelector('#filled_by_phone').value;
+                const nicInput = form.querySelector('#filled_by_nic');
+                const phoneInput = form.querySelector('#filled_by_phone');
+                const confirmCheckbox = form.querySelector('#confirm_details');
                 const csrfToken = form.querySelector('input[name="_token"]').value;
 
+                // 1. Check if the "Confirm Details" checkbox is checked
+                if (!confirmCheckbox.checked) {
+                    showOverlay('Please confirm that you have filled the form with the applicant\'s details.', false);
+                    return; // Stop the submission process
+                }
+
+                const nicNumber = nicInput.value;
+                const contactNumber = phoneInput.value;
+
+                // 2. Basic validation for NIC and Phone number fields before fetching
+                if (!nicNumber || !contactNumber) {
+                    showOverlay('Please enter both Requester NIC and Requester Phone Number.', false);
+                    return;
+                }
+
+                // 3. Perform verification
                 fetch('{{ route('quarters.requester.verify') }}', {
                     method: 'POST',
                     headers: {
@@ -323,17 +351,25 @@
                         contact_number: contactNumber
                     })
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        // Handle HTTP errors (e.g., 404, 500)
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
+                        // Verification successful, show confirmation prompt
                         showOverlay('Requester verified. Are you sure you want to submit this application?', true);
                     } else {
-                        showOverlay(data.message, false);
+                        // Verification failed, show error message from backend
+                        showOverlay(data.message || 'Requester verification failed. Please check the details.', false);
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    showOverlay('An error occurred during verification. Please try again.', false);
+                    console.error('Verification Fetch Error:', error);
+                    showOverlay('An error occurred during verification. Please try again. (Details: ' + error.message + ')', false);
                 });
             });
         });

@@ -277,13 +277,22 @@
                         button.addEventListener('click', function () {
                             const applicationId = this.dataset.applicationId;
                             const quarterType = this.closest('tr').dataset.quarterType;
-                            
+
                             if (applicationId && quarterType) {
-                                if (quarterType === 'Family') {
+                                // Normalize the quarter type to handle potential case sensitivity or whitespace issues
+                                const normalizedQuarterType = quarterType.trim().toLowerCase();
+
+                                if (normalizedQuarterType === 'family') {
                                     window.location.href = `/family-quarter-application/${applicationId}/review`;
-                                } else if (quarterType === 'Scheduled') {
+                                } else if (normalizedQuarterType === 'scheduled') {
                                     window.location.href = `/scheduled-quarter-application/${applicationId}/review`;
+                                } else {
+                                    console.error('Unknown quarter type:', quarterType);
+                                    alert('Unknown quarter type (' + quarterType + '). Cannot proceed with review.');
                                 }
+                            } else {
+                                console.error('Missing application ID or quarter type');
+                                alert('Application ID or quarter type is missing. Cannot proceed with review.');
                             }
                         });
                     });
