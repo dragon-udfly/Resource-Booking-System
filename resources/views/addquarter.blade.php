@@ -176,32 +176,13 @@
         </div>
 
         <div class="form-container">
-            <!-- Session Messages -->
-            @if(session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
-            @if(session('error'))
-                <div class="alert alert-danger">
-                    {{ session('error') }}
-                </div>
-            @endif
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+
 
             <div class="form-info">
                 <p>Fields marked with <span style="color: #ff0000;">*</span> are required. Please ensure all information is accurate before submitting.</p>
             </div>
 
-            <form action="{{ route('quarters.store') }}" method="POST" onsubmit="return confirm('Are you sure you want to add this quarter?');">
+            <form id="add-quarter-form" action="{{ route('quarters.store') }}" method="POST">
                 @csrf
                 <div class="form-row">
                     <div class="form-group">
@@ -286,4 +267,114 @@
             </form>
         </div>
     </section>
+
+    <!-- Generic Modal Overlay -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <div id="modal-buttons" class="modal-buttons"></div>
+        </div>
+    </div>
 @endsection
+
+@push('scripts')
+<style>
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-content { background: #fff; padding: 30px; border-radius: 8px; text-align: center; max-width: 450px; width: 90%; transform: scale(0.9); transition: transform 0.3s ease; }
+    .modal-overlay.active .modal-content { transform: scale(1); }
+    .modal-buttons { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+    .modal-buttons .btn { padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; border: none; color: white; }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('add-quarter-form');
+    // Check if form exists on the page to avoid errors on other pages
+    if (form) {
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalButtons = document.getElementById('modal-buttons');
+
+        const showModal = (title, message, buttons) => {
+            modalTitle.textContent = title;
+            modalMessage.innerHTML = message; // Use innerHTML to render error lists
+            modalButtons.innerHTML = '';
+            buttons.forEach(btn => {
+                const buttonEl = document.createElement('button');
+                buttonEl.textContent = btn.text;
+                buttonEl.className = `btn ${btn.class}`;
+                buttonEl.addEventListener('click', btn.onClick);
+                modalButtons.appendChild(buttonEl);
+            });
+            modalOverlay.classList.add('active');
+        };
+
+        const hideModal = () => {
+            modalOverlay.classList.remove('active');
+        };
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const confirmButtons = [
+                { text: 'Yes, Add Quarter', class: 'submit-btn', onClick: () => performSubmit() },
+                { text: 'Cancel', class: 'reset-btn', onClick: hideModal }
+            ];
+            showModal('Confirm Submission', 'Are you sure you want to add this quarter?', confirmButtons);
+        });
+
+        const performSubmit = async () => {
+            showModal('Processing...', 'Submitting quarter details, please wait...', []);
+
+            const formData = new FormData(form);
+            const url = form.action;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': formData.get('_token'),
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    let errorMessage = result.message || 'An unknown validation error occurred.';
+                    if (result.errors) {
+                        errorMessage = '<ul style="text-align: left; margin: 0; padding-left: 20px;">';
+                        for (const key in result.errors) {
+                            errorMessage += `<li>${result.errors[key][0]}</li>`;
+                        }
+                        errorMessage += '</ul>';
+                    }
+                    const errorButtons = [{ text: 'OK', class: 'reset-btn', onClick: hideModal }];
+                    showModal('Error', errorMessage, errorButtons);
+                } else {
+                    const successButtons = [
+                        { text: 'Add Another Quarter', class: 'submit-btn', onClick: () => { form.reset(); hideModal(); } },
+                        { text: 'View All Quarters', class: 'back-button', onClick: () => window.location.href = "{{ route('quarters.index') }}" }
+                    ];
+                    showModal('Success', result.message, successButtons);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                const errorButtons = [{ text: 'OK', class: 'reset-btn', onClick: hideModal }];
+                showModal('Request Failed', 'Could not connect to the server. Please check your network.', errorButtons);
+            }
+        };
+        
+        // Also attach hideModal to the overlay background click
+        modalOverlay.addEventListener('click', function(event) {
+            if (event.target === modalOverlay) {
+                hideModal();
+            }
+        });
+    }
+});
+</script>
+@endpush
