@@ -211,7 +211,7 @@ class QuarterController extends Controller
         }
     }
 
-    public function destroy(Quarter $quarter)
+    public function destroy(Request $request, Quarter $quarter)
     {
         try {
             $quarterId = $quarter->quarter_id;
@@ -224,10 +224,19 @@ class QuarterController extends Controller
                 'time_performed' => Carbon::now()->toTimeString(),
             ]);
 
-            return redirect()->route('quarters.index')->with('success', 'Quarter deleted successfully.');
+            $successMessage = 'Quarter ' . $quarterId . ' deleted successfully.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('quarters.index')->with('success', $successMessage);
+
         } catch (\Exception $e) {
             Log::error('Failed to delete quarter: ' . $e->getMessage());
-            return redirect()->route('quarters.index')->with('error', 'Failed to delete quarter.');
+            $errorMessage = 'Failed to delete quarter. It may be in use.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->route('quarters.index')->with('error', $errorMessage);
         }
     }
 

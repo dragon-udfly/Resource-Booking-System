@@ -130,6 +130,9 @@
 
 @section('content')
     <section class="banner">
+        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+            <a href="{{ route('quarters.index') }}" class="submit-btn" style="background-color: #6c757d; text-decoration: none;">Back</a>
+        </div>
         <div class="page-header">
             <h2>Modify Quarter Details</h2>
             <p>Fill in the details below to modify existing quarter details in the system</p>
@@ -215,7 +218,7 @@
                 </div>
                 <div class="button-group">
                     <button type="submit" class="submit-btn">Update Quarter</button>
-                    <a href="{{ route('quarters.index') }}" class="reset-btn">Back</a>
+                    <button type="reset" class="reset-btn">Reset</button>
                 </div>
             </form>
         </div>
