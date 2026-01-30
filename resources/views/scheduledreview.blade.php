@@ -293,39 +293,38 @@
             }
         }
 
-        // Add event listener to the relevant select dropdown
-        if (statusSelect) {
-            statusSelect.addEventListener('change', toggleSubmitButton);
+        // Attach listener if a dropdown is active
+        if (activeSelect) {
+            activeSelect.addEventListener('change', toggleSubmitButton);
         }
         
-        // Check the initial state on page load
+        // Run on page load to set initial state
         toggleSubmitButton();
 
-        // When the form is submitted, prevent it and show the modal instead
-        reviewForm.addEventListener('submit', function(e) {
-            // Only show modal for the 'Submit' action
-            if (document.activeElement === submitButton) {
-                e.preventDefault();
-                modal.style.display = 'flex';
-            }
-        });
+        // Modal logic (ensure all elements exist)
+        if (reviewForm && submitButton && modal) {
+            reviewForm.addEventListener('submit', function(e) {
+                // We only want to intercept the click on our specific 'Submit' button
+                if (document.activeElement === submitButton) {
+                    e.preventDefault();
+                    modal.style.display = 'flex';
+                }
+            });
 
-        // If user confirms in the modal, submit the form for real
-        confirmYes.addEventListener('click', function() {
-            reviewForm.submit();
-        });
+            confirmYes.addEventListener('click', function() {
+                reviewForm.submit();
+            });
 
-        // If user cancels, hide the modal
-        confirmNo.addEventListener('click', function() {
-            modal.style.display = 'none';
-        });
-
-        // Also hide modal if user clicks outside of it
-        window.addEventListener('click', function(e) {
-            if (e.target === modal) {
+            confirmNo.addEventListener('click', function() {
                 modal.style.display = 'none';
-            }
-        });
+            });
+
+            window.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
     });
 </script>
 @endsection
