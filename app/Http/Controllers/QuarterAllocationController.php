@@ -125,6 +125,7 @@ class QuarterAllocationController extends Controller
                 $quarterAllocation->quarter_id = $validated['selected_quarter'];
                 $quarterAllocation->allocation_status = 'allocated';
                 $quarterAllocation->allocation_date = Carbon::now();
+                $quarterAllocation->vacate_date = Carbon::now()->addYears(5); // Set vacate date to 5 years from allocation
                 if ($request->ga_note) {
                     $quarterAllocation->ga_note = trim(($quarterAllocation->ga_note ?? '') . "\n" . $request->ga_note);
                 }
@@ -665,6 +666,7 @@ class QuarterAllocationController extends Controller
                 $quarterAllocation->quarter_id = $validated['selected_quarter'];
                 $quarterAllocation->allocation_status = 'allocated';
                 $quarterAllocation->allocation_date = Carbon::now();
+                $quarterAllocation->vacate_date = Carbon::now()->addYears(5); // Set vacate date to 5 years from allocation
                 if ($request->ga_note) {
                     $quarterAllocation->ga_note = trim(($quarterAllocation->ga_note ?? '') . "\n" . $request->ga_note);
                 }
