@@ -104,10 +104,6 @@
         </div> 
 
         <div class="form-container">
-            <form id="review-form" action="{{ route('scheduled-quarter.review.update', ['id' => $application->application_id]) }}" method="POST">
-                @csrf
-                @method('PATCH')
-
                 <h3 class="form-section-title">D) Allocation Process Details</h3>
                 <div class="form-row">
                     <div class="form-group"><label>Monthly Salary:</label><p>{{ number_format($application->monthly_salary, 2) ?? 'N/A' }}</p></div>
