@@ -324,23 +324,44 @@ class UserController extends Controller
 
     public function changePassword(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'new_passcode' => 'required|string|min:4|confirmed',
         ]);
 
-        $user = Auth::user();
-        $user->passcode = Hash::make($request->new_passcode);
-        $user->modified_datetime = Carbon::now();
-        $user->save();
+        if ($validator->fails()) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+            }
+            return back()->withErrors($validator);
+        }
 
-        AuditLog::create([
-            'log_title' => 'Modified account ' . $user->user_id,
-            'performed_by' => $user->user_id,
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
+        try {
+            $user = Auth::user();
+            $user->passcode = Hash::make($request->new_passcode);
+            $user->modified_datetime = Carbon::now();
+            $user->save();
 
-        return back()->with('success', 'Passcode changed successfully.');
+            AuditLog::create([
+                'log_title' => 'User ' . $user->user_id . ' changed their passcode',
+                'performed_by' => $user->user_id,
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+            
+            $successMessage = 'Passcode changed successfully.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return back()->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            Log::error('Passcode change failed for user ' . Auth::id() . ': ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while changing the passcode.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return back()->with('error', $errorMessage);
+        }
     }
 
     public function showAuditLog()
@@ -412,24 +433,22 @@ class UserController extends Controller
 
     public function updateGradeSalary(Request $request)
     {
-        // Define validation rules dynamically
         $rules = [];
-        $grades = [
-            '1 (G I)', '2 (G II)', '3 (G III)', '4 (G IV)', '5 (G V)'
-        ];
+        $grades = ['1 (G I)', '2 (G II)', '3 (G III)', '4 (G IV)', '5 (G V)'];
 
         foreach ($grades as $grade) {
-            $key = str_replace([' ', '(', ')', '-'], '_', $grade); // Convert "1 (G I)" to "1_G_I" for request keys
+            $key = str_replace([' ', '(', ')', '-'], '_', $grade);
             $rules["grade_{$key}_min"] = 'required|integer|min:0';
-            $rules["grade_{$key}_max"] = 'required|integer|min:0|gte:grade_' . $key . '_min'; // Max must be greater than or equal to min
+            $rules["grade_{$key}_max"] = 'required|integer|min:0|gte:grade_' . $key . '_min';
         }
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return redirect()->route('gradesalary.index')
-                        ->withErrors($validator)
-                        ->withInput();
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+            }
+            return redirect()->route('gradesalary.index')->withErrors($validator)->withInput();
         }
 
         DB::beginTransaction();
@@ -453,14 +472,21 @@ class UserController extends Controller
             ]);
 
             DB::commit();
-            return redirect()->route('gradesalary.index')->with('success', 'Grade salary settings updated successfully!');
+            
+            $successMessage = 'Grade salary settings updated successfully!';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('gradesalary.index')->with('success', $successMessage);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Grade Salary Settings Update Failed: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-            ]);
-            return redirect()->route('gradesalary.index')->with('error', 'An unexpected error occurred. Failed to update settings. Please check the logs.');
+            Log::error('Grade Salary Settings Update Failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            $errorMessage = 'An unexpected error occurred. Failed to update settings.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->route('gradesalary.index')->with('error', $errorMessage);
         }
     }
 }

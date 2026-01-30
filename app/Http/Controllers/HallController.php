@@ -133,7 +133,7 @@ class HallController extends Controller
      */
     public function update(Request $request, Hall $hall)
     {
-        $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'hall_type' => 'required|string|max:200',
             'capacity' => 'required|integer',
             'description' => 'required|string|max:1200',
@@ -141,23 +141,44 @@ class HallController extends Controller
             'special_notice' => 'nullable|string',
         ]);
 
-        $hall->update([
-            'hall_type' => $request->hall_type,
-            'capacity' => $request->capacity,
-            'description' => $request->description,
-            'current_state' => $request->current_state,
-            'special_notice' => $request->special_notice,
-            'date_modified' => Carbon::now(),
-        ]);
+        if ($validator->fails()) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
-        AuditLog::create([
-            'log_title' => 'Modified Hall ' . $hall->hall_id,
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
+        try {
+            $hall->update([
+                'hall_type' => $request->hall_type,
+                'capacity' => $request->capacity,
+                'description' => $request->description,
+                'current_state' => $request->current_state,
+                'special_notice' => $request->special_notice,
+                'date_modified' => Carbon::now(),
+            ]);
 
-        return redirect()->route('halls.index')->with('success', 'Hall updated successfully!');
+            AuditLog::create([
+                'log_title' => 'Modified Hall ' . $hall->hall_id,
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            $successMessage = 'Hall updated successfully!';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('halls.index')->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Hall update failed: ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while updating the hall.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->back()->with('error', $errorMessage)->withInput();
+        }
     }
 
     /**
