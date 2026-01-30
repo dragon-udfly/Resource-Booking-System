@@ -183,15 +183,6 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="booking_status">Booking Status <span class="required">*</span></label>
-                        <select id="booking_status" name="booking_status" required>
-                            <option value="available" @if(old('booking_status') == 'available') selected @endif>Available</option>
-                            <option value="booked" @if(old('booking_status') == 'booked') selected @endif>Booked</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
                         <label for="hall_status">Hall Status <span class="required">*</span></label>
                         <select id="hall_status" name="hall_status" required>
                             <option value="available" @if(old('hall_status') == 'available') selected @endif>Available</option>

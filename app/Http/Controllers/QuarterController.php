@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Models\Quarter;
 use App\Models\AuditLog;
@@ -10,9 +11,24 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
+use Illuminate\Validation\Rule;
+use App\Models\QuarterApplication;
+use App\Models\FamilyQuarterApplication;
+use App\Models\MarkingFamilyQuarter;
+use App\Models\QuarterAllocation;
+use App\Models\ScheduledQuarterApplication; 
+use App\Models\GradeSalarySetting; 
+use App\Models\User;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class QuarterController extends Controller
 {
+    public function create()
+    {
+        $quarters = Quarter::all();
+        return view('bookquarter', ['quarters' => $quarters]);
+    }
     /**
      * Store a newly created quarter in storage.
      *
@@ -23,14 +39,16 @@ class QuarterController extends Controller
     {
         // Validate the request data
         $validator = Validator::make($request->all(), [
-            'quarter_type' => 'required|string|max:50',
-            'status' => 'required|string|max:50',
+            'quarter_type' => ['required', Rule::in(['Family', 'Scheduled'])],
+            'service_grade' => ['nullable', Rule::in(['1', '2', '3', '4', '5', '5A'])],
+            'status' => ['required', Rule::in(['Unallocated', 'Allocated', 'Repair', 'Demolished'])],
             'old_quarter_no' => 'nullable|string|max:50',
             'new_quarter_no' => 'nullable|string|max:50',
             'location' => 'required|string|max:100',
             'occupant_number' => 'nullable|integer',
-            'allowed_gender' => 'nullable|string|max:20',
+            'allowed_gender' => ['nullable', Rule::in(['Male', 'Female'])],
             'special_notice' => 'nullable|string',
+            'current_occupant_number' => 'nullable|integer',
         ]);
 
         if ($validator->fails()) {
@@ -57,18 +75,57 @@ class QuarterController extends Controller
                 'old_quarter_no',
                 'new_quarter_no',
                 'quarter_type',
+                'service_grade',
                 'status',
                 'location',
                 'occupant_number',
                 'allowed_gender',
                 'special_notice',
+                'current_occupant_number',
             ]);
             $data['quarter_id'] = $newQuarterId;
+
+            $data['occupant_number'] = $data['occupant_number'] ?? 0;
+            $data['current_occupant_number'] = $data['current_occupant_number'] ?? 0;
 
             $data['date_created'] = now();
             $data['date_modified'] = now();
 
             Quarter::create($data);
+
+            // Increment number_of_quarters in grade_salary_settings
+            $serviceGrade = $request->service_grade;
+            if ($serviceGrade) {
+                $gradeSetting = GradeSalarySetting::where('grade', $serviceGrade)->first();
+
+                $gradeMapping = [
+                    '1' => '1 (G I)',
+                    '2' => '2 (G II)',
+                    '3' => '3 (G III)',
+                    '4' => '4 (G IV)',
+                    '5' => '5 (G V)',
+                    '5A' => '5A', 
+                ];
+                $mappedGrade = $gradeMapping[$serviceGrade] ?? null;
+
+                if ($mappedGrade) {
+                    $gradeSetting = GradeSalarySetting::where('grade', $mappedGrade)->first();
+                    if ($gradeSetting) {
+                        $gradeSetting->increment('number_of_quarters');
+                        AuditLog::create([
+                            'log_title' => "Incremented number of quarters for Grade {$mappedGrade}",
+                            'performed_by' => Auth::id(),
+                            'date_performed' => Carbon::now()->toDateString(),
+                            'time_performed' => Carbon::now()->toTimeString(),
+                            'details' => "Quarter ID: {$newQuarterId}",
+                        ]);
+                    } else {
+                        Log::warning("GradeSalarySetting not found for service_grade: {$mappedGrade}");
+                    }
+                } else {
+                    Log::warning("No mapped grade found for service_grade: {$serviceGrade}");
+                }
+            }
 
             AuditLog::create([
                 'log_title' => 'Added New Quarter ' . $newQuarterId,
@@ -119,25 +176,29 @@ class QuarterController extends Controller
     public function update(Request $request, Quarter $quarter)
     {
         $request->validate([
-            'quarter_type' => 'required|string|max:50',
-            'status' => 'required|string|max:50',
+            'quarter_type' => ['required', Rule::in(['Family', 'Scheduled'])],
+            'service_grade' => ['nullable', Rule::in(['1', '2', '3', '4', '5', '5A'])],
+            'status' => ['required', Rule::in(['Unallocated', 'Allocated', 'Repair', 'Demolished'])],
             'old_quarter_no' => 'nullable|string|max:50',
             'new_quarter_no' => 'nullable|string|max:50',
             'location' => 'required|string|max:100',
             'occupant_number' => 'nullable|integer',
-            'allowed_gender' => 'nullable|string|max:20',
+            'allowed_gender' => ['nullable', Rule::in(['Male', 'Female'])],
             'special_notice' => 'nullable|string',
+            'current_occupant_number' => 'nullable|integer',
         ]);
 
         $quarter->update([
             'quarter_type' => $request->quarter_type,
+            'service_grade' => $request->service_grade,
             'status' => $request->status,
             'old_quarter_no' => $request->old_quarter_no,
             'new_quarter_no' => $request->new_quarter_no,
             'location' => $request->location,
-            'occupant_number' => $request->occupant_number,
+            'occupant_number' => $request->occupant_number ?? 0,
             'allowed_gender' => $request->allowed_gender,
             'special_notice' => $request->special_notice,
+            'current_occupant_number' => $request->current_occupant_number ?? 0,
             'date_modified' => Carbon::now(),
         ]);
 
@@ -181,5 +242,26 @@ class QuarterController extends Controller
     {
         // For now, no data is passed as we don't have a way to get occupant info
         return view('occupantdetails');
+    }
+
+    public function createQuarterApplication(Request $request)
+    {
+        return QuarterApplication::create([
+            'application_id' => 'QA' . Str::uuid(),
+            'quarter_type' => 'Family',
+            'officer_name' => $request->officer_name,
+            'gender' => $request->gender,
+            'nic' => $request->nic,
+            'designation' => $request->designation,
+            'service_grade' => $request->service_and_grade,
+            'permanent_address' => $request->permanent_address,
+            'temporary_address' => $request->temporary_address,
+            'monthly_salary' => $request->monthly_salary,
+            'phone_number' => $request->phone_number,
+            'email' => $request->email,
+            'date_of_assumption_of_duties' => $request->date_of_assumption_of_duties,
+            'date_created' => Carbon::now(),
+            'date_modified' => Carbon::now(),
+        ]);
     }
 }

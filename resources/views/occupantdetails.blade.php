@@ -89,7 +89,9 @@
                     <th>Quarters No (old)</th>
                     <th>Location</th>
                     <th>Name of Occupant</th>
+                    <th>Designation</th>
                     <th>Contact No.</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>

@@ -27,21 +27,32 @@
             padding: 20px;
         }
 
-        .btn-reset a {
-            background-color: #6917dc;
+        .h1-class {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: rgb(6, 4, 60)
+        }
+
+        .h2-class {
+            text-align: center;
+            margin-bottom: 20px;
+            color:rgb(90, 90, 98);
+            font-size: 20px;
         }
     </style>
 @endsection
 
 @section('content')
     <section class="banner">
+        <br />
+        <h1 class="h1-class">Admin Dashboard</h1> 
+        <br />
+        <p class="h2-class">Manage system resources</p>
         <div class="btn-row">
             <a href="/officers">Officers</a>
             <a href="/quarters">Quarters</a>
             <a href="/halls">Halls</a>
-        </div>
-        <div class="btn-row btn-reset">
-            <a href="{{ route('systemsetting') }}">System Setting</a>
         </div>
     </section>
 @endsection

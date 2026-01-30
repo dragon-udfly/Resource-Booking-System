@@ -57,6 +57,7 @@
             border-radius: 5px;
             transition: background-color 0.3s ease;
             margin-bottom: 20px;
+            margin-left: 10px;
             font-weight: bold;
         }
 
@@ -126,27 +127,31 @@
          <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
             <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
         </div>
+
         <div class="page-header">
-            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Quarters List</h2>
-            <p>Available Quarters In The System.</p>
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Quarters Management</h2>
+            <p>Manage Quarters In The System.</p>
         </div>
 
         <div style="text-align: center; margin-bottom: 20px;">
             <a href="{{ route('addquarter') }}" class="add-officer-btn">Add Quarter</a>
+            <a href="{{ route('marking-scheme.edit') }}" class="add-officer-btn">Edit Mark Scheme</a>
+        </div>
+
+        <div class="page-header">
+            <h2 style="color: rgb(6, 4, 60); font-weight: bold">Quarters List</h2>
+            <p>Available Quarters In The System.</p>
         </div>
 
         <table id="quarter-details">
             <thead>
                 <tr>
                     <th>No</th>
+                    <th>Quarter ID</th>
                     <th>Old Quarter No</th>
                     <th>New Quarter No</th>
                     <th>Quarter Type</th>
-                    <th>Location</th>
                     <th>Status</th>
-                    <th>Number of Allowed Occupants</th>
-                    <th>Allowed Gender</th>
-                    <th>Special Notice</th>
                     <th>Date Created</th>
                     <th>Date Modified</th>
                     <th>Actions</th>
@@ -161,14 +166,11 @@
                     @foreach($quarters as $index => $quarter)
                         <tr>
                             <td>{{ $index + 1 }}</td>
+                            <td>{{ $quarter->quarter_id }}
                             <td>{{ $quarter->old_quarter_no }}</td>
                             <td>{{ $quarter->new_quarter_no }}</td>
                             <td>{{ $quarter->quarter_type }}</td>
-                            <td>{{ $quarter->location }}</td>
                             <td>{{ $quarter->status }}</td>
-                            <td>{{ $quarter->occupant_number }}</td>
-                            <td>{{ $quarter->allowed_gender }}</td>
-                            <td>{{ $quarter->special_notice }}</td>
                             <td>{{ \Carbon\Carbon::parse($quarter->date_created)->format('Y-m-d h:i A') }}</td>
                             <td>{{ $quarter->date_modified ? \Carbon\Carbon::parse($quarter->date_modified)->format('Y-m-d h:i A') : 'N/A' }}</td>
                             <td>

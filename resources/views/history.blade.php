@@ -44,7 +44,7 @@
         </tbody>
     </table>
     <br><br><br>
-    <h2 style="text-align: center; color:rgb(34, 60, 4)">Qaurters Booking Applications</h2>
+    <h2 style="text-align: center; color:rgb(34, 60, 4)">Qaurters Reservation Applications</h2>
     <table id="history-table">
         <thead>
             <tr>

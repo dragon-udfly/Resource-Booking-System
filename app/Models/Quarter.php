@@ -18,11 +18,13 @@ class Quarter extends Model
         'old_quarter_no',
         'new_quarter_no',
         'quarter_type',
+        'service_grade',
         'location',
         'status',
         'occupant_number',
         'allowed_gender',
         'special_notice',
+        'current_occupant_number',
         'date_created',
         'date_modified',
     ];

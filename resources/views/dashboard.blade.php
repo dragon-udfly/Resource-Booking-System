@@ -7,7 +7,7 @@
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
         @if(Auth::user()->hasPermissionTo('requester'))
-            @include('partials.requester_dashboard_layout', ['requesterBookings' => $requesterBookings])
+            @include('partials.requester_dashboard_layout', ['requesterBookings' => $requesterBookings, 'quarterApplications' => $quarterApplications])
         @else
             <div class="page-header">
                 <h2 style="color: rgb(6, 4, 60); font-weight: bold">Pending Booking Approvals</h2>
@@ -46,18 +46,40 @@
             </table>
             <br /> 
             <br />
-            <h2 style="text-align: center; color:rgb(34, 60, 4)">Quarters Booking Applications</h2>
-            <table id="approval-details">
+            <h2 style="text-align: center; color:rgb(34, 60, 4)">Quarters Reservation Applications</h2>
+            <table id="quarter-approval-details">
                 <thead>
                     <tr>
                         <th>Applicant Name</th>
+                        <th>Designation</th>
                         <th>Submitted Date</th>
-                        <th>AO Approval</th>
-                        <th>AGA Approval</th>
+                        <th>Type</th>
+                        <th>AO Verification</th>
+                        <th>AGA Verification</th>
                         <th>GA Approval</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
+                <tbody>
+                    @forelse ($quarterApplications as $application)
+                        <tr data-quarter-type="{{ $application->quarter_type }}">
+                            <td>{{ $application->officer_name }}</td>
+                            <td>{{ $application->designation }}</td>
+                            <td>{{ \Carbon\Carbon::parse($application->date_created)->format('Y-m-d h:i A') }}</td>
+                            <td>{{ $application->quarter_type }}</td>
+                            <td>{{ $application->quarterAllocation ? ($application->quarterAllocation->is_ao_verified ? 'Verified' : 'Pending') : 'N/A' }}</td>
+                            <td>{{ $application->quarterAllocation ? ($application->quarterAllocation->is_aga_verified ? 'Verified' : 'Pending') : 'N/A' }}</td>
+                            <td>{{ $application->quarterAllocation ? ucfirst($application->quarterAllocation->allocation_status) : 'N/A' }}</td>
+                            <td>
+                                <button class="action-btn review-quarter-btn" data-application-id="{{ $application->application_id }}">Review</button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 12px 15px;">No pending quarter applications found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
             </table>
 
             {{-- Approver Review Overlay --}}
@@ -112,6 +134,23 @@
                     border: 1px solid #ced4da;
                     border-radius: 4px;
                     min-height: 38px;
+                }
+                /* Styles for review buttons */
+                .action-btn.review-btn,
+                .action-btn.review-quarter-btn {
+                    display: inline-block;
+                    padding: 8px 12px;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    color: white;
+                    font-size: 0.9em;
+                    transition: background-color 0.3s ease;
+                    background-color: #007bff; /* Example background color */
+                }
+                .action-btn.review-btn:hover,
+                .action-btn.review-quarter-btn:hover {
+                    background-color: #0056b3; /* Example hover color */
                 }
             </style>
 
@@ -230,6 +269,31 @@
                             const bookingData = JSON.parse(row.dataset.booking);
                             renderApproverFields(bookingData);
                             approverReviewOverlay.style.display = 'flex';
+                        });
+                    });
+
+                    // Handle review button clicks for quarter applications
+                    document.querySelectorAll('.review-quarter-btn').forEach(button => {
+                        button.addEventListener('click', function () {
+                            const applicationId = this.dataset.applicationId;
+                            const quarterType = this.closest('tr').dataset.quarterType;
+
+                            if (applicationId && quarterType) {
+                                // Normalize the quarter type to handle potential case sensitivity or whitespace issues
+                                const normalizedQuarterType = quarterType.trim().toLowerCase();
+
+                                if (normalizedQuarterType === 'family') {
+                                    window.location.href = `/family-quarter-application/${applicationId}/review`;
+                                } else if (normalizedQuarterType === 'scheduled') {
+                                    window.location.href = `/scheduled-quarter-application/${applicationId}/review`;
+                                } else {
+                                    console.error('Unknown quarter type:', quarterType);
+                                    alert('Unknown quarter type (' + quarterType + '). Cannot proceed with review.');
+                                }
+                            } else {
+                                console.error('Missing application ID or quarter type');
+                                alert('Application ID or quarter type is missing. Cannot proceed with review.');
+                            }
                         });
                     });
 

@@ -208,18 +208,30 @@
                         <label for="quarter_type">Quarter Type <span class="required">*</span></label>
                         <select id="quarter_type" name="quarter_type" required>
                             <option value="">Select Quarter Type</option>
-                            <option value="FAMILY">Family</option>
-                            <option value="SCHEDULED_QUARTERS">Scheduled Quarters</option>
+                            <option value="Family">Family</option>
+                            <option value="Scheduled">Scheduled</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="service_grade">Service Grade</label>
+                        <select id="service_grade" name="service_grade">
+                            <option value="">Select Grade</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="5A">5A</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="status">Quarter Status <span class="required">*</span></label>
                         <select id="status" name="status" required>
                             <option value="">Select status</option>
-                            <option value="NOT_ALLOCATED" selected>Not Allocated</option>
-                            <option value="OCCUPIED">Occupied</option>
-                            <option value="REPAIR">Repair</option>
-                            <option value="DEMOLISHED">Demolished</option>
+                            <option value="Unallocated" selected>Unallocated</option>
+                            <option value="Allocated">Allocated</option>
+                            <option value="Repair">Repair</option>
+                            <option value="Demolished">Demolished</option>
                         </select>
                     </div>
                 </div>
@@ -237,15 +249,18 @@
                         <label for="occupant_number">Number of Allowd Occupants (Specially for Chummary)</label>
                         <input type="number" id="occupant_number" name="occupant_number">
                     </div>
+                    <div class="form-group">
+                        <label for="current_occupant_number">Current Occupant Number (Specially for Chummary)</label>
+                        <input type="number" id="current_occupant_number" name="current_occupant_number">
+                    </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="allowed_gender">Occupant Gender (for chummary and other allocated quarters)</label>
-                        <select id="allowed_gender" name="allowed_gender" required>
-                            <option value="">Select Gender</option>
-                            <option value="" selected>Not Specified</option>
-                            <option value="F">Female</option>
-                            <option value="M">Male</option>
+                        <label for="allowed_gender">Allowed Occupant Gender (for chummary and other allocated quarters)</label>
+                        <select id="allowed_gender" name="allowed_gender">
+                            <option value="">Not Specified</option>
+                            <option value="Female">Female</option>
+                            <option value="Male">Male</option>
                         </select>
                     </div>
                 </div>

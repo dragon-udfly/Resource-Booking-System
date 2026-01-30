@@ -158,8 +158,20 @@
                         <label for="quarter_type">Quarter Type <span class="required">*</span></label>
                         <select id="quarter_type" name="quarter_type" required>
                             <option value="">Select Quarter Type</option>
-                            <option value="FAMILY" {{ old('quarter_type', $quarter->quarter_type) == 'FAMILY' ? 'selected' : '' }}>Family</option>
-                            <option value="SCHEDULED_QUARTERS" {{ old('quarter_type', $quarter->quarter_type) == 'SCHEDULED_QUARTERS' ? 'selected' : '' }}>Scheduled Quarters</option>
+                            <option value="Family" {{ old('quarter_type', $quarter->quarter_type) == 'Family' ? 'selected' : '' }}>Family</option>
+                            <option value="Scheduled" {{ old('quarter_type', $quarter->quarter_type) == 'Scheduled' ? 'selected' : '' }}>Scheduled</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="service_grade">Service Grade</label>
+                        <select id="service_grade" name="service_grade">
+                            <option value="">Select Grade</option>
+                            <option value="1" {{ old('service_grade', $quarter->service_grade) == '1' ? 'selected' : '' }}>1</option>
+                            <option value="2" {{ old('service_grade', $quarter->service_grade) == '2' ? 'selected' : '' }}>2</option>
+                            <option value="3" {{ old('service_grade', $quarter->service_grade) == '3' ? 'selected' : '' }}>3</option>
+                            <option value="4" {{ old('service_grade', $quarter->service_grade) == '4' ? 'selected' : '' }}>4</option>
+                            <option value="5" {{ old('service_grade', $quarter->service_grade) == '5' ? 'selected' : '' }}>5</option>
+                            <option value="5A" {{ old('service_grade', $quarter->service_grade) == '5A' ? 'selected' : '' }}>5A</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -172,10 +184,10 @@
                         <label for="status">Quarter Status <span class="required">*</span></label>
                         <select id="status" name="status" required>
                             <option value="">Select status</option>
-                            <option value="NOT_ALLOCATED" {{ old('status', $quarter->status) == 'NOT_ALLOCATED' ? 'selected' : '' }}>Not Allocated</option>
-                            <option value="OCCUPIED" {{ old('status', $quarter->status) == 'OCCUPIED' ? 'selected' : '' }}>Occupied</option>
-                            <option value="REPAIR" {{ old('status', $quarter->status) == 'REPAIR' ? 'selected' : '' }}>Repair</option>
-                            <option value="DEMOLISHED" {{ old('status', $quarter->status) == 'DEMOLISHED' ? 'selected' : '' }}>Demolished</option>
+                            <option value="Unallocated" {{ old('status', $quarter->status) == 'Unallocated' ? 'selected' : '' }}>Unallocated</option>
+                            <option value="Allocated" {{ old('status', $quarter->status) == 'Allocated' ? 'selected' : '' }}>Allocated</option>
+                            <option value="Repair" {{ old('status', $quarter->status) == 'Repair' ? 'selected' : '' }}>Repair</option>
+                            <option value="Demolished" {{ old('status', $quarter->status) == 'Demolished' ? 'selected' : '' }}>Demolished</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -183,11 +195,15 @@
                         <input type="number" id="occupant_number" name="occupant_number" value="{{ old('occupant_number', $quarter->occupant_number) }}">
                     </div>
                     <div class="form-group">
-                        <label for="allowed_gender">Occupant Gender</label>
+                        <label for="current_occupant_number">Current Occupant Number</label>
+                        <input type="number" id="current_occupant_number" name="current_occupant_number" value="{{ old('current_occupant_number', $quarter->current_occupant_number) }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="allowed_gender">Allowed Occupant Gender</label>
                         <select id="allowed_gender" name="allowed_gender">
-                            <option value="" {{ old('allowed_gender', $quarter->allowed_gender) == '' ? 'selected' : '' }}>Not Specified</option>
-                            <option value="F" {{ old('allowed_gender', $quarter->allowed_gender) == 'F' ? 'selected' : '' }}>Female</option>
-                            <option value="M" {{ old('allowed_gender', $quarter->allowed_gender) == 'M' ? 'selected' : '' }}>Male</option>
+                            <option value="">Not Specified</option>
+                            <option value="Female" {{ old('allowed_gender', $quarter->allowed_gender) == 'Female' ? 'selected' : '' }}>Female</option>
+                            <option value="Male" {{ old('allowed_gender', $quarter->allowed_gender) == 'Male' ? 'selected' : '' }}>Male</option>
                         </select>
                     </div>
                 </div>

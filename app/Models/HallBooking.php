@@ -24,6 +24,8 @@ class HallBooking extends Model
         'applicant_email',
         'requested_hall_type',
         'programme',
+        'event_date',
+        'event_time',
         'start_time',
         'end_time',
         'participants',

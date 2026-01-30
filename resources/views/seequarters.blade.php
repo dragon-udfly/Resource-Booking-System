@@ -88,12 +88,13 @@
                     <th>Quarters No. (new)</th>
                     <th>Location</th>
                     <th>Type</th>
+                    <th>Grade</th>
                     <th>Status</th>
-                    <th>Allowed Gender</th>
+                    <th>Allowed/Occupant Gender</th>
                     <th>Special Notice</th>
-                    <th>Number of Allowed Occupants</th>
+                    <th>Number of Allowed/Max Occupants</th>
                     <th>Number of Current Occupants</th>
-                    <th>Number of Vacant Occupants</th>
+                    <th>Vacancies in Quarter (Not Allocated)</th>
                 </tr>
             </thead>
             <tbody>
@@ -109,12 +110,13 @@
                             <td>{{ $quarter->new_quarter_no }}</td>
                             <td>{{ $quarter->location }}</td>
                             <td>{{ $quarter->quarter_type }}</td>
+                            <td>{{ $quarter->service_grade }}</td>
                             <td>{{ $quarter->status }}</td>
                             <td>{{ $quarter->allowed_gender }}</td>
                             <td>{{ $quarter->special_notice }}</td>
                             <td>{{ $quarter->occupant_number }}</td>
-                            <td>0</td>
-                            <td>{{ $quarter->occupant_number }}</td>
+                            <td>{{ $quarter->current_occupant_number }}</td>
+                            <td>{{ $quarter->occupant_number - $quarter->current_occupant_number }}</td>
                         </tr>
                     @endforeach
                 @endif
