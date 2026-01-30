@@ -324,6 +324,7 @@
                     <tr>
                         <td>Special Reasons (Provided By Government Agent): </td>
                         <td>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_spacial_reason ?? 'Not Mentioned' }}</td> 
+                        <td>0</td>
                     </tr>
                 </tbody>
             </table>
