@@ -166,19 +166,33 @@ class HallController extends Controller
      * @param  \App\Models\Hall  $hall
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(Hall $hall)
+    public function destroy(Request $request, Hall $hall)
     {
-        $hallId = $hall->hall_id;
-        $hall->delete();
+        try {
+            $hallId = $hall->hall_id;
+            $hall->delete();
 
-        AuditLog::create([
-            'log_title' => 'Deleted Hall ' . $hallId,
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
+            AuditLog::create([
+                'log_title' => 'Deleted Hall ' . $hallId,
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+            
+            $successMessage = 'Hall ' . $hallId . ' deleted successfully!';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('halls.index')->with('success', $successMessage);
 
-        return redirect()->route('halls.index')->with('success', 'Hall deleted successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Hall deletion failed: ' . $e->getMessage());
+            $errorMessage = 'Failed to delete hall. It may be associated with existing bookings.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->route('halls.index')->with('error', $errorMessage);
+        }
     }
 
     /**
