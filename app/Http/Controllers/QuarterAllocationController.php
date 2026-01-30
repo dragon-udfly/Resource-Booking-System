@@ -540,9 +540,78 @@ class QuarterAllocationController extends Controller
         return response()->json(['success' => true, 'message' => 'Requester verified successfully.']);
     }
 
-    public function allocateQuarter($id)
+    public function allocateQuarter(Request $request, $id)
     {
-        // Method implementation goes here
+        // 1. Validation
+        $validator = Validator::make($request->all(), [
+            'selected_quarter' => 'required|exists:quarters,quarter_id',
+            'ga_approval_status' => 'required|in:1',
+            'ga_note' => 'nullable|string|max:2000',
+        ], [
+            'ga_approval_status.in' => 'Update denied: Government Agent approval is required.',
+            'selected_quarter.required' => 'Please select a quarter to allocate.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 422);
+        }
+
+        // 2. Authorization
+        if (!Auth::user()->hasPermissionTo('government_agent_approval')) {
+            return response()->json(['status' => 'error', 'message' => 'You do not have permission to perform this action.'], 403);
+        }
+
+        DB::beginTransaction();
+        try {
+            $application = QuarterApplication::with('quarterAllocation')->findOrFail($id);
+            $quarterAllocation = $application->quarterAllocation;
+
+            if (!$quarterAllocation) {
+                 return response()->json(['status' => 'error', 'message' => 'Application allocation record not found.'], 404);
+            }
+
+            $quarter = Quarter::findOrFail($request->selected_quarter);
+
+            // 3. Critical Server-Side Check for availability
+            if ($quarter->status !== 'Unallocated' && ($quarter->current_occupant_number >= $quarter->occupant_number)) {
+                return response()->json(['status' => 'error', 'message' => 'This quarter is no longer available.'], 409);
+            }
+
+            // 4. Update QuarterAllocation Table
+            $quarterAllocation->quarter_id = $request->selected_quarter;
+            $quarterAllocation->allocation_status = 'allocated';
+            $quarterAllocation->ga_note = $request->ga_note;
+            $quarterAllocation->allocation_date = Carbon::now();
+            $quarterAllocation->vacate_date = Carbon::now()->addYears(5);
+            $quarterAllocation->save();
+
+            // 5. Update Quarters Table
+            $quarter->current_occupant_number += 1;
+            if ($quarter->current_occupant_number >= $quarter->occupant_number) {
+                $quarter->status = 'Allocated';
+            }
+            $quarter->save();
+
+            // 6. Update Audit Log
+            AuditLog::create([
+                'log_title' => 'Scheduled Quarter Allocated',
+                'performed_by' => Auth::id(),
+                'details' => "Application ID: {$id} allocated to Quarter ID: {$request->selected_quarter}",
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            DB::commit();
+
+            return response()->json(['status' => 'success', 'message' => 'Quarter allocated successfully! The page will now reload.']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Scheduled Quarter Allocation Failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json(['status' => 'error', 'message' => 'An unexpected server error occurred. Please check the logs.'], 500);
+        }
     }
 
     public function downloadPdf(string $applicationId)
@@ -630,5 +699,35 @@ class QuarterAllocationController extends Controller
 
         // Return the PDF for download
         return $pdf->download('quarter_application_' . $application->application_id . '.pdf');
+    }
+
+    public function showQuarterHistory()
+    {
+        $processedApplications = \App\Models\QuarterAllocation::with(['quarterApplication', 'quarter'])
+                               ->where('allocation_status', '!=', 'pending')
+                               ->orderBy('updated_at', 'desc')
+                               ->get();
+        
+        return response()->json($processedApplications);
+    }
+
+    public function showProcessedScheduled($id)
+    {
+        $application = QuarterApplication::with(['scheduledQuarterApplication', 'quarterAllocation.quarter'])
+            ->where('application_id', $id)
+            ->where('quarter_type', 'Scheduled')
+            ->firstOrFail();
+
+        return view('showprocessedscheduled', compact('application'));
+    }
+
+    public function showProcessedFamily($id)
+    {
+        $application = QuarterApplication::with(['familyQuarterApplication.markingFamilyQuarter', 'quarterAllocation.quarter'])
+            ->where('application_id', $id)
+            ->where('quarter_type', 'Family')
+            ->firstOrFail();
+            
+        return view('showprocessedfamily', compact('application'));
     }
 }
