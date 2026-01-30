@@ -507,7 +507,7 @@
                         <button type="submit" name="action" value="Cancel" id="delete-button" class="btn btn-success">Delete</button>
                     @endif
                     {{-- All users can download pdf --}}
-                    <a href="{{ route('quarter.download-pdf', ['id' => $application->application_id]) }}" class="btn btn-info" target="_blank">Download</a>
+                    <a href="{{ route('quarter.download-pdf', ['id' => $application->application_id]) }}" class="btn btn-download" target="_blank">Download</a>
                 </div>
             </form>
         </div>
