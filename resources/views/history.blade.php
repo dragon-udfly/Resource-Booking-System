@@ -53,9 +53,9 @@
                 <tr>
                     <th>No.</th>
                     <th>Applicant Name</th>
+                    <th>Submitted Date</th>
                     <th>Requested Quarter Type</th>
                     <th>Approval Status</th>
-                    <th>Submitted Date</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -168,9 +168,9 @@
                         row.innerHTML = `
                             <td>${index + 1}</td>
                             <td>${app.officer_name || 'N/A'}</td>
+                            <td>${submittedDate}</td>
                             <td>${app.quarter_type || 'N/A'}</td>
                             <td><span class="${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
-                            <td>${submittedDate}</td>
                             <td class="action-cell">
                                 <a href="${viewUrl}" class="action-btn" style="background-color: #007bff; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none;">View</a>
                                 <a href="${downloadUrl}" class="action-btn" style="background-color: #28a745; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none;" target="_blank">Download</a>
