@@ -414,8 +414,8 @@
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Allocation Date:</label>
-                    <p>{{ $application->quarterAllocation?->allocation_date ?? 'N/A' }}</p>
+                    <label>Vacate Date:</label>
+                    <p>{{ $application->quarterAllocation?->vacate_date ?? 'N/A' }}</p>
                 </div>
             </div>
 
