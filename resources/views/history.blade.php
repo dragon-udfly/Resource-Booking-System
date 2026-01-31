@@ -192,13 +192,15 @@ document.addEventListener('DOMContentLoaded', function () {
     if (historyCancelBtn) { /* Existing Cancel Logic */ }
 
     // New Delete Logic
-    historyDeleteBtn.addEventListener('click', function() {
-        if (this.disabled) return;
-        showModal('Confirm Deletion', 'Are you sure you want to permanently delete this booking record?', [
-            { text: 'Yes, Delete', class: 'delete-btn', onClick: () => performDelete(currentBookingId) },
-            { text: 'Cancel', class: 'back-button', onClick: hideModal }
-        ]);
-    });
+    if (historyDeleteBtn) {
+        historyDeleteBtn.addEventListener('click', function() {
+            if (this.disabled) return;
+            showModal('Confirm Deletion', 'Are you sure you want to permanently delete this booking record?', [
+                { text: 'Yes, Delete', class: 'delete-btn', onClick: () => performDelete(currentBookingId) },
+                { text: 'Cancel', class: 'back-button', onClick: hideModal }
+            ]);
+        });
+    }
 
     const performDelete = async (bookingId) => {
         showModal('Processing...', 'Deleting record, please wait...', []);
