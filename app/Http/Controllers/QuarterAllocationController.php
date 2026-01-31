@@ -600,7 +600,7 @@ class QuarterAllocationController extends Controller
 
             DB::commit();
 
-            return response()->json(['status' => 'success', 'message' => 'Quarter allocated successfully! The page will now reload.']);
+            return response()->json(['status' => 'success', 'message' => 'Quarter allocated successfully!', 'redirect_url' => route('dashboard')]);
 
         } catch (\Exception $e) {
             DB::rollBack();

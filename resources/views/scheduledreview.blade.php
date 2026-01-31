@@ -243,21 +243,20 @@
                                 {{-- update is_ga_verified and ga_note and allocation_status in quarter_allocation--}}
                                 <button type="submit" name="submit_action" value="reject" id="reject-button" class="btn btn-danger">Reject</button>                @endif
                 @if(Auth::user()->hasPermissionTo('additional_government_agent_approval'))
-                    {{-- update is_aga_verified and aga_note in quarter_allocation--}}
-                    <button type="submit" name="action" value="Submit" id="submit-button" class="btn btn-success">Submit</button>
+<button type="submit" name="submit_action" value="Submit" id="submit-button" class="btn btn-success">Submit</button>
                     {{-- if aga_verified_status= 0 (No) --}}
                     {{-- update is_aga_verified and aga_note in quarter_allocation--}}
-                    <button type="submit" name="action" value="Reject" id="reject-button" class="btn btn-danger">Reject</button>
+                    <button type="submit" name="submit_action" value="Reject" id="reject-button" class="btn btn-danger">Reject</button>
                 @endif
                 @if(Auth::user()->hasPermissionTo('administrative_officer_approval'))
                     {{-- update is_ao_verified and ao_note --}}
-                    <button type="submit" name="action" value="Submit" id="submit-button" class="btn btn-success">Submit</button>
+                    <button type="submit" name="submit_action" value="Submit" id="submit-button" class="btn btn-success">Submit</button>
                     {{-- can cancel is_ao_verified= is 1/0 and is_aga_verified is 1/0 application and allocation_state is pending --}}
-                    <button type="submit" name="action" value="Delete" id="delete-pending-verified-button" class="btn btn-success">Delete</button>
+                    <button type="submit" name="submit_action" value="Delete" id="delete-pending-verified-button" class="btn btn-success">Delete</button>
                 @endif
                 @if(Auth::user()->hasPermissionTo('requester'))
                     {{-- can cancel only is_ao_verified is 0 and is_aga_verified is 0 allocation_state is pending --}}
-                    <button type="submit" name="action" value="Cancel" id="delete-button" class="btn btn-success">Delete</button>
+                    <button type="submit" name="submit_action" value="Cancel" id="delete-button" class="btn btn-success">Delete</button>
                 @endif
                 {{-- All users can download pdf --}}
                 <a href="{{ route('quarter.download-pdf', ['id' => $application->application_id]) }}" class="btn btn-info" target="_blank">Download</a>
@@ -384,8 +383,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 showModal('Error', result.message || 'An unknown error occurred.', errorButtons);
             } else {
                 // Handle success
-                const successButtons = [{ text: 'OK', class: 'btn btn-success', onClick: () => window.location.reload() }];
-                showModal('Success', result.message, successButtons);
+                if (result.redirect_url) {
+                    window.location.href = result.redirect_url; // Redirect to the specified URL
+                } else {
+                    const successButtons = [{ text: 'OK', class: 'btn btn-success', onClick: () => window.location.reload() }];
+                    showModal('Success', result.message, successButtons);
+                }
             }
         } catch (error) {
             console.error('Fetch error:', error);
