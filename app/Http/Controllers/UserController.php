@@ -127,7 +127,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|max:200',
             'last_name' => 'required|string|max:200',
             'nic_number' => 'required|string|max:50|unique:user',
@@ -138,61 +138,74 @@ class UserController extends Controller
             'permissions' => 'nullable|array'
         ]);
 
-        $lastUser = User::orderBy('user_id', 'desc')->first();
-        $nextUserIdNumber = 1;
-        if ($lastUser) {
-            $lastUserIdNumber = (int) Str::after($lastUser->user_id, 'user');
-            $nextUserIdNumber = $lastUserIdNumber + 1;
+        if ($validator->fails()) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+            }
+            return redirect()->route('createaccount')->withErrors($validator)->withInput();
         }
-        $newUserId = 'user' . str_pad($nextUserIdNumber, 3, '0', STR_PAD_LEFT);
 
-        $user = User::create([
-            'user_id' => $newUserId,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'nic_number' => $request->nic_number,
-            'passcode' => Hash::make($request->passcode),
-            'role' => 'user',
-            'email' => $request->email,
-            'contact_number' => $request->contact_number,
-            'designation' => $request->designation,
-            'created_datetime' => Carbon::now(),
-        ]);
+        try {
+            $lastUser = User::orderBy('user_id', 'desc')->first();
+            $nextUserIdNumber = 1;
+            if ($lastUser) {
+                $lastUserIdNumber = (int) Str::after($lastUser->user_id, 'user');
+                $nextUserIdNumber = $lastUserIdNumber + 1;
+            }
+            $newUserId = 'user' . str_pad($nextUserIdNumber, 3, '0', STR_PAD_LEFT);
 
-        $permissions = [
-            'view_officers' => 0,
-            'view_officer_details' => 0,
-            'view_halls' => 0,
-            'view_hall_details' => 0,
-            'view_quarters' => 0,
-            'view_quarter_details' => 0,
-            'view_audit_log' => 0,
-            'administrative_officer_approval' => 0,
-            'additional_government_agent_approval' => 0,
-            'government_agent_approval' => 0,
-            'form_history' => 0,
-            'account_setting' => 0,
-            'requester' => 0,
-        ];
+            $user = User::create([
+                'user_id' => $newUserId,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'nic_number' => $request->nic_number,
+                'passcode' => Hash::make($request->passcode),
+                'role' => 'user',
+                'email' => $request->email,
+                'contact_number' => $request->contact_number,
+                'designation' => $request->designation,
+                'created_datetime' => Carbon::now(),
+            ]);
 
-        if ($request->has('permissions')) {
-            foreach ($request->permissions as $permission) {
-                if (array_key_exists($permission, $permissions)) {
-                    $permissions[$permission] = 1;
+            $permissions = [
+                'view_officers' => 0, 'view_officer_details' => 0, 'view_halls' => 0,
+                'view_hall_details' => 0, 'view_quarters' => 0, 'view_quarter_details' => 0,
+                'view_audit_log' => 0, 'administrative_officer_approval' => 0,
+                'additional_government_agent_approval' => 0, 'government_agent_approval' => 0,
+                'form_history' => 0, 'account_setting' => 0, 'requester' => 0,
+            ];
+
+            if ($request->has('permissions')) {
+                foreach ($request->permissions as $permission) {
+                    if (array_key_exists($permission, $permissions)) {
+                        $permissions[$permission] = 1;
+                    }
                 }
             }
+
+            UserPermission::create(array_merge(['user_id' => $user->user_id], $permissions));
+
+            AuditLog::create([
+                'log_title' => 'Created new account ' . $newUserId,
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+            
+            $successMessage = 'User account created successfully with ID ' . $newUserId . '.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('officers.index')->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            Log::error('User creation failed: ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while creating the account.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->route('createaccount')->with('error', $errorMessage)->withInput();
         }
-
-        UserPermission::create(array_merge(['user_id' => $user->user_id], $permissions));
-
-        AuditLog::create([
-            'log_title' => 'Created new account ' . $newUserId,
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
-
-        return redirect()->route('officers.index')->with('success', 'User created successfully.');
     }
 
     public function edit(User $user)
@@ -202,7 +215,7 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|max:200',
             'last_name' => 'required|string|max:200',
             'designation' => 'nullable|string|max:200',
@@ -212,91 +225,143 @@ class UserController extends Controller
             'permissions' => 'nullable|array',
         ]);
 
-        $updateData = [
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'designation' => $request->designation,
-            'email' => $request->email,
-            'contact_number' => $request->contact_number,
-            'modified_datetime' => Carbon::now(),
-        ];
-
-        if ($request->filled('passcode')) {
-            $updateData['passcode'] = Hash::make($request->passcode);
+        if ($validator->fails()) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $user->update($updateData);
+        try {
+            $updateData = [
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'designation' => $request->designation,
+                'email' => $request->email,
+                'contact_number' => $request->contact_number,
+                'modified_datetime' => Carbon::now(),
+            ];
 
-        // Reset all permissions to 0
-        $allPermissions = [
-            'view_officers' => 0, 'view_officer_details' => 0, 'view_halls' => 0,
-            'view_hall_details' => 0, 'view_quarters' => 0, 'view_quarter_details' => 0,
-            'view_audit_log' => 0, 'administrative_officer_approval' => 0,
-            'additional_government_agent_approval' => 0, 'government_agent_approval' => 0,
-            'form_history' => 0, 'account_setting' => 0, 'requester' => 0,
-        ];
+            if ($request->filled('passcode')) {
+                $updateData['passcode'] = Hash::make($request->passcode);
+            }
 
-        // Set submitted permissions to 1
-        if ($request->has('permissions')) {
-            foreach ($request->permissions as $permission) {
-                if (array_key_exists($permission, $allPermissions)) {
-                    $allPermissions[$permission] = 1;
+            $user->update($updateData);
+
+            $allPermissions = [
+                'view_officers' => 0, 'view_officer_details' => 0, 'view_halls' => 0,
+                'view_hall_details' => 0, 'view_quarters' => 0, 'view_quarter_details' => 0,
+                'view_audit_log' => 0, 'administrative_officer_approval' => 0,
+                'additional_government_agent_approval' => 0, 'government_agent_approval' => 0,
+                'form_history' => 0, 'account_setting' => 0, 'requester' => 0,
+            ];
+
+            if ($request->has('permissions')) {
+                foreach ($request->permissions as $permission) {
+                    if (array_key_exists($permission, $allPermissions)) {
+                        $allPermissions[$permission] = 1;
+                    }
                 }
             }
+
+            if ($user->permissions) {
+                $user->permissions()->update($allPermissions);
+            } else {
+                $user->permissions()->create($allPermissions);
+            }
+
+            AuditLog::create([
+                'log_title' => 'Modified account ' . $user->user_id,
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            $successMessage = 'Officer account updated successfully!';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('officers.index')->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            Log::error('User update failed: ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while updating the account.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->back()->with('error', $errorMessage)->withInput();
         }
-
-        // Update the permissions
-        if ($user->permissions) {
-            $user->permissions()->update($allPermissions);
-        } else {
-            // If for some reason user has no permissions record, create one
-            $user->permissions()->create($allPermissions);
-        }
-
-        AuditLog::create([
-            'log_title' => 'Modified account ' . $user->user_id,
-            'performed_by' => Auth::id(), // The admin performing the action
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
-
-        return redirect()->route('officers.index')->with('success', 'Officer account updated successfully!');
     }
 
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
-        $userId = $user->user_id;
-        $user->delete();
+        try {
+            $userId = $user->user_id;
+            $user->delete();
 
-        AuditLog::create([
-            'log_title' => 'Deleted account ' . $userId,
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
+            AuditLog::create([
+                'log_title' => 'Deleted account ' . $userId,
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
 
-        return redirect()->route('officers.index')->with('success', 'Officer account deleted successfully!');
+            $successMessage = 'Officer account ' . $userId . ' deleted successfully!';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('officers.index')->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            Log::error('User deletion failed: ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while deleting the account.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->route('officers.index')->with('error', $errorMessage);
+        }
     }
 
     public function changePassword(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'new_passcode' => 'required|string|min:4|confirmed',
         ]);
 
-        $user = Auth::user();
-        $user->passcode = Hash::make($request->new_passcode);
-        $user->modified_datetime = Carbon::now();
-        $user->save();
+        if ($validator->fails()) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+            }
+            return back()->withErrors($validator);
+        }
 
-        AuditLog::create([
-            'log_title' => 'Modified account ' . $user->user_id,
-            'performed_by' => $user->user_id,
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
+        try {
+            $user = Auth::user();
+            $user->passcode = Hash::make($request->new_passcode);
+            $user->modified_datetime = Carbon::now();
+            $user->save();
 
-        return back()->with('success', 'Passcode changed successfully.');
+            AuditLog::create([
+                'log_title' => 'User ' . $user->user_id . ' changed their passcode',
+                'performed_by' => $user->user_id,
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+            
+            $successMessage = 'Passcode changed successfully.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return back()->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            Log::error('Passcode change failed for user ' . Auth::id() . ': ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while changing the passcode.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return back()->with('error', $errorMessage);
+        }
     }
 
     public function showAuditLog()
@@ -314,18 +379,32 @@ class UserController extends Controller
         return redirect()->back()->with('error', 'You do not have permission to view the audit log.');
     }
 
-    public function clearAuditLog()
+    public function clearAuditLog(Request $request)
     {
-        AuditLog::truncate();
+        try {
+            AuditLog::truncate();
 
-        AuditLog::create([
-            'log_title' => 'Audit log records deleted',
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
+            AuditLog::create([
+                'log_title' => 'Audit log records deleted',
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
 
-        return redirect()->route('auditlog')->with('success', 'Audit log has been cleared successfully.');
+            $successMessage = 'Audit log has been cleared successfully.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('auditlog')->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            Log::error('Audit log clearing failed: ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while clearing the audit log.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->route('auditlog')->with('error', $errorMessage);
+        }
     }
 
     public function clearUsers()
@@ -359,33 +438,39 @@ class UserController extends Controller
     {
         // Fetch existing settings to populate the form
         $gradeSalarySettings = GradeSalarySetting::all()->keyBy('grade');
-        $grades = [
-            '1 (G I)', '2 (G II)', '3 (G III)', '4 (G IV)', '5 (G V)'
-        ];
+        // Dynamically get all unique grades from the database, or fall back to a default list if none exist
+        $grades = $gradeSalarySettings->keys()->sort()->all();
+
+        // If no grades exist in the DB, or if some standard grades are missing, provide a default set
+        $defaultGrades = ['1 (G I)', '2 (G II)', '3 (G III)', '4 (G IV)', '5 (G V)', '5A'];
+        foreach ($defaultGrades as $defaultGrade) {
+            if (!in_array($defaultGrade, $grades)) {
+                $grades[] = $defaultGrade;
+            }
+        }
+        sort($grades); // Sort the grades for consistent display
 
         return view('gradesalary', compact('gradeSalarySettings', 'grades'));
     }
 
     public function updateGradeSalary(Request $request)
     {
-        // Define validation rules dynamically
         $rules = [];
-        $grades = [
-            '1 (G I)', '2 (G II)', '3 (G III)', '4 (G IV)', '5 (G V)'
-        ];
+        $grades = ['1 (G I)', '2 (G II)', '3 (G III)', '4 (G IV)', '5 (G V)'];
 
         foreach ($grades as $grade) {
-            $key = str_replace([' ', '(', ')', '-'], '_', $grade); // Convert "1 (G I)" to "1_G_I" for request keys
+            $key = str_replace([' ', '(', ')', '-'], '_', $grade);
             $rules["grade_{$key}_min"] = 'required|integer|min:0';
-            $rules["grade_{$key}_max"] = 'required|integer|min:0|gte:grade_' . $key . '_min'; // Max must be greater than or equal to min
+            $rules["grade_{$key}_max"] = 'required|integer|min:0|gte:grade_' . $key . '_min';
         }
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return redirect()->route('gradesalary.index')
-                        ->withErrors($validator)
-                        ->withInput();
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+            }
+            return redirect()->route('gradesalary.index')->withErrors($validator)->withInput();
         }
 
         DB::beginTransaction();
@@ -409,14 +494,21 @@ class UserController extends Controller
             ]);
 
             DB::commit();
-            return redirect()->route('gradesalary.index')->with('success', 'Grade salary settings updated successfully!');
+            
+            $successMessage = 'Grade salary settings updated successfully!';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('gradesalary.index')->with('success', $successMessage);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Grade Salary Settings Update Failed: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-            ]);
-            return redirect()->route('gradesalary.index')->with('error', 'An unexpected error occurred. Failed to update settings. Please check the logs.');
+            Log::error('Grade Salary Settings Update Failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            $errorMessage = 'An unexpected error occurred. Failed to update settings.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->route('gradesalary.index')->with('error', $errorMessage);
         }
     }
 }

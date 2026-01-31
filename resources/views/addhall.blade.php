@@ -142,28 +142,11 @@
         </div>
 
         <div class="form-container">
-            @if(session('success'))
-                <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if ($errors->any())
-                <div class="alert alert-danger" style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
-                    <strong>Whoops!</strong> There were some problems with your input.<br><br>
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
             <div class="form-info">
                 <p>Fields marked with <span style="color: #ff0000;">*</span> are required. Please ensure all information is accurate before submitting.</p>
             </div>
 
-            <form action="{{ route('halls.store') }}" method="POST">
+            <form id="addHallForm" action="{{ route('halls.store') }}" method="POST">
                 @csrf
                 <div class="form-row">
                     <div class="form-group">
@@ -203,4 +186,103 @@
             </form>
         </div>
     </section>
+    <!-- Generic Modal Overlay -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <div id="modal-buttons" class="modal-buttons"></div>
+        </div>
+    </div>
 @endsection
+
+@push('scripts')
+<style>
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-content { background: #fff; padding: 30px; border-radius: 8px; text-align: center; max-width: 450px; width: 90%; transform: scale(0.9); transition: transform 0.3s ease; }
+    .modal-overlay.active .modal-content { transform: scale(1); }
+    .modal-buttons { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+    .modal-buttons .btn { padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; border: none; color: white; }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('addHallForm');
+    if (form) {
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalButtons = document.getElementById('modal-buttons');
+
+        const showModal = (title, message, buttons) => {
+            modalTitle.textContent = title;
+            modalMessage.innerHTML = message;
+            modalButtons.innerHTML = '';
+            buttons.forEach(btn => {
+                const buttonEl = document.createElement('button');
+                buttonEl.textContent = btn.text;
+                buttonEl.className = `btn ${btn.class}`;
+                buttonEl.addEventListener('click', btn.onClick);
+                modalButtons.appendChild(buttonEl);
+            });
+            modalOverlay.classList.add('active');
+        };
+
+        const hideModal = () => {
+            modalOverlay.classList.remove('active');
+        };
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const confirmButtons = [
+                { text: 'Yes, Add Hall', class: 'submit-btn', onClick: () => performSubmit() },
+                { text: 'Cancel', class: 'reset-btn', onClick: hideModal }
+            ];
+            showModal('Confirm Submission', 'Are you sure you want to add this hall?', confirmButtons);
+        });
+
+        const performSubmit = async () => {
+            showModal('Processing...', 'Submitting hall details, please wait...', []);
+
+            const formData = new FormData(form);
+            const url = form.action;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': formData.get('_token'),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    const errorButtons = [{ text: 'OK', class: 'reset-btn', onClick: hideModal }];
+                    showModal('Error', result.message || 'An unknown error occurred.', errorButtons);
+                } else {
+                    const successButtons = [
+                        { text: 'Add Another Hall', class: 'submit-btn', onClick: () => { form.reset(); hideModal(); } },
+                        { text: 'View All Halls', class: 'back-button', onClick: () => window.location.href = "{{ route('halls.index') }}" }
+                    ];
+                    showModal('Success', result.message, successButtons);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                const errorButtons = [{ text: 'OK', class: 'reset-btn', onClick: hideModal }];
+                showModal('Request Failed', 'Could not connect to the server.', errorButtons);
+            }
+        };
+        
+        modalOverlay.addEventListener('click', function(event) {
+            if (event.target === modalOverlay) {
+                hideModal();
+            }
+        });
+    }
+});
+</script>
+@endpush

@@ -29,7 +29,7 @@ class HallController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'hall_type' => 'required|string|max:200',
             'capacity' => 'required|integer',
             'description' => 'required|string|max:1200',
@@ -37,34 +37,55 @@ class HallController extends Controller
             'special_notice' => 'nullable|string',
         ]);
 
-        // Generate hall_id
-        $lastHall = Hall::orderBy('hall_id', 'desc')->first();
-        $nextHallIdNumber = 1;
-        if ($lastHall) {
-            $lastHallIdNumber = (int) Str::after($lastHall->hall_id, 'hall');
-            $nextHallIdNumber = $lastHallIdNumber + 1;
+        if ($validator->fails()) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
         }
-        $newHallId = 'hall' . str_pad($nextHallIdNumber, 3, '0', STR_PAD_LEFT);
 
-        $hall = Hall::create([
-            'hall_id' => $newHallId,
-            'hall_type' => $request->hall_type,
-            'capacity' => $request->capacity,
-            'description' => $request->description,
-            'current_state' => $request->hall_status,
-            'special_notice' => $request->special_notice,
-            'date_created' => Carbon::now(),
-            'date_modified' => Carbon::now(),
-        ]);
+        try {
+            // Generate hall_id
+            $lastHall = Hall::orderBy('hall_id', 'desc')->first();
+            $nextHallIdNumber = 1;
+            if ($lastHall) {
+                $lastHallIdNumber = (int) Str::after($lastHall->hall_id, 'hall');
+                $nextHallIdNumber = $lastHallIdNumber + 1;
+            }
+            $newHallId = 'hall' . str_pad($nextHallIdNumber, 3, '0', STR_PAD_LEFT);
 
-        AuditLog::create([
-            'log_title' => 'Added New Hall ' . $newHallId,
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
+            Hall::create([
+                'hall_id' => $newHallId,
+                'hall_type' => $request->hall_type,
+                'capacity' => $request->capacity,
+                'description' => $request->description,
+                'current_state' => $request->hall_status,
+                'special_notice' => $request->special_notice,
+                'date_created' => Carbon::now(),
+                'date_modified' => Carbon::now(),
+            ]);
 
-        return redirect()->route('halls.index')->with('success', 'Hall added successfully!');
+            AuditLog::create([
+                'log_title' => 'Added New Hall ' . $newHallId,
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            $successMessage = 'Hall added successfully with ID ' . $newHallId . '!';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('halls.index')->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Hall creation failed: ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while adding the hall.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->back()->with('error', $errorMessage)->withInput();
+        }
     }
 
     /**
@@ -112,7 +133,7 @@ class HallController extends Controller
      */
     public function update(Request $request, Hall $hall)
     {
-        $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'hall_type' => 'required|string|max:200',
             'capacity' => 'required|integer',
             'description' => 'required|string|max:1200',
@@ -120,23 +141,44 @@ class HallController extends Controller
             'special_notice' => 'nullable|string',
         ]);
 
-        $hall->update([
-            'hall_type' => $request->hall_type,
-            'capacity' => $request->capacity,
-            'description' => $request->description,
-            'current_state' => $request->current_state,
-            'special_notice' => $request->special_notice,
-            'date_modified' => Carbon::now(),
-        ]);
+        if ($validator->fails()) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
-        AuditLog::create([
-            'log_title' => 'Modified Hall ' . $hall->hall_id,
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
+        try {
+            $hall->update([
+                'hall_type' => $request->hall_type,
+                'capacity' => $request->capacity,
+                'description' => $request->description,
+                'current_state' => $request->current_state,
+                'special_notice' => $request->special_notice,
+                'date_modified' => Carbon::now(),
+            ]);
 
-        return redirect()->route('halls.index')->with('success', 'Hall updated successfully!');
+            AuditLog::create([
+                'log_title' => 'Modified Hall ' . $hall->hall_id,
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            $successMessage = 'Hall updated successfully!';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('halls.index')->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Hall update failed: ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while updating the hall.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->back()->with('error', $errorMessage)->withInput();
+        }
     }
 
     /**
@@ -145,19 +187,33 @@ class HallController extends Controller
      * @param  \App\Models\Hall  $hall
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(Hall $hall)
+    public function destroy(Request $request, Hall $hall)
     {
-        $hallId = $hall->hall_id;
-        $hall->delete();
+        try {
+            $hallId = $hall->hall_id;
+            $hall->delete();
 
-        AuditLog::create([
-            'log_title' => 'Deleted Hall ' . $hallId,
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
+            AuditLog::create([
+                'log_title' => 'Deleted Hall ' . $hallId,
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+            
+            $successMessage = 'Hall ' . $hallId . ' deleted successfully!';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('halls.index')->with('success', $successMessage);
 
-        return redirect()->route('halls.index')->with('success', 'Hall deleted successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Hall deletion failed: ' . $e->getMessage());
+            $errorMessage = 'Failed to delete hall. It may be associated with existing bookings.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->route('halls.index')->with('error', $errorMessage);
+        }
     }
 
     /**

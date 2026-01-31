@@ -106,11 +106,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/seequarters', [QuarterController::class, 'seeQuarters'])->name('seequarters');
     Route::get('/occupantdetails', [QuarterController::class, 'showOccupantDetails'])->name('occupantdetails');
     Route::get('/family-quarter-application/{id}/review', [QuarterAllocationController::class, 'showFamilyQuarterReview'])->name('family-quarter.review');
+    Route::patch('/family-quarter-application/{id}/review', [QuarterAllocationController::class, 'updateFamilyQuarterReview'])->name('family-quarter.review.update');
     Route::get('/scheduled-quarter-application/{id}/review', [QuarterAllocationController::class, 'showScheduledQuarterReview'])->name('scheduled-quarter.review');
-    Route::patch('/scheduled-quarter-application/{id}/review', [QuarterAllocationController::class, 'updateScheduledQuarterReview'])->name('scheduled-quarter.review.update');
+    Route::post('/scheduled-quarter-application/{id}/allocate', [QuarterAllocationController::class, 'allocateQuarter'])->name('scheduled-quarter.allocate');
     Route::get('/quarter-application/{id}/download-pdf', [QuarterAllocationController::class, 'downloadPdf'])->name('quarter.download-pdf');
+    Route::get('/processed-application/scheduled/{id}', [QuarterAllocationController::class, 'showProcessedScheduled'])->name('history.view_scheduled');
+    Route::get('/processed-application/family/{id}', [QuarterAllocationController::class, 'showProcessedFamily'])->name('history.view_family');
 
     Route::get('/history', [HallBookingController::class, 'showHistory'])->name('history');
+    Route::get('/history/quarters', [QuarterAllocationController::class, 'showQuarterHistory'])->name('history.quarters');
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 });
 
@@ -118,6 +122,7 @@ Route::middleware(['auth'])->group(function () {
 Route::post('/verify-quarter-requester', [QuarterAllocationController::class, 'verifyRequester'])->name('quarters.requester.verify');
 Route::get('/bookquarter', [QuarterController::class, 'create'])->name('bookquarter');
 Route::get('/familyquarter', [QuarterAllocationController::class, 'bookFamilyQuarters'])->name('familyquarter');
+Route::post('/familyquarter', [QuarterAllocationController::class, 'storeFamilyQuarters'])->name('familyquarter.store');
 Route::get('/scheduledquarter', [QuarterAllocationController::class, 'bookScheduledQuarters'])->name('scheduledquarter');
 Route::post('/scheduledquarter', [QuarterAllocationController::class, 'storeScheduledQuarters'])->name('scheduledquarter.store');
 
