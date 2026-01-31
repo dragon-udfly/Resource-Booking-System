@@ -41,7 +41,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" style="text-align: center;">No hall booking history found.</td>
+                    <td colspan="7" style="text-align: center;">No records available</td>
                 </tr>
             @endforelse
         </tbody>
@@ -60,7 +60,7 @@
             </tr>
         </thead>
         <tbody id="quarters-history-body">
-            <tr><td colspan="6" style="text-align: center;">Loading quarter history...</td></tr>
+            <tr><td colspan="6" style="text-align: center;">No records available</td></tr>
         </tbody>
     </table>
     
