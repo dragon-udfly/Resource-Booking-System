@@ -187,7 +187,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }));
 
     historyBackBtn.addEventListener('click', () => historyReviewOverlay.style.display = 'none');
-    historyDownloadBtn.addEventListener('click', () => { if (currentBookingId) window.open(`/hall-bookings/${currentBookingId}/download`, '_blank'); });
+    if (historyDownloadBtn) {
+        historyDownloadBtn.addEventListener('click', () => { if (currentBookingId) window.open(`/hall-bookings/${currentBookingId}/download`, '_blank'); });
+    }
 
     if (historyCancelBtn) { /* Existing Cancel Logic */ }
 
@@ -250,8 +252,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td>${app.quarter_type || 'N/A'}</td>
                     <td><span class="${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
                     <td class="action-cell">
-                        <a href="${viewUrl}" class="action-btn" style="background-color: #007bff;">View</a>
-                        <a href="${downloadUrl}" class="action-btn" style="background-color: #28a745;" target="_blank">Download</a>
+                        <a href="${viewUrl}" class="action-btn" style="background-color: #007bff; text-decoration: none;">View</a>
+                        <a href="${downloadUrl}" class="action-btn" style="background-color: #28a745; text-decoration: none;" target="_blank">Download</a>
                     </td>
                 `;
                 quartersHistoryBody.appendChild(row);
