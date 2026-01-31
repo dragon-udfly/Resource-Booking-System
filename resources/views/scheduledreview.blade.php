@@ -227,8 +227,8 @@
                     <p style="font-weight: bold; text-transform: capitalize;">{{ optional($application->quarterAllocation)->allocation_status ?? 'N/A' }}</p>
                 </div>
                     <div class="form-group">
-                    <label>Allocation Date:</label>
-                    <p>{{ optional($application->quarterAllocation)->allocation_date ? \Carbon\Carbon::parse($application->quarterAllocation->allocation_date)->format('Y-m-d') : 'N/A' }}</p>
+                    <label>Expected Vacate Date:</label>
+                    <p>{{ \Carbon\Carbon::now()->addYears(5)->format('Y-m-d') }}</p>
                 </div>
             </div>
 
@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function () {
             { text: 'Yes, Allocate', class: 'btn btn-success', onClick: () => performAllocation() },
             { text: 'Cancel', class: 'btn btn-danger', onClick: hideModal }
         ];
-        showModal('Confirm Allocation', 'Are you sure you want to allocate this quarter? This action will be logged and cannot be undone.', confirmButtons);
+        showModal('Confirm Allocation', 'Are you sure you want to allocate this quarter?', confirmButtons);
     });
 
     const performAllocation = async () => {
