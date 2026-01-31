@@ -11,7 +11,8 @@
         .home-btn { background-color: #6c757d; }
         .back-btn { background-color: #007bff; }
         .btn:hover { opacity: 0.9; }
-        .form-container { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); width: auto; max-width: 1200px; margin-top: 20px; }
+        .form-container { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); width: 90%; max-width: 1200px; margin-top: 20px; }
+        form#allocation-form { margin: 0 auto; width: 90%; max-width: 1200px; }
         .form-row { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
         .form-group { flex: 1; min-width: 280px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
