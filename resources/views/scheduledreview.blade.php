@@ -238,11 +238,10 @@
                     {{-- if ga_approval_status is 1(Yes) and selected_quarter is not empty--}}
                     {{-- update quarter_id and is_ga_verified and ga_note and allocation_status and allocation_date in quarter_allocation--}}
                     {{-- update vacate_date, allocation date + 5 years --}}
-                    <button type="submit" name="action" value="allocate" id="allocate-button" class="btn btn-success">Allocate</button>
-                    {{-- if ga_approval_status in 0(No) --}}
-                    {{-- update is_ga_verified and ga_note and allocation_status in quarter_allocation--}}
-                    <button type="submit" name="action" value="reject" id="reject-button" class="btn btn-danger">Reject</button>
-                @endif
+                                <button type="submit" name="submit_action" value="allocate" id="allocate-button" class="btn btn-success">Allocate</button>
+                                {{-- if ga_approval_status in 0(No) --}}
+                                {{-- update is_ga_verified and ga_note and allocation_status in quarter_allocation--}}
+                                <button type="submit" name="submit_action" value="reject" id="reject-button" class="btn btn-danger">Reject</button>                @endif
                 @if(Auth::user()->hasPermissionTo('additional_government_agent_approval'))
                     {{-- update is_aga_verified and aga_note in quarter_allocation--}}
                     <button type="submit" name="action" value="Submit" id="submit-button" class="btn btn-success">Submit</button>
@@ -340,8 +339,31 @@ document.addEventListener('DOMContentLoaded', function () {
         const loadingButtons = []; // No buttons, just a message
         showModal('Processing...', 'Submitting allocation, please wait...', loadingButtons);
 
-        const formData = new FormData(form);
-        const url = form.action;
+        // Retrieve the form element inside this function to ensure it's fresh
+        const formElement = document.getElementById('allocation-form');
+
+        // Ensure form and form.action are valid
+        if (!formElement || typeof formElement.action !== 'string' || formElement.action.trim() === '') {
+            console.error("Form or form.action is not valid:", formElement);
+            showModal('Error', 'Form submission failed: Missing or invalid form action.', [{ text: 'OK', class: 'btn btn-danger', onClick: hideModal }]);
+            return;
+        }
+        const formAction = formElement.action;
+        
+        // Use a more robust way to extract application_id
+        const match = formAction.match(/\/scheduled-quarter-application\/([^\/]+)\/allocate/);
+        let applicationId = '';
+        if (match && match[1]) {
+            applicationId = match[1];
+        } else {
+            console.error("Could not extract application ID from form action:", formAction);
+            showModal('Error', 'Form submission failed: Invalid application ID in form action.', [{ text: 'OK', class: 'btn btn-danger', onClick: hideModal }]);
+            return;
+        }
+
+        const url = `/scheduled-quarter-application/${applicationId}/allocate`;
+
+        const formData = new FormData(formElement); // Use formElement here
 
         try {
             const response = await fetch(url, {
