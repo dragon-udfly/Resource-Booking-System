@@ -283,6 +283,9 @@
 <style>
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
     .modal-content { background: #fff; padding: 30px; border-radius: 8px; text-align: center; max-width: 450px; width: 90%; }
+    /* Added styles for submit and back buttons within the modal */
+    .submit-btn { background-color: #007bff; }
+    .back-btn { background-color: #6c757d; }
 </style>
 <script>
 document.addEventListener('DOMContentLoaded', function() {

@@ -379,18 +379,32 @@ class UserController extends Controller
         return redirect()->back()->with('error', 'You do not have permission to view the audit log.');
     }
 
-    public function clearAuditLog()
+    public function clearAuditLog(Request $request)
     {
-        AuditLog::truncate();
+        try {
+            AuditLog::truncate();
 
-        AuditLog::create([
-            'log_title' => 'Audit log records deleted',
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
+            AuditLog::create([
+                'log_title' => 'Audit log records deleted',
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
 
-        return redirect()->route('auditlog')->with('success', 'Audit log has been cleared successfully.');
+            $successMessage = 'Audit log has been cleared successfully.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('auditlog')->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            Log::error('Audit log clearing failed: ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while clearing the audit log.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->route('auditlog')->with('error', $errorMessage);
+        }
     }
 
     public function clearUsers()
@@ -424,9 +438,17 @@ class UserController extends Controller
     {
         // Fetch existing settings to populate the form
         $gradeSalarySettings = GradeSalarySetting::all()->keyBy('grade');
-        $grades = [
-            '1 (G I)', '2 (G II)', '3 (G III)', '4 (G IV)', '5 (G V)'
-        ];
+        // Dynamically get all unique grades from the database, or fall back to a default list if none exist
+        $grades = $gradeSalarySettings->keys()->sort()->all();
+
+        // If no grades exist in the DB, or if some standard grades are missing, provide a default set
+        $defaultGrades = ['1 (G I)', '2 (G II)', '3 (G III)', '4 (G IV)', '5 (G V)', '5A'];
+        foreach ($defaultGrades as $defaultGrade) {
+            if (!in_array($defaultGrade, $grades)) {
+                $grades[] = $defaultGrade;
+            }
+        }
+        sort($grades); // Sort the grades for consistent display
 
         return view('gradesalary', compact('gradeSalarySettings', 'grades'));
     }

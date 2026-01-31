@@ -192,33 +192,16 @@ class QuarterAllocationController extends Controller
 
         $validator = Validator::make($request->all(), [
             'officer_name' => 'required|string|max:255',
-            'nic' => [
-                'required',
-                'string',
-                'max:20',
-                Rule::unique('quarter_application', 'nic'),
-            ],
+            'nic' => ['required', 'string', 'max:20', Rule::unique('quarter_application', 'nic')],
             'dob' => 'required|date',
             'designation' => 'required|string|max:100',
             'gender' => ['required', Rule::in(['Male', 'Female'])],
             'service_and_grade' => ['required', Rule::in(['1', '2', '3', '4', '5', '5A'])],
             'permanent_address' => 'required|string|max:1200',
-            'temporary_address' => 'nullable|string|max:1200',
             'phone_number' => 'required|string|max:20',
-            'email' => 'nullable|email|max:100',
             'monthly_salary' => 'required|numeric',
             'f_date_of_last_salary_increment' => 'required|date',
             'date_of_assumption_of_duties' => 'required|date',
-            'f_transformed_officer' => 'nullable|string',
-            'f_marital_status' => ['nullable', Rule::in(['Married', 'Widowed', 'Divorced', 'Separated'])],
-            'f_is_spouse_employed' => 'nullable|boolean',
-            'f_spouse_designation' => 'nullable|string|max:100',
-            'f_spouse_department_office' => 'nullable|string|max:255',
-            'f_spouse_monthly_salary' => 'nullable|numeric',
-            'f_spouse_last_increment_date' => 'nullable|date',
-            'f_children_details_description' => 'nullable|string|max:2000',
-            'f_property_ownership_details' => 'nullable|string|max:2000',
-            'f_previous_government_quarter_duration' => 'nullable|integer',
             'marking_f_department' => ['required', Rule::in(['Officers_attached_under_the_Ministry_of_Home_Affairs', 'Officers_attached_to_District_and_Divisional_Secretariats', 'Other_Officers'])],
             'number_of_dependant' => ['required', Rule::in(['01_person', '02_person', '03_person', '04_person', '05_or_above_05_person'])],
             'is_dependant_with_disability' => 'required|boolean',
@@ -226,13 +209,13 @@ class QuarterAllocationController extends Controller
             'filled_by_nic' => 'required|string',
             'filled_by_phone' => 'required|string',
             'confirm_details' => 'required|accepted',
-            'f_spacial_reason' => 'nullable|string|max:2000',
         ], $messages);
 
         if ($validator->fails()) {
-            return redirect()->route('familyquarter')
-                        ->withErrors($validator)
-                        ->withInput();
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+            }
+            return redirect()->route('familyquarter')->withErrors($validator)->withInput();
         }
 
         DB::beginTransaction();
@@ -251,14 +234,22 @@ class QuarterAllocationController extends Controller
             ]);
 
             DB::commit();
-            return redirect()->route('bookquarter')->with('success', 'Family quarter application submitted successfully!');
+
+            $successMessage = 'Family quarter application submitted successfully!';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return redirect()->route('bookquarter')->with('success', $successMessage);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Family Quarter Application Submission Failed: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-            ]);
-            return redirect()->route('familyquarter')->with('error', 'An unexpected error occurred. Failed to submit application. Please check the logs.');
+            Log::error('Family Quarter Application Submission Failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            
+            $errorMessage = 'An unexpected error occurred. Failed to submit application.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return redirect()->route('familyquarter')->with('error', $errorMessage);
         }
     }
     

@@ -122,6 +122,7 @@ Route::middleware(['auth'])->group(function () {
 Route::post('/verify-quarter-requester', [QuarterAllocationController::class, 'verifyRequester'])->name('quarters.requester.verify');
 Route::get('/bookquarter', [QuarterController::class, 'create'])->name('bookquarter');
 Route::get('/familyquarter', [QuarterAllocationController::class, 'bookFamilyQuarters'])->name('familyquarter');
+Route::post('/familyquarter', [QuarterAllocationController::class, 'storeFamilyQuarters'])->name('familyquarter.store');
 Route::get('/scheduledquarter', [QuarterAllocationController::class, 'bookScheduledQuarters'])->name('scheduledquarter');
 Route::post('/scheduledquarter', [QuarterAllocationController::class, 'storeScheduledQuarters'])->name('scheduledquarter.store');
 
