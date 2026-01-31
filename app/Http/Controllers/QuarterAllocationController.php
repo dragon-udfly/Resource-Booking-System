@@ -577,10 +577,16 @@ class QuarterAllocationController extends Controller
             $quarterAllocation->save();
 
             // 5. Update Quarters Table
+            // Check if adding another occupant would exceed the capacity
+            if ($quarter->current_occupant_number + 1 > $quarter->occupant_number) {
+                return response()->json(['status' => 'error', 'message' => 'Cannot allocate: Quarter is already at full capacity.'], 409);
+            }
+
             $quarter->current_occupant_number += 1;
             if ($quarter->current_occupant_number >= $quarter->occupant_number) {
                 $quarter->status = 'Allocated';
             }
+            $quarter->date_modified = Carbon::now(); // Update date_modified
             $quarter->save();
 
             // 6. Update Audit Log
