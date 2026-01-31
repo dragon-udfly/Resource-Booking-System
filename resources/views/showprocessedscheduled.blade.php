@@ -46,29 +46,27 @@
                 <div class="form-group"><label>5. Service and Grade:</label><p>{{ $application->service_grade ?? 'N/A' }}</p></div>
                 <div class="form-group"><label>6. Permanent Address:</label><p>{{ $application->permanent_address ?? 'N/A' }}</p></div>
             </div>
-        </div> 
-
-        <div class="form-container">
-            <h3 class="form-section-title">B) Allocation Details</h3>
-            @php
-                $allocation = $application->quarterAllocation;
-                $statusClass = '';
-                if ($allocation->allocation_status == 'allocated') $statusClass = 'status-allocated';
-                if ($allocation->allocation_status == 'rejected') $statusClass = 'status-rejected';
-                if ($allocation->allocation_status == 'cancelled') $statusClass = 'status-cancelled';
-            @endphp
+        
+            <h3 class="form-section-title">C) Property Ownership</h3>
             <div class="form-row">
-                <div class="form-group">
-                    <label>Final Allocation Status:</label>
-                    <p class="{{ $statusClass }}" style="font-weight: bold; text-transform: capitalize;">{{ $allocation->allocation_status ?? 'N/A' }}</p>
-                </div>
-                <div class="form-group">
-                    <label>Allocation/Rejection Date:</label>
-                    <p>{{ $allocation->updated_at ? $allocation->updated_at->format('Y-m-d') : 'N/A' }}</p>
-                </div>
+                <div class="form-group"><label>1. Owns property within 5km?</label><p>{{ $application->scheduledQuarterApplication?->sq_property_ownership_details ?? 'N/A' }}</p></div>
             </div>
 
-            @if($allocation->allocation_status == 'allocated')
+            <h3 class="form-section-title">D) Allocation Process Details</h3>
+            <div class="form-row">
+                <div class="form-group"><label>Monthly Salary:</label><p>{{ number_format($application->monthly_salary, 2) ?? 'N/A' }}</p></div>
+                <div class="form-group"><label>Applicant Grade (Service):</label><p>{{ $application->service_grade ?? 'N/A' }}</p></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Grade (Calculated):</label><p>{{ $calculatedGrade ?? 'N/A' }}</p></div>
+                <div class="form-group"><label>Gender:</label><p>{{ $application->gender ?? 'N/A' }}</p></div>
+            </div>
+      
+            <h3 class="form-section-title">E) Allocated Quarter Details</h3>
+            @php
+                $allocation = $application->quarterAllocation;
+            @endphp
+            @if($allocation && $allocation->allocation_status == 'allocated' && $allocation->quarter)
                 <div class="form-row">
                     <div class="form-group">
                         <label>Allocated Quarter No (New):</label>
@@ -89,19 +87,48 @@
                         <p>{{ $allocation->vacate_date ? \Carbon\Carbon::parse($allocation->vacate_date)->format('Y-m-d') : 'N/A' }}</p>
                     </div>
                 </div>
+            @else
+                <div class="form-row">
+                    <div class="form-group" style="flex-basis: 100%;">
+                        <p style="text-align: center;">No Quarter Allocated.</p>
+                    </div>
+                </div>
             @endif
+        </div>
 
+        <div class="form-container">
+            <h3 class="form-section-title">F) Allocation Details</h3>
+            @php
+                $allocation = $application->quarterAllocation;
+                $statusClass = '';
+                if ($allocation->allocation_status == 'allocated') $statusClass = 'status-allocated';
+                if ($allocation->allocation_status == 'rejected') $statusClass = 'status-rejected';
+                if ($allocation->allocation_status == 'cancelled') $statusClass = 'status-cancelled';
+            @endphp
             <div class="form-row">
                 <div class="form-group">
-                    <label>Administrative Officer Note:</label>
-                    <p>{{ $allocation->ao_note ?? 'N/A' }}</p>
+                    <label>Final Allocation Status:</label>
+                    <p class="{{ $statusClass }}" style="font-weight: bold; text-transform: capitalize;">{{ $allocation->allocation_status ?? 'N/A' }}</p>
                 </div>
                 <div class="form-group">
-                    <label>Additional Government Agent Note:</label>
-                    <p>{{ $allocation->aga_note ?? 'N/A' }}</p>
+                    <label>Allocation/Rejection Date:</label>
+                    <p>{{ $allocation->updated_at ? $allocation->updated_at->format('Y-m-d') : 'N/A' }}</p>
                 </div>
             </div>
+
             <div class="form-row">
+                <div class="form-group"><label>Administrative Officer Verified:</label><p>{{ optional($allocation)->is_ao_verified ? 'Yes' : 'No' }}</p></div>
+                <div class="form-group"><label>Administrative Officer Note:</label><p>{{ $allocation->ao_note ?? 'N/A' }}</p></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Additional Government Agent Verified:</label><p>{{ optional($allocation)->is_aga_verified ? 'Yes' : 'No' }}</p></div>
+                <div class="form-group"><label>Additional Government Agent Note:</label><p>{{ $allocation->aga_note ?? 'N/A' }}</p></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Government Agent Approved:</label>
+                    <p>{{ $allocation->allocation_status !== 'pending' && $allocation->allocation_status !== 'rejected' ? 'Yes' : 'No' }}</p>
+                </div>
                 <div class="form-group">
                     <label>Government Agent Note:</label>
                     <p>{{ $allocation->ga_note ?? 'N/A' }}</p>
