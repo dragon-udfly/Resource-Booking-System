@@ -148,18 +148,22 @@
 
         .btn-success {
             background-color: #28a745;
+            color: white;
         }
 
         .btn-danger {
             background-color: #dc3545;
+            color: white;
         }
 
         .btn-info {
             background-color: #17a2b8;
+            color: white;
         }
 
         .btn-secondary {
             background-color: #6c757d;
+            color: white;
         }
 
         .button-group {
@@ -450,7 +454,8 @@
                         </div>
                         <div class="form-group">
                             <label for="aga_note">Additional Government Agent Note:</label>
-                            <textarea name="aga_note" id="aga_note" rows="3" class="form-control" style="width: 100%;">{{ optional($application->quarterAllocation)->aga_note ?? '' }}</textarea>
+                            <textarea name="aga_note" id="aga_note" rows="3" class="form-control"
+                                style="width: 100%;">{{ optional($application->quarterAllocation)->aga_note ?? '' }}</textarea>
                         </div>
                     </div>
                 @else

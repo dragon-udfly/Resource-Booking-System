@@ -92,9 +92,9 @@
             width: 100%;
         }
 
-        .btn-success { background-color: #28a745; }
-        .btn-danger { background-color: #dc3545; }
-        .btn-download { background-color: #17a2b8; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-download { background-color: #17a2b8; color: white; }
 
         .button-group {
             display: flex;
@@ -132,7 +132,7 @@
         .modal-content h3 { margin-top: 0; color: #333; }
         .modal-content p { margin-bottom: 20px; color: #555; }
         .modal-buttons { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
-        .btn-secondary { background-color: #6c757d; }
+        .btn-secondary { background-color: #6c757d; color: white; }
 
     </style>
 @endsection
