@@ -240,12 +240,13 @@
                     {{-- if ga_approval_status is 1(Yes) and selected_quarter is not empty--}}
                     {{-- update quarter_id and is_ga_verified and ga_note and allocation_status and allocation_date in quarter_allocation--}}
                     {{-- update vacate_date, allocation date + 5 years --}}
-                                <button type="submit" name="submit_action" value="allocate" id="allocate-button" class="btn btn-success">Allocate</button>
-                                {{-- if ga_approval_status in 0(No) --}}
-                                {{-- update is_ga_verified and ga_note and allocation_status in quarter_allocation--}}
-                                <button type="submit" name="submit_action" value="reject" id="reject-button" class="btn btn-danger">Reject</button>                @endif
+                    <button type="submit" name="submit_action" value="allocate" id="allocate-button" class="btn btn-success">Allocate</button>
+                    {{-- if ga_approval_status in 0(No) --}}
+                    {{-- update is_ga_verified and ga_note and allocation_status in quarter_allocation--}}
+                    <button type="submit" name="submit_action" value="reject" id="reject-button" class="btn btn-danger">Reject</button>                
+                @endif
                 @if(Auth::user()->hasPermissionTo('additional_government_agent_approval'))
-<button type="submit" name="submit_action" value="Submit" id="submit-button" class="btn btn-success">Submit</button>
+                    <button type="submit" name="submit_action" value="Submit" id="submit-button" class="btn btn-success">Submit</button>
                     {{-- if aga_verified_status= 0 (No) --}}
                     {{-- update is_aga_verified and aga_note in quarter_allocation--}}
                     <button type="submit" name="submit_action" value="Reject" id="reject-button" class="btn btn-danger">Reject</button>
