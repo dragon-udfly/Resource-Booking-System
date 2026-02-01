@@ -182,6 +182,11 @@
             background-color: #6c757d;
             color: white;
         }
+
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
     </style>
 @endsection
 
