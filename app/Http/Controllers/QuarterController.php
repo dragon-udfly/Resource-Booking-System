@@ -16,8 +16,8 @@ use App\Models\QuarterApplication;
 use App\Models\FamilyQuarterApplication;
 use App\Models\MarkingFamilyQuarter;
 use App\Models\QuarterAllocation;
-use App\Models\ScheduledQuarterApplication; 
-use App\Models\GradeSalarySetting; 
+use App\Models\ScheduledQuarterApplication;
+use App\Models\GradeSalarySetting;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +33,7 @@ class QuarterController extends Controller
      * Store a newly created quarter in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
@@ -57,8 +57,8 @@ class QuarterController extends Controller
                 return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 422);
             }
             return redirect()->route('addquarter')
-                        ->withErrors($validator)
-                        ->withInput();
+                ->withErrors($validator)
+                ->withInput();
         }
 
         // Create the quarter
@@ -98,8 +98,12 @@ class QuarterController extends Controller
             $serviceGrade = $request->service_grade;
             if ($serviceGrade) {
                 $gradeMapping = [
-                    '1' => '1 (G I)', '2' => '2 (G II)', '3' => '3 (G III)', 
-                    '4' => '4 (G IV)', '5' => '5 (G V)', '5A' => '5A',
+                    '1' => '1 (G I)',
+                    '2' => '2 (G II)',
+                    '3' => '3 (G III)',
+                    '4' => '4 (G IV)',
+                    '5' => '5 (G V)',
+                    '5A' => '5A',
                 ];
                 $mappedGrade = $gradeMapping[$serviceGrade] ?? null;
 
@@ -127,7 +131,7 @@ class QuarterController extends Controller
                 return response()->json(['status' => 'success', 'message' => $successMessage]);
             }
             return redirect()->route('quarters.index')->with('success', $successMessage);
-        
+
         } catch (\Exception $e) {
             Log::error('Failed to create quarter (Exception): ' . $e->getMessage());
             $errorMessage = 'An unexpected error occurred. Failed to add quarter.';
@@ -135,8 +139,8 @@ class QuarterController extends Controller
                 return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
             }
             return redirect()->route('addquarter')
-                        ->with('error', $errorMessage)
-                        ->withInput();
+                ->with('error', $errorMessage)
+                ->withInput();
         }
     }
 
@@ -248,8 +252,13 @@ class QuarterController extends Controller
 
     public function showOccupantDetails()
     {
-        // For now, no data is passed as we don't have a way to get occupant info
-        return view('occupantdetails');
+        // Fetch all allocated quarters with their allocations and application details
+        $allocations = \App\Models\QuarterAllocation::with(['quarter', 'application'])
+            ->where('allocation_status', 'allocated')
+            ->whereNotNull('quarter_id')
+            ->get();
+
+        return view('occupantdetails', compact('allocations'));
     }
 
     public function createQuarterApplication(Request $request)

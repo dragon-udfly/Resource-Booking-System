@@ -21,14 +21,16 @@
         }
 
         table {
-            width: 90%; /* Adjust table width */
+            width: 90%;
+            /* Adjust table width */
             margin: 20px auto;
             border-collapse: collapse;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             background-color: #fff;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 12px 15px;
             text-align: left;
@@ -59,10 +61,12 @@
             color: white;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
+
         /* Specific back button styles */
         .back-button {
             background-color: #6c757d;
         }
+
         .back-button:hover {
             background-color: #5a6268;
             transform: translateY(-1px);
@@ -72,7 +76,7 @@
 
 @section('content')
     <section class="banner">
-         <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
             <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
         </div>
         <div class="page-header">
@@ -95,9 +99,28 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td colspan="7" style="text-align: center;">No occupant details found.</td>
-                </tr>
+                @if($allocations && $allocations->count() > 0)
+                    @foreach($allocations as $index => $allocation)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $allocation->quarter->type ?? 'N/A' }}</td>
+                            <td>{{ $allocation->quarter->new_quarter_no ?? 'N/A' }}</td>
+                            <td>{{ $allocation->quarter->old_quarter_no ?? 'N/A' }}</td>
+                            <td>{{ $allocation->quarter->location ?? 'N/A' }}</td>
+                            <td>{{ $allocation->application->officer_name ?? 'N/A' }}</td>
+                            <td>{{ $allocation->application->designation ?? 'N/A' }}</td>
+                            <td>{{ $allocation->application->contact_number ?? 'N/A' }}</td>
+                            <td>
+                                <a href="{{ route('history.view_' . strtolower($allocation->application->quarter_type ?? 'scheduled'), ['id' => $allocation->application->application_id]) }}"
+                                    class="btn" style="background-color: #007bff; padding: 5px 10px; font-size: 0.9em;">View</a>
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
+                    <tr>
+                        <td colspan="9" style="text-align: center;">No occupant details found.</td>
+                    </tr>
+                @endif
             </tbody>
         </table>
     </section>
