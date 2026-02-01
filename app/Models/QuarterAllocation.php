@@ -30,6 +30,12 @@ class QuarterAllocation extends Model
         return $this->belongsTo(QuarterApplication::class, 'application_id', 'application_id');
     }
 
+    // Alias for quarterApplication - more intuitive naming
+    public function application()
+    {
+        return $this->belongsTo(QuarterApplication::class, 'application_id', 'application_id');
+    }
+
     public function quarter()
     {
         return $this->belongsTo(Quarter::class, 'quarter_id', 'quarter_id');
