@@ -58,7 +58,7 @@ class QuarterAllocationController extends Controller
         if (!empty($application->gender)) {
             $quarterQuery->where(function ($query) use ($application) {
                 $query->whereNull('allowed_gender')
-                      ->orWhere('allowed_gender', $application->gender);
+                    ->orWhere('allowed_gender', $application->gender);
             });
         }
 
@@ -66,14 +66,14 @@ class QuarterAllocationController extends Controller
         if (!empty($application->service_grade)) {
             $quarterQuery->where(function ($query) use ($application) {
                 $query->whereNull('service_grade')
-                      ->orWhere('service_grade', $application->service_grade);
+                    ->orWhere('service_grade', $application->service_grade);
             });
         }
 
         // Apply availability filter
         $quarterQuery->where(function ($query) {
             $query->where('status', 'Unallocated')
-                  ->orWhereRaw('occupant_number > current_occupant_number');
+                ->orWhereRaw('occupant_number > current_occupant_number');
         });
 
         $availableQuarters = $quarterQuery->get();
@@ -244,7 +244,7 @@ class QuarterAllocationController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Family Quarter Application Submission Failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            
+
             $errorMessage = 'An unexpected error occurred. Failed to submit application.';
             if ($request->wantsJson()) {
                 return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
@@ -252,7 +252,7 @@ class QuarterAllocationController extends Controller
             return redirect()->route('familyquarter')->with('error', $errorMessage);
         }
     }
-    
+
     private function _createFamilyQuarterApplication(Request $request, $application_id)
     {
         return FamilyQuarterApplication::create([
@@ -358,8 +358,8 @@ class QuarterAllocationController extends Controller
 
         if ($validator->fails()) {
             return redirect()->route('scheduledquarter')
-                        ->withErrors($validator)
-                        ->withInput();
+                ->withErrors($validator)
+                ->withInput();
         }
 
         DB::beginTransaction();
@@ -406,8 +406,8 @@ class QuarterAllocationController extends Controller
             'scheduledQuarterApplication',
             'quarterAllocation'
         ])->where('application_id', $id)
-        ->where('quarter_type', 'Scheduled') // Filter only scheduled quarter applications
-        ->firstOrFail();
+            ->where('quarter_type', 'Scheduled') // Filter only scheduled quarter applications
+            ->firstOrFail();
 
         // 1. Fetch all GradeSalarySetting records
         $gradeSalarySettings = \App\Models\GradeSalarySetting::all();
@@ -432,7 +432,7 @@ class QuarterAllocationController extends Controller
         if (!empty($application->gender)) {
             $quarterQuery->where(function ($query) use ($application) {
                 $query->whereNull('allowed_gender')
-                      ->orWhere('allowed_gender', $application->gender);
+                    ->orWhere('allowed_gender', $application->gender);
             });
         }
 
@@ -440,14 +440,14 @@ class QuarterAllocationController extends Controller
         if (!empty($application->service_grade)) {
             $quarterQuery->where(function ($query) use ($application) {
                 $query->whereNull('service_grade')
-                      ->orWhere('service_grade', $application->service_grade);
+                    ->orWhere('service_grade', $application->service_grade);
             });
         }
 
         // Apply availability filter
         $quarterQuery->where(function ($query) {
             $query->where('status', 'Unallocated')
-                  ->orWhereRaw('occupant_number > current_occupant_number');
+                ->orWhereRaw('occupant_number > current_occupant_number');
         });
 
         $availableQuarters = $quarterQuery->get();
@@ -455,7 +455,7 @@ class QuarterAllocationController extends Controller
         return view('scheduledreview', compact('application', 'calculatedGrade', 'gradeSalarySettings', 'availableQuarters'));
     }
 
-     public function createQuarterApplication(Request $request)
+    public function createQuarterApplication(Request $request)
     {
         return QuarterApplication::create([
             'application_id' => 'QA' . Str::uuid(),
@@ -518,11 +518,11 @@ class QuarterAllocationController extends Controller
         }
 
         $user = User::where('nic_number', $request->nic_number)
-                               ->where('contact_number', $request->contact_number)
-                               ->whereHas('permissions', function ($query) {
-                                    $query->where('requester', 1);
-                                })
-                               ->first();
+            ->where('contact_number', $request->contact_number)
+            ->whereHas('permissions', function ($query) {
+                $query->where('requester', 1);
+            })
+            ->first();
 
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'Invalid NIC or Contact Number or you do not have permission to make this request.']);
@@ -533,6 +533,14 @@ class QuarterAllocationController extends Controller
 
     public function allocateQuarter(Request $request, $id)
     {
+        $action = $request->input('submit_action');
+
+        // Handle Reject action for GA
+        if ($action === 'reject') {
+            return $this->rejectScheduledQuarterApplication($request, $id);
+        }
+
+        // Handle Allocate action for GA (existing logic)
         // 1. Validation
         $validator = Validator::make($request->all(), [
             'selected_quarter' => 'required|exists:quarters,quarter_id',
@@ -558,7 +566,7 @@ class QuarterAllocationController extends Controller
             $quarterAllocation = $application->quarterAllocation;
 
             if (!$quarterAllocation) {
-                 return response()->json(['status' => 'error', 'message' => 'Application allocation record not found.'], 404);
+                return response()->json(['status' => 'error', 'message' => 'Application allocation record not found.'], 404);
             }
 
             $quarter = Quarter::findOrFail($request->selected_quarter);
@@ -611,13 +619,68 @@ class QuarterAllocationController extends Controller
         }
     }
 
+    private function rejectScheduledQuarterApplication(Request $request, $id)
+    {
+        // 1. Validation
+        $validator = Validator::make($request->all(), [
+            'ga_approval_status' => 'required|in:0',
+            'ga_note' => 'nullable|string|max:2000',
+        ], [
+            'ga_approval_status.in' => 'To reject an application, GA approval must be set to "No".',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 422);
+        }
+
+        // 2. Authorization
+        if (!Auth::user()->hasPermissionTo('government_agent_approval')) {
+            return response()->json(['status' => 'error', 'message' => 'You do not have permission to perform this action.'], 403);
+        }
+
+        DB::beginTransaction();
+        try {
+            $application = QuarterApplication::with('quarterAllocation')->findOrFail($id);
+            $quarterAllocation = $application->quarterAllocation;
+
+            if (!$quarterAllocation) {
+                return response()->json(['status' => 'error', 'message' => 'Application allocation record not found.'], 404);
+            }
+
+            // 3. Update QuarterAllocation to rejected status
+            $quarterAllocation->allocation_status = 'rejected';
+            $quarterAllocation->ga_note = $request->ga_note;
+            $quarterAllocation->save();
+
+            // 4. Update Audit Log
+            AuditLog::create([
+                'log_title' => 'Scheduled Quarter Application Rejected',
+                'performed_by' => Auth::id(),
+                'details' => "Application ID: {$id} rejected by GA",
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            DB::commit();
+
+            return response()->json(['status' => 'success', 'message' => 'Application rejected successfully!', 'redirect_url' => route('dashboard')]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Scheduled Quarter Rejection Failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json(['status' => 'error', 'message' => 'An unexpected server error occurred. Please check the logs.'], 500);
+        }
+    }
+
     public function downloadPdf(string $applicationId)
     {
         // Load the application with all related data
         $application = QuarterApplication::with([
             'scheduledQuarterApplication',
             'familyQuarterApplication.markingFamilyQuarter',
-            'quarterAllocation.quarter', 
+            'quarterAllocation.quarter',
         ])->findOrFail($applicationId);
 
         // --- Universal Data Preparation ---
@@ -645,7 +708,7 @@ class QuarterAllocationController extends Controller
         } else {
             // If not allocated, find available quarters based on type
             $quarterType = $application->quarter_type; // 'Family' or 'Scheduled'
-            
+
             $quarterQuery = Quarter::where('quarter_type', $quarterType);
 
             // Apply filtering criteria based on the application
@@ -668,12 +731,12 @@ class QuarterAllocationController extends Controller
                 $query->where('status', 'Unallocated')
                     ->orWhereRaw('occupant_number > IFNULL(current_occupant_number, 0)');
             });
-            
+
             $availableQuarters = $quarterQuery->get();
         }
 
         // --- View and Data Assignment ---
-        
+
         $viewName = '';
         if ($application->quarter_type === 'Family') {
             $viewName = 'pdf.family_quarter_application_form';
@@ -701,10 +764,10 @@ class QuarterAllocationController extends Controller
     public function showQuarterHistory()
     {
         $processedApplications = \App\Models\QuarterAllocation::with(['quarterApplication', 'quarter'])
-                               ->where('allocation_status', '!=', 'pending')
-                               ->orderBy('updated_at', 'desc')
-                               ->get();
-        
+            ->where('allocation_status', '!=', 'pending')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
         return response()->json($processedApplications);
     }
 
@@ -743,7 +806,7 @@ class QuarterAllocationController extends Controller
             ->where('application_id', $id)
             ->where('quarter_type', 'Family')
             ->firstOrFail();
-            
+
         return view('showprocessedfamily', compact('application'));
     }
 }

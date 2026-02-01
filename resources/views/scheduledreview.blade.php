@@ -28,6 +28,7 @@
         .btn-success { background-color: #28a745; }
         .btn-danger { background-color: #dc3545; }
         .btn-info { background-color: #17a2b8; }
+        .btn-secondary { background-color: #6c757d; }
         .button-group { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
         .alert { padding: 15px; margin: 0 auto 20px auto; border: 1px solid transparent; border-radius: 4px; width: 90%; max-width: 1200px; text-align: center; }
         .alert-success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
@@ -397,6 +398,90 @@ document.addEventListener('DOMContentLoaded', function () {
             showModal('Request Failed', 'Could not connect to the server. Please check your network connection.', errorButtons);
         }
     };
+
+    // Reject Button Handler
+    const rejectBtn = document.getElementById('reject-button');
+    if (rejectBtn) {
+        rejectBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const gaApprovalStatus = document.getElementById('ga_approval_status').value;
+
+            // 1. Client-side validation
+            if (gaApprovalStatus !== '0') {
+                const buttons = [{ text: 'OK', class: 'btn btn-info', onClick: hideModal }];
+                showModal('Validation Error', 'GA approval must be set to "No" to reject an application.', buttons);
+                return;
+            }
+
+            // 2. Confirmation Dialog
+            const confirmButtons = [
+                { text: 'Yes, Reject', class: 'btn btn-danger', onClick: () => performRejection() },
+                { text: 'Cancel', class: 'btn btn-secondary', onClick: hideModal }
+            ];
+            showModal('Confirm Rejection', 'Are you sure you want to reject this application? This action cannot be undone.', confirmButtons);
+        });
+
+        const performRejection = async () => {
+            const loadingButtons = [];
+            showModal('Processing...', 'Submitting rejection, please wait...', loadingButtons);
+
+            const formElement = document.getElementById('allocation-form');
+
+            if (!formElement || typeof formElement.action !== 'string' || formElement.action.trim() === '') {
+                console.error("Form or form.action is not valid:", formElement);
+                showModal('Error', 'Form submission failed: Missing or invalid form action.', [{ text: 'OK', class: 'btn btn-danger', onClick: hideModal }]);
+                return;
+            }
+
+            const formAction = formElement.action;
+            const match = formAction.match(/\/scheduled-quarter-application\/([^\/]+)\/allocate/);
+            let applicationId = '';
+            if (match && match[1]) {
+                applicationId = match[1];
+            } else {
+                console.error("Could not extract application ID from form action:", formAction);
+                showModal('Error', 'Form submission failed: Invalid application ID in form action.', [{ text: 'OK', class: 'btn btn-danger', onClick: hideModal }]);
+                return;
+            }
+
+            const url = `/scheduled-quarter-application/${applicationId}/allocate`;
+            const formData = new FormData(formElement);
+            
+            // Add submit_action parameter to indicate this is a reject operation
+            formData.append('submit_action', 'reject');
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    const errorButtons = [{ text: 'OK', class: 'btn btn-info', onClick: hideModal }];
+                    showModal('Error', result.message || 'An unknown error occurred.', errorButtons);
+                } else {
+                    if (result.redirect_url) {
+                        window.location.href = result.redirect_url;
+                    } else {
+                        const successButtons = [{ text: 'OK', class: 'btn btn-success', onClick: () => window.location.reload() }];
+                        showModal('Success', result.message, successButtons);
+                    }
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                const errorButtons = [{ text: 'OK', class: 'btn btn-danger', onClick: hideModal }];
+                showModal('Request Failed', 'Could not connect to the server. Please check your network connection.', errorButtons);
+            }
+        };
+    }
 });
 </script>
 @endpush
