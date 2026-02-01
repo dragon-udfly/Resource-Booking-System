@@ -171,8 +171,8 @@ class HallBookingController extends Controller
         }
 
         $user = User::where('nic_number', $request->nic_number)
-                               ->where('contact_number', $request->contact_number)
-                               ->first();
+            ->where('contact_number', $request->contact_number)
+            ->first();
 
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'Invalid NIC or Contact Number.']);
@@ -193,9 +193,11 @@ class HallBookingController extends Controller
         }
 
         // Check if any approval is not 'pending'
-        if ($hallBooking->administrative_officer_approved !== 'pending' ||
+        if (
+            $hallBooking->administrative_officer_approved !== 'pending' ||
             $hallBooking->additional_government_agent_approved !== 'pending' ||
-            $hallBooking->government_agent_approved !== 'pending') {
+            $hallBooking->government_agent_approved !== 'pending'
+        ) {
             return response()->json(['success' => false, 'message' => 'Booking cannot be modified after approval status has changed.'], 403);
         }
 
@@ -274,9 +276,11 @@ class HallBookingController extends Controller
         }
 
         // Check if any approval is not 'pending'
-        if ($hallBooking->administrative_officer_approved !== 'pending' ||
+        if (
+            $hallBooking->administrative_officer_approved !== 'pending' ||
             $hallBooking->additional_government_agent_approved !== 'pending' ||
-            $hallBooking->government_agent_approved !== 'pending') {
+            $hallBooking->government_agent_approved !== 'pending'
+        ) {
             $errorMessage = 'Booking cannot be cancelled after approval process has started.';
             if ($request->wantsJson()) {
                 return response()->json(['status' => 'error', 'message' => $errorMessage], 403);
@@ -318,7 +322,7 @@ class HallBookingController extends Controller
             'booking' => $hallBooking,
             'date' => Carbon::now()->format('Y-m-d')
         ];
-        
+
         $pdf = Pdf::loadView('pdf.hall_booking_form', $data);
         return $pdf->download('hall_booking_Application_' . $hallBooking->booking_id . '.pdf');
     }
@@ -405,7 +409,7 @@ class HallBookingController extends Controller
             'reason' => 'required|string|max:500',
         ]);
 
-        if (Auth::user()->hasPermissionTo('administrative_officer_approval')) {
+        if (Auth::user()->hasPermissionTo('government_agent_approval')) {
             if ($hallBooking->final_approval === 'approved') {
                 $hallBooking->final_approval = 'cancelled';
                 $hallBooking->reason_of_rejection = $request->reason;
@@ -414,7 +418,7 @@ class HallBookingController extends Controller
                 $hallBooking->save();
 
                 AuditLog::create([
-                    'log_title' => 'Approved booking ' . $hallBooking->booking_id . ' cancelled by Administrative Officer. Reason: ' . $request->reason,
+                    'log_title' => 'Approved booking ' . $hallBooking->booking_id . ' cancelled by Government Agent. Reason: ' . $request->reason,
                     'performed_by' => Auth::id(),
                     'date_performed' => Carbon::now()->toDateString(),
                     'time_performed' => Carbon::now()->toTimeString(),
@@ -427,17 +431,39 @@ class HallBookingController extends Controller
         return response()->json(['success' => false, 'message' => 'You do not have permission to cancel this booking.'], 403);
     }
 
+    public function reApprove(Request $request, HallBooking $hallBooking)
+    {
+        if (Auth::user()->hasPermissionTo('government_agent_approval')) {
+            if ($hallBooking->final_approval === 'cancelled') {
+                $hallBooking->final_approval = 'approved';
+                $hallBooking->reason_of_rejection = null;
+                $hallBooking->save();
+
+                AuditLog::create([
+                    'log_title' => 'Cancelled booking ' . $hallBooking->booking_id . ' re-approved by Government Agent',
+                    'performed_by' => Auth::id(),
+                    'date_performed' => Carbon::now()->toDateString(),
+                    'time_performed' => Carbon::now()->toTimeString(),
+                ]);
+
+                return response()->json(['success' => true, 'message' => 'Booking re-approved successfully.']);
+            }
+            return response()->json(['success' => false, 'message' => 'This booking is not currently cancelled.'], 422);
+        }
+        return response()->json(['success' => false, 'message' => 'You do not have permission to re-approve this booking.'], 403);
+    }
+
     public function showHistory()
     {
         $bookings = HallBooking::where('final_approval', '!=', 'pending')
-                               ->orderBy('date_created', 'desc')
-                               ->get();
+            ->orderBy('date_created', 'desc')
+            ->get();
 
         $user = Auth::user();
         $canManageBookings = $user->hasPermissionTo('administrative_officer_approval') ||
-                             $user->hasPermissionTo('additional_government_agent_approval') ||
-                             $user->hasPermissionTo('government_agent_approval');
-        
+            $user->hasPermissionTo('additional_government_agent_approval') ||
+            $user->hasPermissionTo('government_agent_approval');
+
         return view('history', [
             'bookings' => $bookings,
             'canManageBookings' => $canManageBookings,
