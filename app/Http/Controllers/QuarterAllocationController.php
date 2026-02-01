@@ -410,7 +410,7 @@ class QuarterAllocationController extends Controller
             ->firstOrFail();
 
         // 1. Fetch all GradeSalarySetting records
-        $gradeSalarySettings = \App\Models\GradeSalarySetting::all();
+        $gradeSalarySettings = GradeSalarySetting::all();
         $calculatedGrade = 'N/A';
 
         // 2. Implement logic to determine the calculatedGrade
@@ -686,7 +686,7 @@ class QuarterAllocationController extends Controller
         // --- Universal Data Preparation ---
 
         // Calculate grade based on salary (common for both types)
-        $gradeSalarySettings = \App\Models\GradeSalarySetting::all();
+        $gradeSalarySettings = GradeSalarySetting::all();
         $calculatedGrade = 'N/A';
         $applicantMonthlySalary = $application->monthly_salary;
         if ($applicantMonthlySalary !== null) {
@@ -779,7 +779,7 @@ class QuarterAllocationController extends Controller
             ->firstOrFail();
 
         // 1. Fetch all GradeSalarySetting records
-        $gradeSalarySettings = \App\Models\GradeSalarySetting::all();
+        $gradeSalarySettings = GradeSalarySetting::all();
         $calculatedGrade = 'N/A';
 
         // 2. Implement logic to determine the calculatedGrade
