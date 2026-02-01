@@ -4,120 +4,21 @@
 
 @section('page_styles')
     <style>
-        .top-buttons {
-            width: 90%;
-            max-width: 900px;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-            text-decoration: none;
-            color: white;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-        .btn-back {
-            background-color: #6c757d;
-        }
-        .btn-back:hover {
-            background-color: #5a6268;
-        }
-
-        .btn-logout {
-            background-color: #dc3545;
-        }
-        .btn-logout:hover {
-            background-color: #c82333;
-        }
-
-        .content-container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 900px;
-        }
-
-        .info-group {
-            margin-bottom: 20px;
-            font-size: 1.1em;
-        }
-        
-        .info-group span {
-            font-weight: bold;
-            color: #333;
-        }
-
-        .passcode-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        #toggle-passcode {
-            padding: 5px 10px;
-            font-size: 0.9em;
-        }
-
-        .form-container {
-            margin-top: 30px;
-            border-top: 1px solid #dee2e6;
-            padding-top: 20px;
-        }
-
-        .form-container h3 {
-            margin-bottom: 20px;
-            font-size: 1.5em;
-            color: #333;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .form-group input[type="password"],
-        .form-group input[type="text"] {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 1em;
-        }
-
-        .input-with-button {
-            display: flex;
-            align-items: center;
-            gap: 10px; /* Space between input and button */
-        }
-        
-        .input-with-button input {
-            flex-grow: 1; /* Allow input to take available space */
-        }
-
-        .submit-btn {
-            background-color: #007bff;
-            color: white;
-        }
-        .submit-btn:hover {
-            background-color: #0056b3;
-        }
-
+        .top-buttons { width: 90%; max-width: 900px; display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; text-decoration: none; color: white; transition: background-color 0.3s ease, transform 0.2s ease; }
+        .btn-back { background-color: #6c757d; }
+        .btn-logout { background-color: #dc3545; }
+        .content-container { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); width: 90%; max-width: 900px; }
+        .info-group { margin-bottom: 20px; font-size: 1.1em; }
+        .info-group span { font-weight: bold; color: #333; }
+        .form-container { margin-top: 30px; border-top: 1px solid #dee2e6; padding-top: 20px; }
+        .form-container h3 { margin-bottom: 20px; font-size: 1.5em; color: #333; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
+        .form-group input[type="password"], .form-group input[type="text"] { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em; }
+        .input-with-button { display: flex; align-items: center; gap: 10px; }
+        .input-with-button input { flex-grow: 1; }
+        .submit-btn { background-color: #007bff; color: white; }
     </style>
 @endsection
 
@@ -133,19 +34,13 @@
         </div>
 
         <div class="content-container">
-            @if (session('success'))
-                <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px; border: 1px solid transparent;">
-                    {{ session('success') }}
-                </div>
-            @endif
-
             <div class="info-group">
                 <h3>Name: <span id="show-name">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span></h3>
             </div>
 
             <div class="form-container">
                 <h3>Change Passcode</h3>
-                <form action="{{ route('password.change') }}" method="POST">
+                <form id="change-password-form" action="{{ route('password.change') }}" method="POST">
                     @csrf
                     <div class="form-group">
                         <label for="new_passcode">New Passcode</label>
@@ -166,6 +61,16 @@
             </div>
         </div>
     </section>
+
+    <!-- Generic Modal Overlay -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <div id="modal-buttons" class="modal-buttons"></div>
+        </div>
+    </div>
+
     @endauth
 
     @guest
@@ -174,24 +79,113 @@
 @endsection
 
 @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const toggleButtons = document.querySelectorAll('.toggle-passcode-visibility');
-
-            toggleButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const targetId = this.dataset.target;
-                    const targetInput = document.getElementById(targetId);
-
-                    if (targetInput.type === 'password') {
-                        targetInput.type = 'text';
-                        this.textContent = 'Hide';
-                    } else {
-                        targetInput.type = 'password';
-                        this.textContent = 'Show';
-                    }
-                });
-            });
+<style>
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-content { background: #fff; padding: 30px; border-radius: 8px; text-align: center; max-width: 450px; width: 90%; transform: scale(0.9); transition: transform 0.3s ease; }
+    .modal-overlay.active .modal-content { transform: scale(1); }
+    .modal-buttons { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+    .modal-buttons .btn { padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; border: none; color: white; }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // --- START: Original Show/Hide Passcode Script ---
+    const toggleButtons = document.querySelectorAll('.toggle-passcode-visibility');
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const targetId = this.dataset.target;
+            const targetInput = document.getElementById(targetId);
+            if (targetInput.type === 'password') {
+                targetInput.type = 'text';
+                this.textContent = 'Hide';
+            } else {
+                targetInput.type = 'password';
+                this.textContent = 'Show';
+            }
         });
-    </script>
+    });
+    // --- END: Original Show/Hide Passcode Script ---
+
+    // --- START: New Modal and AJAX Script ---
+    const form = document.getElementById('change-password-form');
+    if (form) {
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalButtons = document.getElementById('modal-buttons');
+
+        const showModal = (title, message, buttons) => {
+            modalTitle.textContent = title;
+            modalMessage.innerHTML = message;
+            modalButtons.innerHTML = '';
+            buttons.forEach(btn => {
+                const buttonEl = document.createElement('button');
+                buttonEl.textContent = btn.text;
+                buttonEl.className = `btn ${btn.class}`;
+                if(btn.style) buttonEl.style.cssText += btn.style;
+                buttonEl.addEventListener('click', btn.onClick);
+                modalButtons.appendChild(buttonEl);
+            });
+            modalOverlay.classList.add('active');
+        };
+
+        const hideModal = () => {
+            modalOverlay.classList.remove('active');
+        };
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const confirmButtons = [
+                { text: 'Yes, Save Changes', class: 'submit-btn', onClick: () => performSubmit() },
+                { text: 'Cancel', class: 'btn-back', onClick: hideModal }
+            ];
+            showModal('Confirm Passcode Change', 'Are you sure you want to change your passcode?', confirmButtons);
+        });
+
+        const performSubmit = async () => {
+            showModal('Processing...', 'Saving new passcode...', []);
+            const formData = new FormData(form);
+            const url = form.action;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': formData.get('_token'), 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    body: formData
+                });
+                const responseText = await response.text();
+
+                if (!response.ok) {
+                    let message = `Error: ${response.status} ${response.statusText}`;
+                    try {
+                        const result = JSON.parse(responseText);
+                        if(result.errors) {
+                            message = '<ul style="text-align: left; margin: 0; padding-left: 20px;">';
+                            for (const key in result.errors) { message += `<li>${result.errors[key][0]}</li>`; }
+                            message += '</ul>';
+                        } else {
+                            message = result.message || message;
+                        }
+                    } catch (e) { /* Ignore */ }
+                    showModal('Error', message, [{ text: 'OK', class: 'btn-back', onClick: hideModal }]);
+                } else {
+                    form.reset();
+                    showModal('Success', JSON.parse(responseText).message, [{ text: 'OK', class: 'submit-btn', onClick: hideModal }]);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                showModal('Request Failed', 'Could not connect to the server.', [{ text: 'OK', class: 'btn-back', onClick: hideModal }]);
+            }
+        };
+
+        if(modalOverlay) {
+            modalOverlay.addEventListener('click', function(event) {
+                if (event.target === modalOverlay) {
+                    hideModal();
+                }
+            });
+        }
+    }
+});
+</script>
 @endpush
