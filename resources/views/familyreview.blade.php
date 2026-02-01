@@ -604,17 +604,35 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
 
             const gaApprovalStatus = document.getElementById('ga_approval_status');
+            const agaVerifiedStatus = document.getElementById('aga_verified_status');
             
-            // Validation: GA approval must be set to "No"
-            if (!gaApprovalStatus || gaApprovalStatus.value !== '0') {
+            // Validation: GA approval must be set to "No" or AGA verified must be set to "No"
+            if (gaApprovalStatus && gaApprovalStatus.value !== '0') {
                 const buttons = [{ text: 'OK', class: 'btn btn-danger', onClick: hideModal }];
                 showModal('Validation Error', 'Government Agent approval must be set to "No" to reject an application.', buttons);
+                return;
+            } else if (!gaApprovalStatus && agaVerifiedStatus && agaVerifiedStatus.value !== '0') {
+                 const buttons = [{ text: 'OK', class: 'btn btn-danger', onClick: hideModal }];
+                showModal('Validation Error', 'Additional Government Agent verification must be set to "No" to reject an application.', buttons);
                 return;
             }
 
             // Confirmation Dialog
             const confirmButtons = [
-                { text: 'Yes, Reject', class: 'btn btn-danger', onClick: () => { hideModal(); form.submit(); } },
+                { 
+                    text: 'Yes, Reject', 
+                    class: 'btn btn-danger', 
+                    onClick: () => { 
+                        hideModal(); 
+                        // Append action input to ensure it's sent with form.submit()
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'action';
+                        input.value = rejectBtn.value;
+                        form.appendChild(input);
+                        form.submit(); 
+                    } 
+                },
                 { text: 'Cancel', class: 'btn btn-secondary', onClick: hideModal }
             ];
             showModal('Confirm Rejection', 'Are you sure you want to reject this application?', confirmButtons);
@@ -756,11 +774,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const formElement = document.getElementById('review-form');
             const formData = new FormData(formElement);
+            formData.append('action', 'Submit');
             const url = formElement.getAttribute('action');
 
             try {
                 const response = await fetch(url, {
-                    method: 'PATCH',
+                    method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
                         'Accept': 'application/json',

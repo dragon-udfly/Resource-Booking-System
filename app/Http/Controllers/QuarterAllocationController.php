@@ -99,6 +99,8 @@ class QuarterAllocationController extends Controller
         DB::beginTransaction();
         try {
             $action = $request->input('action');
+            Log::info('Family Review Action: ' . $action, ['user_id' => $user->id, 'inputs' => $request->all()]);
+
             $noteTimestamp = 'I reviewed this application on ' . Carbon::now()->format('Y-m-d') . ' at ' . Carbon::now()->format('H:i:s') . '.';
             $successMessage = 'Application review submitted successfully.';
 
@@ -106,18 +108,34 @@ class QuarterAllocationController extends Controller
                 $validated = $request->validate([
                     'ao_verified_status' => 'nullable|in:0,1',
                     'aga_verified_status' => 'nullable|in:0,1',
+                    'ao_note' => 'nullable|string',
+                    'aga_note' => 'nullable|string',
                 ]);
 
                 if ($user->hasPermissionTo('administrative_officer_approval') && $request->has('ao_verified_status')) {
+                    Log::info('Entering AO Block');
                     $quarterAllocation->is_ao_verified = $validated['ao_verified_status'];
-                    $quarterAllocation->ao_note = trim(($quarterAllocation->ao_note ?? '') . "\n" . $noteTimestamp);
-                    AuditLog::create(['log_title' => 'AO Reviewed Family App', 'performed_by' => $user->id, 'details' => "App ID: {$id}, Verified: " . ($validated['ao_verified_status'] ? 'Yes' : 'No')]);
+                    $quarterAllocation->ao_note = $request->ao_note;
+                    AuditLog::create([
+                        'log_title' => 'AO Reviewed Family App',
+                        'performed_by' => $user->id,
+                        'details' => "App ID: {$id}, Verified: " . ($validated['ao_verified_status'] ? 'Yes' : 'No'),
+                        'date_performed' => Carbon::now()->toDateString(),
+                        'time_performed' => Carbon::now()->toTimeString(),
+                    ]);
                 }
 
                 if ($user->hasPermissionTo('additional_government_agent_approval') && $request->has('aga_verified_status')) {
+                    Log::info('Entering AGA Block', ['status' => $validated['aga_verified_status'], 'note' => $request->aga_note]);
                     $quarterAllocation->is_aga_verified = $validated['aga_verified_status'];
-                    $quarterAllocation->aga_note = trim(($quarterAllocation->aga_note ?? '') . "\n" . $noteTimestamp);
-                    AuditLog::create(['log_title' => 'AGA Reviewed Family App', 'performed_by' => $user->id, 'details' => "App ID: {$id}, Verified: " . ($validated['aga_verified_status'] ? 'Yes' : 'No')]);
+                    $quarterAllocation->aga_note = $request->aga_note;
+                    AuditLog::create([
+                        'log_title' => 'AGA Reviewed Family App',
+                        'performed_by' => $user->id,
+                        'details' => "App ID: {$id}, Verified: " . ($validated['aga_verified_status'] ? 'Yes' : 'No'),
+                        'date_performed' => Carbon::now()->toDateString(),
+                        'time_performed' => Carbon::now()->toTimeString(),
+                    ]);
                 }
             } elseif ($action === 'allocate' && $user->hasPermissionTo('government_agent_approval')) {
                 $validated = $request->validate(['selected_quarter' => 'required|exists:quarters,quarter_id']);
@@ -138,32 +156,62 @@ class QuarterAllocationController extends Controller
                 $allocatedQuarter->save();
 
                 $successMessage = 'Quarter allocated successfully.';
-                AuditLog::create(['log_title' => 'GA Allocated Family Quarter', 'performed_by' => $user->id, 'details' => "App ID: {$id} allocated to Quarter ID: {$validated['selected_quarter']}"]);
+                AuditLog::create([
+                    'log_title' => 'GA Allocated Family Quarter',
+                    'performed_by' => $user->id,
+                    'details' => "App ID: {$id} allocated to Quarter ID: {$validated['selected_quarter']}",
+                    'date_performed' => Carbon::now()->toDateString(),
+                    'time_performed' => Carbon::now()->toTimeString(),
+                ]);
             } elseif ($action === 'reject' && $user->hasPermissionTo('government_agent_approval')) {
                 $quarterAllocation->allocation_status = 'rejected';
                 if ($request->ga_note) {
                     $quarterAllocation->ga_note = trim(($quarterAllocation->ga_note ?? '') . "\n" . $request->ga_note);
                 }
                 $successMessage = 'Application rejected successfully.';
-                AuditLog::create(['log_title' => 'GA Rejected Family Application', 'performed_by' => $user->id, 'details' => "App ID: {$id} - Rejected"]);
+                AuditLog::create([
+                    'log_title' => 'GA Rejected Family Application',
+                    'performed_by' => $user->id,
+                    'details' => "App ID: {$id} - Rejected",
+                    'date_performed' => Carbon::now()->toDateString(),
+                    'time_performed' => Carbon::now()->toTimeString(),
+                ]);
             } elseif ($action === 'Reject' && $user->hasPermissionTo('additional_government_agent_approval')) {
                 $quarterAllocation->allocation_status = 'rejected';
                 if ($request->aga_note) {
                     $quarterAllocation->aga_note = trim(($quarterAllocation->aga_note ?? '') . "\n" . $request->aga_note);
                 }
                 $successMessage = 'Application rejected successfully.';
-                AuditLog::create(['log_title' => 'AGA Rejected Family Application', 'performed_by' => $user->id, 'details' => "App ID: {$id} - Rejected"]);
+                AuditLog::create([
+                    'log_title' => 'AGA Rejected Family Application',
+                    'performed_by' => $user->id,
+                    'details' => "App ID: {$id} - Rejected",
+                    'date_performed' => Carbon::now()->toDateString(),
+                    'time_performed' => Carbon::now()->toTimeString(),
+                ]);
             } elseif ($action === 'Delete' && $user->hasPermissionTo('administrative_officer_approval')) {
                 $quarterAllocation->is_ao_verified = null;
                 $quarterAllocation->is_aga_verified = null;
                 $quarterAllocation->allocation_status = 'pending';
                 $successMessage = 'Verification reset successfully.';
-                AuditLog::create(['log_title' => 'AO Reset Family Application Verification', 'performed_by' => $user->id, 'details' => "App ID: {$id} - Verification reset"]);
+                AuditLog::create([
+                    'log_title' => 'AO Reset Family Application Verification',
+                    'performed_by' => $user->id,
+                    'details' => "App ID: {$id} - Verification reset",
+                    'date_performed' => Carbon::now()->toDateString(),
+                    'time_performed' => Carbon::now()->toTimeString(),
+                ]);
             } elseif ($action === 'Cancel' && $user->hasPermissionTo('requester')) {
                 if ($quarterAllocation->is_ao_verified === 0 && $quarterAllocation->is_aga_verified === 0 && $quarterAllocation->allocation_status === 'pending') {
                     $quarterAllocation->allocation_status = 'cancelled';
                     $successMessage = 'Application cancelled successfully.';
-                    AuditLog::create(['log_title' => 'Requester Cancelled Family Application', 'performed_by' => $user->id, 'details' => "App ID: {$id} - Cancelled"]);
+                    AuditLog::create([
+                        'log_title' => 'Requester Cancelled Family Application',
+                        'performed_by' => $user->id,
+                        'details' => "App ID: {$id} - Cancelled",
+                        'date_performed' => Carbon::now()->toDateString(),
+                        'time_performed' => Carbon::now()->toTimeString(),
+                    ]);
                 } else {
                     return redirect()->back()->with('error', 'Cannot cancel application. Conditions not met.');
                 }
@@ -173,10 +221,15 @@ class QuarterAllocationController extends Controller
             DB::commit();
 
             // Return JSON for AJAX requests, redirect for regular form submissions
+            // Debug info removed
+
+
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json(['status' => 'success', 'message' => $successMessage, 'redirect_url' => route('dashboard')]);
             }
-            return redirect()->back()->with('success', $successMessage);
+            return redirect()->route('dashboard')->with('success', $successMessage);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Family Quarter Review Update Failed: ' . $e->getMessage(), [
@@ -185,9 +238,9 @@ class QuarterAllocationController extends Controller
 
             // Return JSON for AJAX requests, redirect for regular form submissions
             if ($request->wantsJson() || $request->ajax()) {
-                return response()->json(['status' => 'error', 'message' => 'An unexpected error occurred. Please check the logs.'], 500);
+                return response()->json(['status' => 'error', 'message' => 'An unexpected error occurred: ' . $e->getMessage()], 500);
             }
-            return redirect()->back()->with('error', 'An unexpected error occurred. Failed to update application. Please check the logs.');
+            return redirect()->back()->with('error', 'An unexpected error occurred: ' . $e->getMessage());
         }
     }
 
