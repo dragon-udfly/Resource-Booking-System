@@ -19,6 +19,18 @@
         .status-allocated { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
         .status-rejected { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
         .status-cancelled { color: #383d41; background-color: #e2e3e5; border-color: #d6d8db; }
+        .btn-warning { background-color: #ffc107; color: #212529; }
+        .button-group { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
+        
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-content { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); text-align: center; max-width: 450px; width: 90%; transform: scale(0.9); transition: transform 0.3s ease; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-content h3 { margin-top: 0; color: #333; }
+        .modal-content p { margin-bottom: 20px; color: #555; }
+        .modal-buttons { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+        .btn-secondary { background-color: #6c757d; }
     </style>
 @endsection
 
@@ -134,6 +146,75 @@
                     <p>{{ $allocation->ga_note ?? 'N/A' }}</p>
                 </div>
             </div>
+
+            {{-- Action Buttons --}}
+            <div class="button-group">
+                @if($allocation && $allocation->allocation_status == 'rejected')
+                    @if(Auth::user()->hasPermissionTo('government_agent_approval'))
+                        <form id="restore-form" action="{{ route('scheduled-quarter.restore', ['id' => $application->application_id]) }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="button" id="restore-button" class="btn btn-warning">Restore to Pending</button>
+                        </form>
+                    @endif
+                @endif
+                <a href="{{ route('quarter.download-pdf', ['id' => $application->application_id]) }}" class="btn btn-info" target="_blank">Download</a>
+            </div>
+        </div>
+
+        {{-- Modal Overlay --}}
+        <div id="modal-overlay" class="modal-overlay">
+            <div class="modal-content">
+                <h3 id="modal-title"></h3>
+                <p id="modal-message"></p>
+                <div id="modal-buttons" class="modal-buttons">
+                    <!-- Buttons will be injected by JavaScript -->
+                </div>
+            </div>
         </div>
     </section>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const restoreBtn = document.getElementById('restore-button');
+    if (!restoreBtn) return;
+
+    const form = document.getElementById('restore-form');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMessage = document.getElementById('modal-message');
+    const modalButtons = document.getElementById('modal-buttons');
+
+    const showModal = (title, message, buttons) => {
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        modalButtons.innerHTML = '';
+        buttons.forEach(btn => {
+            const buttonEl = document.createElement('button');
+            buttonEl.textContent = btn.text;
+            buttonEl.className = btn.class;
+            buttonEl.addEventListener('click', btn.onClick);
+            modalButtons.appendChild(buttonEl);
+        });
+        modalOverlay.classList.add('active');
+    };
+
+    const hideModal = () => {
+        modalOverlay.classList.remove('active');
+    };
+
+    restoreBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        // Confirmation Dialog
+        const confirmButtons = [
+            { text: 'Yes, Restore', class: 'btn btn-warning', onClick: () => form.submit() },
+            { text: 'Cancel', class: 'btn btn-secondary', onClick: hideModal }
+        ];
+        showModal('Confirm Restore', 'Are you sure you want to restore this application to pending status?', confirmButtons);
+    });
+});
+</script>
+@endpush
+
