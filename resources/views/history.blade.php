@@ -280,21 +280,21 @@
                 const hallName = booking.hall ? booking.hall.hall_type : (booking.requested_hall_type || 'N/A');
 
                 historyFormContent.innerHTML = `
-                    <div class="form-row">
-                        <div class="form-group"><label>Applicant Name</label><p>${booking.applicant_name}</p></div>
-                        <div class="form-group"><label>Booked Hall</label><p>${hallName}</p></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Programme/Event</label><p>${booking.programme}</p></div>
-                        <div class="form-group"><label>Participants</label><p>${booking.participants}</p></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Event Date & Time</label><p>${booking.event_date} at ${booking.event_time}</p></div>
-                        <div class="form-group"><label>Approval Status</label><p style="font-weight: bold; text-transform: capitalize; color: ${booking.final_approval === 'approved' ? 'green' : (booking.final_approval === 'rejected' ? 'red' : 'grey')};">${booking.final_approval}</p></div>
-                    </div>
-                    ${booking.reason_of_rejection ? `<div class="form-row"><div class="form-group" style="flex-basis: 100%"><label>Reason of Rejection/Cancellation</label><p style="background-color: #fff3f3;">${booking.reason_of_rejection}</p></div></div>` : ''}
-                    <div id="cancel-reason-container" style="display: none; margin-top: 15px;"><label for="cancel-reason" style="font-weight: bold; color: #dc3545;">Reason for Cancellation*</label><textarea id="cancel-reason" style="width: 100%;" rows="3"></textarea></div>
-                `;
+                        <div class="form-row">
+                            <div class="form-group"><label>Applicant Name</label><p>${booking.applicant_name}</p></div>
+                            <div class="form-group"><label>Booked Hall</label><p>${hallName}</p></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Programme/Event</label><p>${booking.programme}</p></div>
+                            <div class="form-group"><label>Participants</label><p>${booking.participants}</p></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Event Date & Time</label><p>${booking.event_date} at ${booking.event_time}</p></div>
+                            <div class="form-group"><label>Approval Status</label><p style="font-weight: bold; text-transform: capitalize; color: ${booking.final_approval === 'approved' ? 'green' : (booking.final_approval === 'rejected' ? 'red' : 'grey')};">${booking.final_approval}</p></div>
+                        </div>
+                        ${booking.reason_of_rejection ? `<div class="form-row"><div class="form-group" style="flex-basis: 100%"><label>Reason of Rejection/Cancellation</label><p style="background-color: #fff3f3;">${booking.reason_of_rejection}</p></div></div>` : ''}
+                        <div id="cancel-reason-container" style="display: none; margin-top: 15px;"><label for="cancel-reason" style="font-weight: bold; color: #dc3545;">Reason for Cancellation*</label><textarea id="cancel-reason" style="width: 100%;" rows="3"></textarea></div>
+                    `;
 
                 if (historyCancelBtn) historyCancelBtn.style.display = (booking.final_approval === 'approved') ? 'inline-block' : 'none';
 
@@ -376,8 +376,8 @@
                 historyDeleteBtn.addEventListener('click', function () {
                     if (this.disabled) return;
                     showModal('Confirm Deletion', 'Are you sure you want to permanently delete this booking record?', [
-                        { text: 'Yes, Delete', class: 'delete-btn', onClick: () => performDelete(currentBookingId) },
-                        { text: 'Cancel', class: 'back-button', onClick: hideModal }
+                        { text: 'Yes, Delete', class: 'btn-danger', onClick: () => performDelete(currentBookingId) },
+                        { text: 'Cancel', class: 'btn-secondary', onClick: hideModal }
                     ]);
                 });
             }
@@ -503,16 +503,16 @@
                         const statusClass = `status-${status.toLowerCase()}`;
                         const downloadUrl = "{{ route('quarter.download-pdf', ['id' => ':id']) }}".replace(':id', app.application_id);
                         row.innerHTML = `
-                            <td>${index + 1}</td>
-                            <td>${app.officer_name || 'N/A'}</td>
-                            <td>${new Date(app.date_created).toLocaleDateString()}</td>
-                            <td>${app.quarter_type || 'N/A'}</td>
-                            <td><span class="${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
-                            <td class="action-cell">
-                                <a href="${viewUrl}" class="action-btn" style="background-color: #007bff; text-decoration: none;">View</a>
-                                <a href="${downloadUrl}" class="action-btn" style="background-color: #28a745; text-decoration: none;" target="_blank">Download</a>
-                            </td>
-                        `;
+                                <td>${index + 1}</td>
+                                <td>${app.officer_name || 'N/A'}</td>
+                                <td>${new Date(app.date_created).toLocaleDateString()}</td>
+                                <td>${app.quarter_type || 'N/A'}</td>
+                                <td><span class="${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+                                <td class="action-cell">
+                                    <a href="${viewUrl}" class="action-btn" style="background-color: #007bff; text-decoration: none;">View</a>
+                                    <a href="${downloadUrl}" class="action-btn" style="background-color: #28a745; text-decoration: none;" target="_blank">Download</a>
+                                </td>
+                            `;
                         quartersHistoryBody.appendChild(row);
                     });
                 })
