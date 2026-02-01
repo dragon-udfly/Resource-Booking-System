@@ -81,6 +81,10 @@
             background-color: #f8f9fa;
             min-height: 40px;
         }
+
+        textarea {
+            resize: vertical;
+        }
         
         .form-section-title {
             font-size: 1.5em;

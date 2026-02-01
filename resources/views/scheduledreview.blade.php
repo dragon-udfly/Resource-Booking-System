@@ -101,6 +101,10 @@
             min-height: 40px;
         }
 
+        textarea {
+            resize: vertical;
+        }
+
         .form-section-title {
             font-size: 1.5em;
             font-weight: bold;
