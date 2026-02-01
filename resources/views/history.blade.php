@@ -211,6 +211,31 @@
                 gap: 20px;
                 margin-top: 20px;
             }
+
+            .btn-primary {
+                background-color: #007bff;
+                color: white;
+            }
+
+            .btn-success {
+                background-color: #28a745;
+                color: white;
+            }
+
+            .btn-secondary {
+                background-color: #6c757d;
+                color: white;
+            }
+
+            .btn-danger {
+                background-color: #dc3545;
+                color: white;
+            }
+
+            .btn-warning {
+                background-color: #ffc107;
+                color: #333;
+            }
         </style>
     </section>
 @endsection
@@ -255,21 +280,21 @@
                 const hallName = booking.hall ? booking.hall.hall_type : (booking.requested_hall_type || 'N/A');
 
                 historyFormContent.innerHTML = `
-                <div class="form-row">
-                    <div class="form-group"><label>Applicant Name</label><p>${booking.applicant_name}</p></div>
-                    <div class="form-group"><label>Booked Hall</label><p>${hallName}</p></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Programme/Event</label><p>${booking.programme}</p></div>
-                    <div class="form-group"><label>Participants</label><p>${booking.participants}</p></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Event Date & Time</label><p>${booking.event_date} at ${booking.event_time}</p></div>
-                    <div class="form-group"><label>Approval Status</label><p style="font-weight: bold; text-transform: capitalize; color: ${booking.final_approval === 'approved' ? 'green' : (booking.final_approval === 'rejected' ? 'red' : 'grey')};">${booking.final_approval}</p></div>
-                </div>
-                ${booking.reason_of_rejection ? `<div class="form-row"><div class="form-group" style="flex-basis: 100%"><label>Reason of Rejection/Cancellation</label><p style="background-color: #fff3f3;">${booking.reason_of_rejection}</p></div></div>` : ''}
-                <div id="cancel-reason-container" style="display: none; margin-top: 15px;"><label for="cancel-reason" style="font-weight: bold; color: #dc3545;">Reason for Cancellation*</label><textarea id="cancel-reason" style="width: 100%;" rows="3"></textarea></div>
-            `;
+                    <div class="form-row">
+                        <div class="form-group"><label>Applicant Name</label><p>${booking.applicant_name}</p></div>
+                        <div class="form-group"><label>Booked Hall</label><p>${hallName}</p></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Programme/Event</label><p>${booking.programme}</p></div>
+                        <div class="form-group"><label>Participants</label><p>${booking.participants}</p></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Event Date & Time</label><p>${booking.event_date} at ${booking.event_time}</p></div>
+                        <div class="form-group"><label>Approval Status</label><p style="font-weight: bold; text-transform: capitalize; color: ${booking.final_approval === 'approved' ? 'green' : (booking.final_approval === 'rejected' ? 'red' : 'grey')};">${booking.final_approval}</p></div>
+                    </div>
+                    ${booking.reason_of_rejection ? `<div class="form-row"><div class="form-group" style="flex-basis: 100%"><label>Reason of Rejection/Cancellation</label><p style="background-color: #fff3f3;">${booking.reason_of_rejection}</p></div></div>` : ''}
+                    <div id="cancel-reason-container" style="display: none; margin-top: 15px;"><label for="cancel-reason" style="font-weight: bold; color: #dc3545;">Reason for Cancellation*</label><textarea id="cancel-reason" style="width: 100%;" rows="3"></textarea></div>
+                `;
 
                 if (historyCancelBtn) historyCancelBtn.style.display = (booking.final_approval === 'approved') ? 'inline-block' : 'none';
 
@@ -309,7 +334,7 @@
                 historyCancelBtn.addEventListener('click', function () {
                     const cancelReasonContainer = document.getElementById('cancel-reason-container');
                     const cancelReasonTextarea = document.getElementById('cancel-reason');
-                    
+
                     // Show the reason textarea if not already shown
                     if (cancelReasonContainer.style.display === 'none') {
                         cancelReasonContainer.style.display = 'block';
@@ -317,7 +342,7 @@
                         cancelReasonTextarea.focus();
                         return;
                     }
-                    
+
                     // Validate reason is provided
                     const reason = cancelReasonTextarea.value.trim();
                     if (!reason) {
@@ -326,11 +351,11 @@
                         ]);
                         return;
                     }
-                    
+
                     // Show confirmation modal
                     showModal('Confirm Cancellation', 'Are you sure you want to cancel this approved booking?', [
-                        { text: 'Yes, Cancel', class: 'delete-btn', onClick: () => performCancelApproved(currentBookingId, reason) },
-                        { text: 'No', class: 'back-button', onClick: hideModal }
+                        { text: 'Yes, Cancel', class: 'btn-danger', onClick: () => performCancelApproved(currentBookingId, reason) },
+                        { text: 'No', class: 'btn-secondary', onClick: hideModal }
                     ]);
                 });
             }
@@ -340,8 +365,8 @@
             if (historyReapproveBtn) {
                 historyReapproveBtn.addEventListener('click', function () {
                     showModal('Confirm Re-approval', 'Are you sure you want to re-approve this cancelled booking?', [
-                        { text: 'Yes, Re-approve', class: 'btn-primary', onClick: () => performReApprove(currentBookingId) },
-                        { text: 'Cancel', class: 'back-button', onClick: hideModal }
+                        { text: 'Yes, Re-approve', class: 'btn-success', onClick: () => performReApprove(currentBookingId) },
+                        { text: 'Cancel', class: 'btn-secondary', onClick: hideModal }
                     ]);
                 });
             }
@@ -478,16 +503,16 @@
                         const statusClass = `status-${status.toLowerCase()}`;
                         const downloadUrl = "{{ route('quarter.download-pdf', ['id' => ':id']) }}".replace(':id', app.application_id);
                         row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${app.officer_name || 'N/A'}</td>
-                        <td>${new Date(app.date_created).toLocaleDateString()}</td>
-                        <td>${app.quarter_type || 'N/A'}</td>
-                        <td><span class="${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
-                        <td class="action-cell">
-                            <a href="${viewUrl}" class="action-btn" style="background-color: #007bff; text-decoration: none;">View</a>
-                            <a href="${downloadUrl}" class="action-btn" style="background-color: #28a745; text-decoration: none;" target="_blank">Download</a>
-                        </td>
-                    `;
+                            <td>${index + 1}</td>
+                            <td>${app.officer_name || 'N/A'}</td>
+                            <td>${new Date(app.date_created).toLocaleDateString()}</td>
+                            <td>${app.quarter_type || 'N/A'}</td>
+                            <td><span class="${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+                            <td class="action-cell">
+                                <a href="${viewUrl}" class="action-btn" style="background-color: #007bff; text-decoration: none;">View</a>
+                                <a href="${downloadUrl}" class="action-btn" style="background-color: #28a745; text-decoration: none;" target="_blank">Download</a>
+                            </td>
+                        `;
                         quartersHistoryBody.appendChild(row);
                     });
                 })
