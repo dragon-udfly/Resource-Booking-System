@@ -809,4 +809,56 @@ class QuarterAllocationController extends Controller
 
         return view('showprocessedfamily', compact('application'));
     }
+
+    public function restoreScheduledQuarterApplication($id)
+    {
+        // 1. Authorization
+        if (!Auth::user()->hasPermissionTo('government_agent_approval')) {
+            return redirect()->back()->with('error', 'You do not have permission to perform this action.');
+        }
+
+        DB::beginTransaction();
+        try {
+            $application = QuarterApplication::with('quarterAllocation')->findOrFail($id);
+            $quarterAllocation = $application->quarterAllocation;
+
+            if (!$quarterAllocation) {
+                return redirect()->back()->with('error', 'Application allocation record not found.');
+            }
+
+            // Only allow restore if status is rejected
+            if ($quarterAllocation->allocation_status !== 'rejected') {
+                return redirect()->back()->with('error', 'Only rejected applications can be restored.');
+            }
+
+            $oldStatus = $quarterAllocation->allocation_status;
+
+            // Reset allocation to pending status
+            $quarterAllocation->allocation_status = 'pending';
+            $quarterAllocation->quarter_id = null;
+            $quarterAllocation->allocation_date = null;
+            $quarterAllocation->vacate_date = null;
+            $quarterAllocation->save();
+
+            // Create audit log
+            AuditLog::create([
+                'log_title' => 'Scheduled Quarter Application Restored',
+                'performed_by' => Auth::id(),
+                'details' => "Application ID: {$id} restored from {$oldStatus} to pending by GA",
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('history')->with('success', 'Application successfully restored to pending status!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Scheduled Quarter Restore Failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return redirect()->back()->with('error', 'An unexpected error occurred. Please check the logs.');
+        }
+    }
 }
