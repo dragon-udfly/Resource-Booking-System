@@ -756,7 +756,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const formElement = document.getElementById('review-form');
             const formData = new FormData(formElement);
-            const url = formElement.action;
+            const url = formElement.getAttribute('action');
 
             try {
                 const response = await fetch(url, {
