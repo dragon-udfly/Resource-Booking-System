@@ -6,13 +6,14 @@
     <style>
         .page-header { text-align: center; margin-bottom: 30px; color: #333; }
         .page-header h2 { font-size: 1.8em; margin-bottom: 10px; }
-        .button-bar { display: flex; justify-content: flex-start; gap: 15px; margin-bottom: 20px; width: 90%; max-width: 1200px; }
+        .button-bar { display: flex; justify-content: flex-start; gap: 15px; margin-bottom: 20px; width: 90%; max-width: 1200px; margin-left: auto; margin-right: auto; }
         .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; text-decoration: none; color: white; transition: background-color 0.3s ease; }
         .home-btn { background-color: #6c757d; }
         .back-btn { background-color: #007bff; }
         .btn:hover { opacity: 0.9; }
-        .form-container { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); width: 90%; max-width: 1200px; margin-top: 20px; }
+        .form-container { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); width: 90%; max-width: 1200px; margin: 20px auto; }
         form#allocation-form { margin: 0 auto; width: 90%; max-width: 1200px; }
+        section.banner { display: flex; flex-direction: column; align-items: center; }
         .form-row { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
         .form-group { flex: 1; min-width: 280px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
