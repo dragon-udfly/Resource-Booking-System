@@ -58,9 +58,31 @@
                 <td>{{ $application->designation }}</td>
                 <td>{{ \Carbon\Carbon::parse($application->date_created)->format('Y-m-d h:i A') }}</td>
                 <td>{{ $application->quarter_type }}</td>
-                <td>{{ $application->quarterAllocation ? ($application->quarterAllocation->is_ao_verified ? 'Verified' : 'Pending') : 'N/A' }}
+                <td>
+                    @if($application->quarterAllocation)
+                        @if($application->quarterAllocation->is_ao_verified === 1)
+                            <span style="color: green; font-weight: bold;">Yes</span>
+                        @elseif($application->quarterAllocation->is_ao_verified === 0)
+                            <span style="color: red; font-weight: bold;">No</span>
+                        @else
+                            <span style="color: gray;">Pending</span>
+                        @endif
+                    @else
+                        N/A
+                    @endif
                 </td>
-                <td>{{ $application->quarterAllocation ? ($application->quarterAllocation->is_aga_verified ? 'Verified' : 'Pending') : 'N/A' }}
+                <td>
+                    @if($application->quarterAllocation)
+                        @if($application->quarterAllocation->is_aga_verified === 1)
+                            <span style="color: green; font-weight: bold;">Yes</span>
+                        @elseif($application->quarterAllocation->is_aga_verified === 0)
+                            <span style="color: red; font-weight: bold;">No</span>
+                        @else
+                            <span style="color: gray;">Pending</span>
+                        @endif
+                    @else
+                        N/A
+                    @endif
                 </td>
                 <td>{{ $application->quarterAllocation ? ucfirst($application->quarterAllocation->allocation_status) : 'N/A' }}
                 </td>
@@ -272,82 +294,82 @@
                 }
 
                 let fieldsHtml = `
-                    <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
-                    <input type="hidden" name="_method" value="PATCH">
-                    <input type="hidden" name="booking_id" value="${booking.booking_id}">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="applicant_name">Applicant Name</label>
-                            <input type="text" id="applicant_name" name="applicant_name" value="${booking.applicant_name}" required>
+                        <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
+                        <input type="hidden" name="_method" value="PATCH">
+                        <input type="hidden" name="booking_id" value="${booking.booking_id}">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="applicant_name">Applicant Name</label>
+                                <input type="text" id="applicant_name" name="applicant_name" value="${booking.applicant_name}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="applicant_type">Applicant Type</label>
+                                <select id="applicant_type" name="applicant_type" required>
+                                    <option value="Internal" ${booking.applicant_type === 'Internal' ? 'selected' : ''}>Internal</option>
+                                    <option value="External" ${booking.applicant_type === 'External' ? 'selected' : ''}>External</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="applicant_type">Applicant Type</label>
-                            <select id="applicant_type" name="applicant_type" required>
-                                <option value="Internal" ${booking.applicant_type === 'Internal' ? 'selected' : ''}>Internal</option>
-                                <option value="External" ${booking.applicant_type === 'External' ? 'selected' : ''}>External</option>
-                            </select>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="hall_id">Hall Type</label>
+                                <select id="hall_id" name="hall_id" required>
+                                    ${hallsOptions}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="programme">Programme/Event</label>
+                                <input type="text" id="programme" name="programme" value="${booking.programme}" required>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="hall_id">Hall Type</label>
-                            <select id="hall_id" name="hall_id" required>
-                                ${hallsOptions}
-                            </select>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="event_date">Event Date</label>
+                                <input type="date" id="event_date" name="event_date" value="${booking.event_date}" required>
+                            </div>
+                             <div class="form-group">
+                                <label for="event_time">Event Time</label>
+                                <input type="time" id="event_time" name="event_time" value="${booking.event_time}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="participants">Number of Participants</label>
+                                <input type="number" id="participants" name="participants" value="${booking.participants}" required>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="programme">Programme/Event</label>
-                            <input type="text" id="programme" name="programme" value="${booking.programme}" required>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="event_duration">Event Duration (hours)</label>
+                                <input type="number" id="event_duration" name="event_duration" step="0.1" value="${booking.event_duration}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="paid_status">Paid Status</label>
+                                <select id="paid_status" name="paid_status" required>
+                                    <option value="Not Required" ${booking.paid_status === 'Not Required' ? 'selected' : ''}>Not Required</option>
+                                    <option value="Yes" ${booking.paid_status === 'Yes' ? 'selected' : ''}>Yes</option>
+                                    <option value="Pending" ${booking.paid_status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="event_date">Event Date</label>
-                            <input type="date" id="event_date" name="event_date" value="${booking.event_date}" required>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="is_emergency_booking">Emergency Booking</label>
+                                <select id="is_emergency_booking" name="is_emergency_booking" required>
+                                    <option value="0" ${booking.is_emergency_booking == 0 ? 'selected' : ''}>No</option>
+                                    <option value="1" ${booking.is_emergency_booking == 1 ? 'selected' : ''}>Yes</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filled_by_nic">Requester Officer's NIC</label>
+                                <input type="text" id="filled_by_nic" name="filled_by_nic" value="${booking.filled_by_nic}" readonly>
+                            </div>
                         </div>
-                         <div class="form-group">
-                            <label for="event_time">Event Time</label>
-                            <input type="time" id="event_time" name="event_time" value="${booking.event_time}" required>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="filled_by_phone">Requester Officer's Phone</label>
+                                <input type="tel" id="filled_by_phone" name="filled_by_phone" value="${booking.filled_by_phone}" readonly>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="participants">Number of Participants</label>
-                            <input type="number" id="participants" name="participants" value="${booking.participants}" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="event_duration">Event Duration (hours)</label>
-                            <input type="number" id="event_duration" name="event_duration" step="0.1" value="${booking.event_duration}" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="paid_status">Paid Status</label>
-                            <select id="paid_status" name="paid_status" required>
-                                <option value="Not Required" ${booking.paid_status === 'Not Required' ? 'selected' : ''}>Not Required</option>
-                                <option value="Yes" ${booking.paid_status === 'Yes' ? 'selected' : ''}>Yes</option>
-                                <option value="Pending" ${booking.paid_status === 'Pending' ? 'selected' : ''}>Pending</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="is_emergency_booking">Emergency Booking</label>
-                            <select id="is_emergency_booking" name="is_emergency_booking" required>
-                                <option value="0" ${booking.is_emergency_booking == 0 ? 'selected' : ''}>No</option>
-                                <option value="1" ${booking.is_emergency_booking == 1 ? 'selected' : ''}>Yes</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="filled_by_nic">Requester Officer's NIC</label>
-                            <input type="text" id="filled_by_nic" name="filled_by_nic" value="${booking.filled_by_nic}" readonly>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="filled_by_phone">Requester Officer's Phone</label>
-                            <input type="tel" id="filled_by_phone" name="filled_by_phone" value="${booking.filled_by_phone}" readonly>
-                        </div>
-                    </div>
-                `;
+                    `;
                 overlayFormContent.innerHTML = fieldsHtml;
                 console.log("renderFormFields: Finished."); // Debugging log
             }

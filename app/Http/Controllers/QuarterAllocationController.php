@@ -619,14 +619,22 @@ class QuarterAllocationController extends Controller
                 }
 
                 DB::commit();
-                return response()->json(['status' => 'success', 'message' => 'Verification submitted successfully!', 'redirect_url' => route('dashboard')]);
+
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json(['status' => 'success', 'message' => 'Verification submitted successfully!', 'redirect_url' => route('dashboard')]);
+                }
+                return redirect()->route('dashboard')->with('success', 'Verification submitted successfully!');
 
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error('Scheduled Quarter Verification Failed: ' . $e->getMessage(), [
                     'trace' => $e->getTraceAsString(),
                 ]);
-                return response()->json(['status' => 'error', 'message' => 'An unexpected server error occurred. Please check the logs.'], 500);
+
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json(['status' => 'error', 'message' => 'An unexpected server error occurred. Please check the logs.'], 500);
+                }
+                return redirect()->back()->with('error', 'An unexpected server error occurred. Please check the logs.');
             }
         }
 

@@ -67,8 +67,32 @@
                             <td>{{ $application->designation }}</td>
                             <td>{{ \Carbon\Carbon::parse($application->date_created)->format('Y-m-d h:i A') }}</td>
                             <td>{{ $application->quarter_type }}</td>
-                            <td>{{ $application->quarterAllocation ? ($application->quarterAllocation->is_ao_verified ? 'Verified' : 'Pending') : 'N/A' }}</td>
-                            <td>{{ $application->quarterAllocation ? ($application->quarterAllocation->is_aga_verified ? 'Verified' : 'Pending') : 'N/A' }}</td>
+                            <td>
+                                @if($application->quarterAllocation)
+                                    @if($application->quarterAllocation->is_ao_verified === 1)
+                                        <span style="color: green; font-weight: bold;">Yes</span>
+                                    @elseif($application->quarterAllocation->is_ao_verified === 0)
+                                        <span style="color: red; font-weight: bold;">No</span>
+                                    @else
+                                        <span style="color: gray;">Pending</span>
+                                    @endif
+                                @else
+                                    N/A
+                                @endif
+                            </td>
+                            <td>
+                                @if($application->quarterAllocation)
+                                    @if($application->quarterAllocation->is_aga_verified === 1)
+                                        <span style="color: green; font-weight: bold;">Yes</span>
+                                    @elseif($application->quarterAllocation->is_aga_verified === 0)
+                                        <span style="color: red; font-weight: bold;">No</span>
+                                    @else
+                                        <span style="color: gray;">Pending</span>
+                                    @endif
+                                @else
+                                    N/A
+                                @endif
+                            </td>
                             <td>{{ $application->quarterAllocation ? ucfirst($application->quarterAllocation->allocation_status) : 'N/A' }}</td>
                             <td>
                                 <button class="action-btn review-quarter-btn" data-application-id="{{ $application->application_id }}">Review</button>

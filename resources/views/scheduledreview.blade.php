@@ -417,7 +417,15 @@
                 @else
                     <div class="form-row">
                         <div class="form-group"><label>Administrative Officer Verified:</label>
-                            <p>{{ optional($application->quarterAllocation)->is_ao_verified ? 'Yes' : 'No' }}</p>
+                            @php
+                                $aoStatus = optional($application->quarterAllocation)->is_ao_verified;
+                            @endphp
+                            <p>
+                                @if($aoStatus === 1) Yes
+                                @elseif($aoStatus === 0) No
+                                @else Pending
+                                @endif
+                            </p>
                         </div>
                         <div class="form-group"><label>Administrative Officer Note:</label>
                             <p>{{ optional($application->quarterAllocation)->ao_note ?? 'N/A' }}</p>
@@ -442,14 +450,21 @@
                         </div>
                         <div class="form-group">
                             <label for="aga_note">Additional Government Agent Note:</label>
-                            <textarea name="aga_note" id="aga_note" rows="3" class="form-control" style="width: 100%;"
-                                readonly>{{ optional($application->quarterAllocation)->aga_note ?? '' }}</textarea>
+                            <textarea name="aga_note" id="aga_note" rows="3" class="form-control" style="width: 100%;">{{ optional($application->quarterAllocation)->aga_note ?? '' }}</textarea>
                         </div>
                     </div>
                 @else
                     <div class="form-row">
                         <div class="form-group"><label>Additional Government Agent Verified:</label>
-                            <p>{{ optional($application->quarterAllocation)->is_aga_verified ? 'Yes' : 'No' }}</p>
+                            @php
+                                $agaStatus = optional($application->quarterAllocation)->is_aga_verified;
+                            @endphp
+                            <p>
+                                @if($agaStatus === 1) Yes
+                                @elseif($agaStatus === 0) No
+                                @else Pending
+                                @endif
+                            </p>
                         </div>
                         <div class="form-group"><label>Additional Government Agent Note:</label>
                             <p>{{ optional($application->quarterAllocation)->aga_note ?? 'N/A' }}</p>
@@ -465,9 +480,9 @@
                             <select name="ga_approval_status" id="ga_approval_status" class="form-control"
                                 style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;"
                                 required>
-                                <option value="" selected>-- Select an Action --</option>
-                                <option value="1">Yes</option>
-                                <option value="0">No</option>
+                                <option value="">-- Select an Action --</option>
+                                <option value="1" {{ optional($application->quarterAllocation)->allocation_status === 'allocated' ? 'selected' : '' }}>Yes</option>
+                                <option value="0" {{ optional($application->quarterAllocation)->allocation_status === 'rejected' ? 'selected' : '' }}>No</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -481,7 +496,14 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label>Government Agent Approved:</label>
-                            <p>{{ optional($application->quarterAllocation)->allocation_status !== 'pending' && optional($application->quarterAllocation)->allocation_status !== 'rejected' ? 'Yes' : 'No' }}
+                            @php
+                                $gaStatus = optional($application->quarterAllocation)->allocation_status;
+                            @endphp
+                            <p>
+                                @if($gaStatus === 'allocated') Yes
+                                @elseif($gaStatus === 'rejected') No
+                                @else Pending
+                                @endif
                             </p>
                         </div>
                         <div class="form-group">
@@ -541,8 +563,8 @@
                     @if(Auth::user()->hasPermissionTo('requester'))
                         {{-- Requester can delete only if is_ao_verified=0, is_aga_verified=0, allocation_status=pending --}}
                         @php
-                            $canRequesterDelete = optional($application->quarterAllocation)->is_ao_verified == 0
-                                && optional($application->quarterAllocation)->is_aga_verified == 0
+                            $canRequesterDelete = optional($application->quarterAllocation)->is_ao_verified != 1
+                                && optional($application->quarterAllocation)->is_aga_verified != 1
                                 && optional($application->quarterAllocation)->allocation_status === 'pending';
                         @endphp
                         <button type="button" id="delete-button" class="btn btn-danger"
@@ -897,7 +919,6 @@
                             showModal('Validation Error', 'Additional Government Agent Note is required when verification is set to No.', buttons);
                             return;
                         }
-                        return;
                     }
 
                     // If validation passes, show confirmation
