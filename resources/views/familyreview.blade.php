@@ -95,6 +95,7 @@
         .btn-success { background-color: #28a745; color: white; }
         .btn-danger { background-color: #dc3545; color: white; }
         .btn-download { background-color: #17a2b8; color: white; }
+        .btn-info { background-color: #17a2b8; color: white; }
 
         .button-group {
             display: flex;
