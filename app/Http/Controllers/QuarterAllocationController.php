@@ -172,12 +172,21 @@ class QuarterAllocationController extends Controller
             $quarterAllocation->save();
             DB::commit();
 
+            // Return JSON for AJAX requests, redirect for regular form submissions
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage, 'redirect_url' => route('dashboard')]);
+            }
             return redirect()->back()->with('success', $successMessage);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Family Quarter Review Update Failed: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
             ]);
+
+            // Return JSON for AJAX requests, redirect for regular form submissions
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['status' => 'error', 'message' => 'An unexpected error occurred. Please check the logs.'], 500);
+            }
             return redirect()->back()->with('error', 'An unexpected error occurred. Failed to update application. Please check the logs.');
         }
     }
@@ -538,6 +547,87 @@ class QuarterAllocationController extends Controller
         // Handle Reject action for GA
         if ($action === 'reject') {
             return $this->rejectScheduledQuarterApplication($request, $id);
+        }
+
+        // Handle AO/AGA Submit action (verification only, no quarter allocation)
+        if (
+            Auth::user()->hasPermissionTo('administrative_officer_approval') ||
+            Auth::user()->hasPermissionTo('additional_government_agent_approval')
+        ) {
+
+            DB::beginTransaction();
+            try {
+                $application = QuarterApplication::with('quarterAllocation')->findOrFail($id);
+                $quarterAllocation = $application->quarterAllocation;
+
+                if (!$quarterAllocation) {
+                    return response()->json(['status' => 'error', 'message' => 'Application allocation record not found.'], 404);
+                }
+
+                // Handle AO submission
+                if (Auth::user()->hasPermissionTo('administrative_officer_approval')) {
+                    $validator = Validator::make($request->all(), [
+                        'ao_verified_status' => 'required|in:0,1',
+                        'ao_note' => 'required_if:ao_verified_status,0|nullable|string|max:2000',
+                    ], [
+                        'ao_verified_status.required' => 'Please select Yes or No for Administrative Officer Verified.',
+                        'ao_note.required_if' => 'Administrative Officer Note is required when verification is set to No.',
+                    ]);
+
+                    if ($validator->fails()) {
+                        return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 422);
+                    }
+
+                    $quarterAllocation->is_ao_verified = $request->ao_verified_status;
+                    $quarterAllocation->ao_note = $request->ao_note;
+                    $quarterAllocation->save();
+
+                    AuditLog::create([
+                        'log_title' => 'Scheduled Quarter AO Verification',
+                        'performed_by' => Auth::id(),
+                        'details' => "Application ID: {$id} - AO verified: " . ($request->ao_verified_status == 1 ? 'Yes' : 'No'),
+                        'date_performed' => Carbon::now()->toDateString(),
+                        'time_performed' => Carbon::now()->toTimeString(),
+                    ]);
+                }
+
+                // Handle AGA submission
+                if (Auth::user()->hasPermissionTo('additional_government_agent_approval')) {
+                    $validator = Validator::make($request->all(), [
+                        'aga_verified_status' => 'required|in:0,1',
+                        'aga_note' => 'required_if:aga_verified_status,0|nullable|string|max:2000',
+                    ], [
+                        'aga_verified_status.required' => 'Please select Yes or No for Additional Government Agent Verified.',
+                        'aga_note.required_if' => 'Additional Government Agent Note is required when verification is set to No.',
+                    ]);
+
+                    if ($validator->fails()) {
+                        return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 422);
+                    }
+
+                    $quarterAllocation->is_aga_verified = $request->aga_verified_status;
+                    $quarterAllocation->aga_note = $request->aga_note;
+                    $quarterAllocation->save();
+
+                    AuditLog::create([
+                        'log_title' => 'Scheduled Quarter AGA Verification',
+                        'performed_by' => Auth::id(),
+                        'details' => "Application ID: {$id} - AGA verified: " . ($request->aga_verified_status == 1 ? 'Yes' : 'No'),
+                        'date_performed' => Carbon::now()->toDateString(),
+                        'time_performed' => Carbon::now()->toTimeString(),
+                    ]);
+                }
+
+                DB::commit();
+                return response()->json(['status' => 'success', 'message' => 'Verification submitted successfully!', 'redirect_url' => route('dashboard')]);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error('Scheduled Quarter Verification Failed: ' . $e->getMessage(), [
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                return response()->json(['status' => 'error', 'message' => 'An unexpected server error occurred. Please check the logs.'], 500);
+            }
         }
 
         // Handle Allocate action for GA (existing logic)
@@ -1006,6 +1096,160 @@ class QuarterAllocationController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
             return redirect()->back()->with('error', 'An unexpected error occurred. Please check the logs.');
+        }
+    }
+
+    /**
+     * Delete a scheduled quarter application.
+     * Requester: Can delete only if is_ao_verified=0, is_aga_verified=0, allocation_status=pending
+     * Administrative Officer: Can delete if allocation_status=pending
+     */
+    public function deleteScheduledQuarterApplication($id)
+    {
+        // Check permissions
+        if (!Auth::user()->hasPermissionTo('requester') && !Auth::user()->hasPermissionTo('administrative_officer_approval')) {
+            return response()->json(['success' => false, 'message' => 'You do not have permission to delete this application.'], 403);
+        }
+
+        DB::beginTransaction();
+        try {
+            $application = QuarterApplication::with(['quarterAllocation', 'scheduledQuarterApplication'])->findOrFail($id);
+            $quarterAllocation = $application->quarterAllocation;
+
+            if (!$quarterAllocation) {
+                return response()->json(['success' => false, 'message' => 'Application allocation record not found.'], 404);
+            }
+
+            // Role-based validation
+            if (Auth::user()->hasPermissionTo('requester')) {
+                // Requester: Must meet all conditions
+                if ($quarterAllocation->is_ao_verified != 0) {
+                    return response()->json(['success' => false, 'message' => 'Cannot delete: Application has been verified by Administrative Officer.'], 400);
+                }
+                if ($quarterAllocation->is_aga_verified != 0) {
+                    return response()->json(['success' => false, 'message' => 'Cannot delete: Application has been verified by Additional Government Agent.'], 400);
+                }
+                if ($quarterAllocation->allocation_status !== 'pending') {
+                    return response()->json(['success' => false, 'message' => 'Cannot delete: Application status must be pending.'], 400);
+                }
+            } elseif (Auth::user()->hasPermissionTo('administrative_officer_approval')) {
+                // Administrative Officer: Only check status
+                if ($quarterAllocation->allocation_status !== 'pending') {
+                    return response()->json(['success' => false, 'message' => 'Cannot delete: Application status must be pending.'], 400);
+                }
+            }
+
+            // Store details for audit log
+            $officerName = $application->officer_name;
+            $nic = $application->nic;
+
+            // Delete records in correct order (child to parent)
+            $quarterAllocation->delete();
+            if ($application->scheduledQuarterApplication) {
+                $application->scheduledQuarterApplication->delete();
+            }
+            $application->delete();
+
+            // Create audit log
+            AuditLog::create([
+                'log_title' => 'Scheduled Quarter Application Deleted',
+                'performed_by' => Auth::id(),
+                'details' => "Application ID: {$id}, Officer: {$officerName}, NIC: {$nic} deleted by " . Auth::user()->name,
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Application deleted successfully!',
+                'redirect_url' => route('dashboard')
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Scheduled Quarter Application Deletion Failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json(['success' => false, 'message' => 'An unexpected error occurred. Please check the logs.'], 500);
+        }
+    }
+
+    /**
+     * Delete a family quarter application.
+     * Requester: Can delete only if is_ao_verified=0, is_aga_verified=0, allocation_status=pending
+     * Administrative Officer: Can delete if allocation_status=pending
+     */
+    public function deleteFamilyQuarterApplication($id)
+    {
+        // Check permissions
+        if (!Auth::user()->hasPermissionTo('requester') && !Auth::user()->hasPermissionTo('administrative_officer_approval')) {
+            return response()->json(['success' => false, 'message' => 'You do not have permission to delete this application.'], 403);
+        }
+
+        DB::beginTransaction();
+        try {
+            $application = QuarterApplication::with(['quarterAllocation', 'familyQuarterApplication'])->findOrFail($id);
+            $quarterAllocation = $application->quarterAllocation;
+
+            if (!$quarterAllocation) {
+                return response()->json(['success' => false, 'message' => 'Application allocation record not found.'], 404);
+            }
+
+            // Role-based validation
+            if (Auth::user()->hasPermissionTo('requester')) {
+                // Requester: Must meet all conditions
+                if ($quarterAllocation->is_ao_verified != 0) {
+                    return response()->json(['success' => false, 'message' => 'Cannot delete: Application has been verified by Administrative Officer.'], 400);
+                }
+                if ($quarterAllocation->is_aga_verified != 0) {
+                    return response()->json(['success' => false, 'message' => 'Cannot delete: Application has been verified by Additional Government Agent.'], 400);
+                }
+                if ($quarterAllocation->allocation_status !== 'pending') {
+                    return response()->json(['success' => false, 'message' => 'Cannot delete: Application status must be pending.'], 400);
+                }
+            } elseif (Auth::user()->hasPermissionTo('administrative_officer_approval')) {
+                // Administrative Officer: Only check status
+                if ($quarterAllocation->allocation_status !== 'pending') {
+                    return response()->json(['success' => false, 'message' => 'Cannot delete: Application status must be pending.'], 400);
+                }
+            }
+
+            // Store details for audit log
+            $officerName = $application->officer_name;
+            $nic = $application->nic;
+
+            // Delete records in correct order (child to parent)
+            $quarterAllocation->delete();
+            if ($application->familyQuarterApplication) {
+                $application->familyQuarterApplication->delete();
+            }
+            $application->delete();
+
+            // Create audit log
+            AuditLog::create([
+                'log_title' => 'Family Quarter Application Deleted',
+                'performed_by' => Auth::id(),
+                'details' => "Application ID: {$id}, Officer: {$officerName}, NIC: {$nic} deleted by " . Auth::user()->name,
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Application deleted successfully!',
+                'redirect_url' => route('dashboard')
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Family Quarter Application Deletion Failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json(['success' => false, 'message' => 'An unexpected error occurred. Please check the logs.'], 500);
         }
     }
 }

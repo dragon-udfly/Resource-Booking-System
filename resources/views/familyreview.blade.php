@@ -509,12 +509,20 @@
                     @if(Auth::user()->hasPermissionTo('administrative_officer_approval'))
                         {{-- update is_ao_verified and ao_note --}}
                         <button type="submit" name="action" value="Submit" id="submit-button" class="btn btn-success">Submit</button>
-                        {{-- can cancel is_ao_verified= is 1/0 and is_aga_verified is 1/0 application and allocation_state is pending --}}
-                        <button type="submit" name="action" value="Delete" id="delete-pending-verified-button" class="btn btn-success">Delete</button>
+                        {{-- AO can delete if allocation_status is pending --}}
+                        @php
+                            $canAODelete = optional($application->quarterAllocation)->allocation_status === 'pending';
+                        @endphp
+                        <button type="button" id="delete-button" class="btn btn-danger" @if(!$canAODelete) disabled style="opacity: 0.5; cursor: not-allowed;" @endif>Delete</button>
                     @endif
                     @if(Auth::user()->hasPermissionTo('requester'))
-                        {{-- can cancel only is_ao_verified is 0 and is_aga_verified is 0 allocation_state is pending --}}
-                        <button type="submit" name="action" value="Cancel" id="delete-button" class="btn btn-success">Delete</button>
+                        {{-- Requester can delete only if is_ao_verified=0, is_aga_verified=0, allocation_status=pending --}}
+                        @php
+                            $canRequesterDelete = optional($application->quarterAllocation)->is_ao_verified == 0 
+                                               && optional($application->quarterAllocation)->is_aga_verified == 0
+                                               && optional($application->quarterAllocation)->allocation_status === 'pending';
+                        @endphp
+                        <button type="button" id="delete-button" class="btn btn-danger" @if(!$canRequesterDelete) disabled style="opacity: 0.5; cursor: not-allowed;" @endif>Delete</button>
                     @endif
                     {{-- All users can download pdf --}}
                     <a href="{{ route('quarter.download-pdf', ['id' => $application->application_id]) }}" class="btn btn-download" target="_blank">Download</a>
@@ -583,6 +591,174 @@ document.addEventListener('DOMContentLoaded', function () {
             ];
             showModal('Confirm Rejection', 'Are you sure you want to reject this application?', confirmButtons);
         });
+    }
+
+    // Delete Button Handler
+    const deleteBtn = document.getElementById('delete-button');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            // Check if button is disabled and show informative message
+            if (deleteBtn.disabled) {
+                const infoButtons = [{ text: 'OK', class: 'btn btn-info', onClick: hideModal }];
+                showModal('Cannot Delete', 'This application cannot be deleted because it has already been reviewed or processed. Only fresh pending applications with no verifications can be deleted.', infoButtons);
+                return;
+            }
+
+            // Confirmation Dialog
+            const confirmButtons = [
+                { text: 'Yes, Delete', class: 'btn btn-danger', onClick: () => performDeletion() },
+                { text: 'Cancel', class: 'btn btn-secondary', onClick: hideModal }
+            ];
+            showModal('Confirm Deletion', 'Are you sure you want to delete this application? This action cannot be undone.', confirmButtons);
+        });
+
+        const performDeletion = async () => {
+            const loadingButtons = [];
+            showModal('Processing...', 'Deleting application, please wait...', loadingButtons);
+
+            // Extract application ID from current page URL
+            const currentUrl = window.location.pathname;
+            const match = currentUrl.match(/\/family-quarter-application\/([^\/]+)/);
+            let applicationId = '';
+            if (match && match[1]) {
+                applicationId = match[1];
+            } else {
+                console.error("Could not extract application ID from URL:", currentUrl);
+                showModal('Error', 'Failed to extract application ID from page URL.', [{ text: 'OK', class: 'btn btn-danger', onClick: hideModal }]);
+                return;
+            }
+
+            const url = `/family-quarter-application/${applicationId}/delete`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    const errorButtons = [{ text: 'OK', class: 'btn btn-danger', onClick: hideModal }];
+                    showModal('Error', result.message || 'An unknown error occurred.', errorButtons);
+                } else {
+                    if (result.redirect_url) {
+                        window.location.href = result.redirect_url;
+                    } else {
+                        const successButtons = [{ text: 'OK', class: 'btn btn-success', onClick: () => window.location.reload() }];
+                        showModal('Success', result.message, successButtons);
+                    }
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                const errorButtons = [{ text: 'OK', class: 'btn btn-danger', onClick: hideModal }];
+                showModal('Request Failed', 'Could not connect to the server. Please check your network connection.', errorButtons);
+            }
+        };
+    }
+
+    // Submit Button Handler for AO and AGA
+    const submitBtn = document.getElementById('submit-button');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function (e) {
+            // Check if this is AO or AGA
+            const aoVerifiedStatus = document.getElementById('ao_verified_status');
+            const aoNote = document.getElementById('ao_note');
+            const agaVerifiedStatus = document.getElementById('aga_verified_status');
+            const agaNote = document.getElementById('aga_note');
+
+            // Validation for AO
+            if (aoVerifiedStatus && aoNote) {
+                const status = aoVerifiedStatus.value;
+                const note = aoNote.value.trim();
+
+                if (status === '') {
+                    e.preventDefault();
+                    const buttons = [{ text: 'OK', class: 'btn btn-info', onClick: hideModal }];
+                    showModal('Validation Error', 'Please select Yes or No for Administrative Officer Verified.', buttons);
+                    return;
+                }
+
+                if (status === '0' && note === '') {
+                    e.preventDefault();
+                    const buttons = [{ text: 'OK', class: 'btn btn-info', onClick: hideModal }];
+                    showModal('Validation Error', 'Administrative Officer Note is required when verification is set to No.', buttons);
+                    return;
+                }
+            }
+
+            // Validation for AGA
+            if (agaVerifiedStatus && agaNote) {
+                const status = agaVerifiedStatus.value;
+                const note = agaNote.value.trim();
+
+                if (status === '') {
+                    e.preventDefault();
+                    const buttons = [{ text: 'OK', class: 'btn btn-info', onClick: hideModal }];
+                    showModal('Validation Error', 'Please select Yes or No for Additional Government Agent Verified.', buttons);
+                    return;
+                }
+
+                if (status === '0' && note === '') {
+                    e.preventDefault();
+                    const buttons = [{ text: 'OK', class: 'btn btn-info', onClick: hideModal }];
+                    showModal('Validation Error', 'Additional Government Agent Note is required when verification is set to No.', buttons);
+                    return;
+                }
+            }
+
+            // If validation passes, show confirmation
+            e.preventDefault();
+            const confirmButtons = [
+                { text: 'Yes, Submit', class: 'btn btn-success', onClick: () => performSubmission() },
+                { text: 'Cancel', class: 'btn btn-secondary', onClick: hideModal }
+            ];
+            showModal('Confirm Submission', 'Are you sure you want to submit this review?', confirmButtons);
+        });
+
+        const performSubmission = async () => {
+            const loadingButtons = [];
+            showModal('Processing...', 'Submitting verification, please wait...', loadingButtons);
+
+            const formElement = document.getElementById('review-form');
+            const formData = new FormData(formElement);
+            const url = formElement.action;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    const errorButtons = [{ text: 'OK', class: 'btn btn-info', onClick: hideModal }];
+                    showModal('Error', result.message || 'An unknown error occurred.', errorButtons);
+                } else {
+                    const successButtons = [
+                        { text: 'Go to Dashboard', class: 'btn btn-success', onClick: () => window.location.href = result.redirect_url },
+                        { text: 'Stay on Page', class: 'btn btn-info', onClick: () => window.location.reload() }
+                    ];
+                    showModal('Success', result.message, successButtons);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                const errorButtons = [{ text: 'OK', class: 'btn btn-danger', onClick: hideModal }];
+                showModal('Request Failed', 'Could not connect to the server. Please check your network connection.', errorButtons);
+            }
+        };
     }
 });
 </script>
