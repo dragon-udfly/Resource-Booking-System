@@ -111,6 +111,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/scheduled-quarter-application/{id}/review', [QuarterAllocationController::class, 'showScheduledQuarterReview'])->name('scheduled-quarter.review');
     Route::post('/scheduled-quarter-application/{id}/allocate', [QuarterAllocationController::class, 'allocateQuarter'])->name('scheduled-quarter.allocate');
     Route::post('/scheduled-quarter-application/{id}/restore', [QuarterAllocationController::class, 'restoreScheduledQuarterApplication'])->name('scheduled-quarter.restore');
+    Route::post('/quarter-application/{id}/cancel-allocation', [QuarterAllocationController::class, 'cancelAllocation'])->name('quarter.cancelAllocation');
+    Route::post('/quarter-application/{id}/reconsider', [QuarterAllocationController::class, 'reconsiderApplication'])->name('quarter.reconsider');
     Route::get('/quarter-application/{id}/download-pdf', [QuarterAllocationController::class, 'downloadPdf'])->name('quarter.download-pdf');
     Route::get('/processed-application/scheduled/{id}', [QuarterAllocationController::class, 'showProcessedScheduled'])->name('history.view_scheduled');
     Route::get('/processed-application/family/{id}', [QuarterAllocationController::class, 'showProcessedFamily'])->name('history.view_family');

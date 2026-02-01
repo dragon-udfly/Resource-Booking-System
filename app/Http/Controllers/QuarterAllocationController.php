@@ -861,4 +861,151 @@ class QuarterAllocationController extends Controller
             return redirect()->back()->with('error', 'An unexpected error occurred. Please check the logs.');
         }
     }
+
+    public function cancelAllocation(Request $request, $id)
+    {
+        // Authorization - only GA can cancel allocations
+        if (!Auth::user()->hasPermissionTo('government_agent_approval')) {
+            return redirect()->back()->with('error', 'You do not have permission to perform this action.');
+        }
+
+        // Validate GA note is provided
+        $request->validate([
+            'ga_note' => 'required|string|max:500',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $application = QuarterApplication::with('quarterAllocation.quarter')->findOrFail($id);
+            $quarterAllocation = $application->quarterAllocation;
+
+            if (!$quarterAllocation) {
+                return redirect()->back()->with('error', 'Application allocation record not found.');
+            }
+
+            // Only allow cancellation if status is allocated
+            if ($quarterAllocation->allocation_status !== 'allocated') {
+                return redirect()->back()->with('error', 'Only allocated applications can be cancelled.');
+            }
+
+            $oldStatus = $quarterAllocation->allocation_status;
+            $quarterId = $quarterAllocation->quarter_id;
+
+            // Update allocation status to rejected
+            $quarterAllocation->allocation_status = 'rejected';
+            $quarterAllocation->ga_note = $request->ga_note;
+            $quarterAllocation->save();
+
+            // If a quarter was assigned, update the quarter's current occupant number
+            if ($quarterId) {
+                $quarter = Quarter::find($quarterId);
+                if ($quarter && $quarter->current_occupant_number > 0) {
+                    $quarter->decrement('current_occupant_number');
+                }
+            }
+
+            // Create audit log
+            AuditLog::create([
+                'log_title' => 'Quarter Allocation Cancelled',
+                'performed_by' => Auth::id(),
+                'details' => "Application ID: {$id} allocation cancelled from {$oldStatus} to rejected by GA. Quarter: {$quarterId}",
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Quarter allocation cancelled successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Quarter Allocation Cancellation Failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return redirect()->back()->with('error', 'An unexpected error occurred. Please check the logs.');
+        }
+    }
+
+    public function reconsiderApplication(Request $request, $id)
+    {
+        $user = Auth::user();
+
+        // Determine user role and required note field
+        $noteField = null;
+        $userRole = null;
+
+        if ($user->hasPermissionTo('government_agent_approval')) {
+            $noteField = 'ga_note';
+            $userRole = 'Government Agent';
+        } elseif ($user->hasPermissionTo('additional_government_agent_approval')) {
+            $noteField = 'aga_note';
+            $userRole = 'Additional Government Agent';
+        } elseif ($user->hasPermissionTo('administrative_officer_approval')) {
+            $noteField = 'ao_note';
+            $userRole = 'Administrative Officer';
+        } else {
+            return redirect()->back()->with('error', 'You do not have permission to perform this action.');
+        }
+
+        // Validate respective note is provided
+        $request->validate([
+            $noteField => 'required|string|max:500',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $application = QuarterApplication::with('quarterAllocation.quarter')->findOrFail($id);
+            $quarterAllocation = $application->quarterAllocation;
+
+            if (!$quarterAllocation) {
+                return redirect()->back()->with('error', 'Application allocation record not found.');
+            }
+
+            // Only allow reconsideration if status is allocated or rejected
+            if (!in_array($quarterAllocation->allocation_status, ['allocated', 'rejected'])) {
+                return redirect()->back()->with('error', 'Only allocated or rejected applications can be reconsidered.');
+            }
+
+            $oldStatus = $quarterAllocation->allocation_status;
+            $quarterId = $quarterAllocation->quarter_id;
+
+            // Update allocation status to pending
+            $quarterAllocation->allocation_status = 'pending';
+            $quarterAllocation->$noteField = $request->$noteField;
+
+            // Clear quarter assignment
+            $quarterAllocation->quarter_id = null;
+            $quarterAllocation->allocation_date = null;
+            $quarterAllocation->vacate_date = null;
+            $quarterAllocation->save();
+
+            // If a quarter was assigned, update the quarter's current occupant number
+            if ($quarterId) {
+                $quarter = Quarter::find($quarterId);
+                if ($quarter && $quarter->current_occupant_number > 0) {
+                    $quarter->decrement('current_occupant_number');
+                }
+            }
+
+            // Create audit log
+            AuditLog::create([
+                'log_title' => 'Quarter Application Reconsidered',
+                'performed_by' => Auth::id(),
+                'details' => "Application ID: {$id} reconsidered from {$oldStatus} to pending by {$userRole}. Quarter: {$quarterId}",
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Application reconsidered successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Quarter Application Reconsideration Failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return redirect()->back()->with('error', 'An unexpected error occurred. Please check the logs.');
+        }
+    }
 }
