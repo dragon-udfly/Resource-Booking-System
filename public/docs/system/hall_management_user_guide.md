@@ -2,14 +2,6 @@
 
 This guide details the procedures for Administrators to manage Hall resources within the system.
 
-## Table of Contents
-1. [Overview](#overview)
-2. [Accessing Hall Management](#accessing-hall-management)
-3. [Adding a New Hall](#adding-a-new-hall)
-4. [Modifying a Hall](#modifying-a-hall)
-5. [Deleting a Hall](#deleting-a-hall)
-6. [Clearing All Data](#clearing-all-data)
-
 ---
 
 ## Overview

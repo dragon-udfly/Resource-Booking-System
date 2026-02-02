@@ -2,13 +2,6 @@
 
 This guide details the procedures for Administrators to manage Government Quarters (Housing) within the system.
 
-## Table of Contents
-1. [Overview](#overview)
-2. [Adding a New Quarter](#adding-a-new-quarter)
-3. [Modifying Quarter Details](#modifying-quarter-details)
-4. [Deleting a Quarter](#deleting-a-quarter)
-5. [Understanding Quarter Metadata](#understanding-quarter-metadata)
-
 ---
 
 ## Overview
