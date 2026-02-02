@@ -15,6 +15,14 @@ Route::get('/homepage', function () {
     return view('homepage');
 })->name('homepage');
 
+Route::get('/help', function () {
+    return view('help');
+})->name('help');
+
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
 Route::get('/login', function () {
     return view('login');
 })->name('login');
