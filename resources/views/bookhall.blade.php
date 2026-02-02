@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -132,12 +133,14 @@
         }
     </style>
 </head>
+
 <body>
     @include('partials.header')
 
     <section class="banner">
         <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
-            <a href="#" onclick="history.back(); return false;" class="submit-btn" style="text-decoration: none; background-color: #6c757d;">Back</a>
+            <a href="#" onclick="history.back(); return false;" class="submit-btn"
+                style="text-decoration: none; background-color: #6c757d;">Back</a>
         </div>
         <div class="page-header">
             <h2 style="color: rgb(6, 4, 60); font-weight: bold">Hall Booking Form</h2>
@@ -146,13 +149,15 @@
 
         <div class="form-container">
             @if(session('success'))
-                <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <div class="alert alert-success"
+                    style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
                     {{ session('success') }}
                 </div>
             @endif
 
             @if ($errors->any())
-                <div class="alert alert-danger" style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <div class="alert alert-danger"
+                    style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
                     <strong>Whoops!</strong> There were some problems with your input.<br><br>
                     <ul>
                         @foreach ($errors->all() as $error)
@@ -167,11 +172,13 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="applicant_name">Applicant Name <span class="required">*</span></label>
-                        <input type="text" id="applicant_name" name="applicant_name" value="{{ old('applicant_name') }}" required>
+                        <input type="text" id="applicant_name" name="applicant_name" value="{{ old('applicant_name') }}"
+                            required>
                     </div>
                     <div class="form-group">
                         <label for="applicant_email">Applicant Email <span class="required">*</span></label>
-                        <input type="email" id="applicant_email" name="applicant_email" value="{{ old('applicant_email') }}" required>
+                        <input type="email" id="applicant_email" name="applicant_email"
+                            value="{{ old('applicant_email') }}" required>
                     </div>
                 </div>
 
@@ -179,8 +186,10 @@
                     <div class="form-group">
                         <label for="applicant_type">Applicant Type <span class="required">*</span></label>
                         <select id="applicant_type" name="applicant_type" required>
-                            <option value="Internal" @if(old('applicant_type') == 'Internal') selected @endif>Internal</option>
-                            <option value="External" @if(old('applicant_type') == 'External') selected @endif>External</option>
+                            <option value="Internal" @if(old('applicant_type') == 'Internal') selected @endif>Internal
+                            </option>
+                            <option value="External" @if(old('applicant_type') == 'External') selected @endif>External
+                            </option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -188,7 +197,9 @@
                         <select id="hall_id" name="hall_id" required>
                             <option value="">-- Select a Hall --</option>
                             @foreach($halls as $hall)
-                                <option value="{{ $hall->hall_id }}" @if(old('hall_id') == $hall->hall_id) selected @endif>{{ $hall->hall_type }} (Capacity: {{ $hall->capacity }})</option>
+                                <option value="{{ $hall->hall_id }}" @if(old('hall_id') == $hall->hall_id) selected @endif>
+                                    {{ $hall->hall_type }} (Capacity: {{ $hall->capacity }})
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -202,24 +213,27 @@
                 </div>
 
                 <div class="form-row">
-                     <div class="form-group">
+                    <div class="form-group">
                         <label for="event_date">Event Date <span class="required">*</span></label>
-                        <input type="date" id="event_date" name="event_date" value="{{ old('event_date') }}" min="{{ \Carbon\Carbon::today()->format('Y-m-d') }}" required>
+                        <input type="date" id="event_date" name="event_date" value="{{ old('event_date') }}"
+                            min="{{ \Carbon\Carbon::today()->format('Y-m-d') }}" required>
                     </div>
                     <div class="form-group">
                         <label for="event_time">Event Time <span class="required">*</span></label>
                         <input type="time" id="event_time" name="event_time" value="{{ old('event_time') }}" required>
                     </div>
-                </div> 
+                </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="participants">Number of Participants <span class="required">*</span></label>
-                        <input type="number" id="participants" name="participants" value="{{ old('participants') }}" required>
+                        <input type="number" id="participants" name="participants" min="1"
+                            value="{{ old('participants') }}" required>
                     </div>
                     <div class="form-group">
                         <label for="event_duration">Event Duration (hours) <span class="required">*</span></label>
-                        <input type="number" id="event_duration" name="event_duration" step="0.1" value="{{ old('event_duration') }}" required>
+                        <input type="number" id="event_duration" name="event_duration" step="0.1" min="0"
+                            value="{{ old('event_duration') }}" required>
                     </div>
                 </div>
 
@@ -227,7 +241,8 @@
                     <div class="form-group">
                         <label for="paid_status">Paid Status <span class="required">*</span></label>
                         <select id="paid_status" name="paid_status" required>
-                            <option value="Not Required" @if(old('paid_status') == 'Not Required') selected @endif>Not Required</option>
+                            <option value="Not Required" @if(old('paid_status') == 'Not Required') selected @endif>Not
+                                Required</option>
                             <option value="Yes" @if(old('paid_status') == 'Yes') selected @endif>Yes</option>
                             <option value="Pending" @if(old('paid_status') == 'Pending') selected @endif>Pending</option>
                         </select>
@@ -244,17 +259,21 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="filled_by_nic">Requester Officer's NIC <span class="required">*</span></label>
-                        <input type="text" id="filled_by_nic" name="filled_by_nic" value="{{ old('filled_by_nic') }}" required>
+                        <input type="text" id="filled_by_nic" name="filled_by_nic" value="{{ old('filled_by_nic') }}"
+                            required>
                     </div>
                     <div class="form-group">
                         <label for="filled_by_phone">Requester Officer's Phone <span class="required">*</span></label>
-                        <input type="tel" id="filled_by_phone" name="filled_by_phone" value="{{ old('filled_by_phone') }}" required>
+                        <input type="tel" id="filled_by_phone" name="filled_by_phone"
+                            value="{{ old('filled_by_phone') }}" required>
                     </div>
                 </div>
 
                 <div class="form-group" style="margin-top: 20px; display: flex; align-items: center;">
-                    <input type="checkbox" id="confirm_details" name="confirm_details" required style="width: 20px; height: 20px; margin-right: 15px; cursor: pointer;">
-                    <label for="confirm_details" style="margin-bottom: 0; cursor: pointer;">I filled this form with applicant details. All details filled here are true.</label>
+                    <input type="checkbox" id="confirm_details" name="confirm_details" required
+                        style="width: 20px; height: 20px; margin-right: 15px; cursor: pointer;">
+                    <label for="confirm_details" style="margin-bottom: 0; cursor: pointer;">I filled this form with
+                        applicant details. All details filled here are true.</label>
                 </div>
 
                 <div class="button-group">
@@ -268,7 +287,7 @@
     @include('partials.requester_layout')
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const bookingForm = document.getElementById('booking-form');
             const requesterOverlay = document.getElementById('requester-overlay');
             const requesterMessage = document.getElementById('requester-message');
@@ -320,7 +339,7 @@
             }
 
             // Event listener for the Confirm/OK button
-            requesterConfirmBtn.addEventListener('click', function() {
+            requesterConfirmBtn.addEventListener('click', function () {
                 if (isAwaitingConfirmation) {
                     bookingForm.submit(); // Submit the form if it was a confirmation
                 } else {
@@ -330,15 +349,15 @@
 
             // Event listener for the Cancel button
             requesterCancelBtn.addEventListener('click', hideOverlay);
-            
+
             // Optionally, close overlay when clicking outside the message box (but not on the content itself)
-            requesterOverlay.addEventListener('click', function(event) {
+            requesterOverlay.addEventListener('click', function (event) {
                 if (event.target === requesterOverlay) {
                     hideOverlay();
                 }
             });
 
-            bookingForm.addEventListener('submit', function(event) {
+            bookingForm.addEventListener('submit', function (event) {
                 event.preventDefault(); // Prevent default form submission
 
                 const form = event.target;
@@ -358,22 +377,23 @@
                         contact_number: contactNumber
                     })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // If verification is successful, show confirmation overlay
-                        showOverlay('Requester verified. Are you sure you want to submit this booking request?', true);
-                    } else {
-                        // Show error message in the overlay
-                        showOverlay(data.message, false);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showOverlay('An error occurred during verification. Please try again.', false);
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // If verification is successful, show confirmation overlay
+                            showOverlay('Requester verified. Are you sure you want to submit this booking request?', true);
+                        } else {
+                            // Show error message in the overlay
+                            showOverlay(data.message, false);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showOverlay('An error occurred during verification. Please try again.', false);
+                    });
             });
         });
     </script>
 </body>
+
 </html>
