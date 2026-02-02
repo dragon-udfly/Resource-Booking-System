@@ -720,9 +720,10 @@ class QuarterAllocationController extends Controller
         return response()->json(['success' => true, 'message' => 'Requester verified successfully.']);
     }
 
-    public function allocateQuarter(Request $request, $id)
+    public function allocateScheduledQuarter(Request $request, $id)
     {
-        $action = $request->input('submit_action');
+        // Handle Action Input (support both 'action' and 'submit_action' for compatibility)
+        $action = $request->input('action') ?? $request->input('submit_action');
 
         // Handle Reject action for GA
         if ($action === 'reject') {
@@ -748,13 +749,29 @@ class QuarterAllocationController extends Controller
             DB::beginTransaction();
             try {
                 $quarter = Quarter::findOrFail($request->selected_quarter);
+                $application = QuarterApplication::with('quarterAllocation')->findOrFail($id);
+
+                // --- GENDER COMPATIBILITY CHECK ---
+                // If quarter has a specified gender, applicant must match
+                if (!empty($quarter->allowed_gender) && !empty($application->gender)) {
+                    // normalizing strings for comparison
+                    $quarterGender = strtolower(trim($quarter->allowed_gender));
+                    $applicantGender = strtolower(trim($application->gender));
+
+                    if ($quarterGender !== $applicantGender) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => "Gender Mismatch: This quarter is reserved for " . ucfirst($quarterGender) . "s, but the applicant is " . ucfirst($applicantGender) . "."
+                        ], 422);
+                    }
+                }
 
                 // Availability Check
+                // Available if Unallocated OR current < max
                 if ($quarter->status !== 'Unallocated' && ($quarter->current_occupant_number >= $quarter->occupant_number)) {
                     return response()->json(['status' => 'error', 'message' => 'The selected quarter is no longer available (Full Capacity).'], 422);
                 }
 
-                $application = QuarterApplication::with('quarterAllocation')->findOrFail($id);
                 $quarterAllocation = $application->quarterAllocation;
 
                 if (!$quarterAllocation) {
@@ -767,7 +784,7 @@ class QuarterAllocationController extends Controller
                 $quarterAllocation->vacate_date = Carbon::now()->addYears(5);
                 $quarterAllocation->quarter_id = $quarter->quarter_id;
                 $quarterAllocation->ga_note = $request->ga_note;
-                $quarterAllocation->ga_approval_status = 1;
+                // $quarterAllocation->ga_approval_status = 1; // Removed: Column does not exist. allocation_status handles this.
                 $quarterAllocation->save();
 
                 // Update Quarter Occupancy
@@ -775,6 +792,11 @@ class QuarterAllocationController extends Controller
                 if ($quarter->current_occupant_number >= $quarter->occupant_number) {
                     $quarter->status = 'Allocated';
                 }
+                // If it was Unallocated, it becomes Allocated now that it has at least 1 person
+                if ($quarter->status === 'Unallocated') {
+                    $quarter->status = 'Allocated';
+                }
+
                 $quarter->save();
 
                 AuditLog::create([
