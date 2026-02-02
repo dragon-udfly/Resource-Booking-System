@@ -36,9 +36,8 @@
                         </td>
                         <td>{{ $booking->reason_of_rejection ?? 'N/A' }}</td>
                         <td class="action-cell">
-                            <button class="action-btn review-btn"
-                                style="background-color: #007bff; color: white; padding: 5px 10px; border-radius: 5px; border: none; cursor: pointer; margin-right: 5px;"
-                                data-booking-id="{{ $booking->booking_id }}">Review</button>
+                            <a href="{{ route('hall_bookings.processed', $booking->booking_id) }}" class="action-btn"
+                                style="background-color: #007bff; color: white; padding: 5px 10px; border-radius: 5px; border: none; cursor: pointer; margin-right: 5px; text-decoration: none;">View</a>
                             <a href="{{ route('hall_bookings.download', ['hallBooking' => $booking->booking_id]) }}"
                                 class="action-btn"
                                 style="background-color: #28a745; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none;"
@@ -73,26 +72,7 @@
         </table>
 
         {{-- Review Overlay (Read Only) --}}
-        <div id="history-review-overlay"
-            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1001; justify-content: center; align-items: center;">
-            <div
-                style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); max-width: 800px; width: 90%; position: relative;">
-                <button id="history-back-btn" class="action-btn"
-                    style="position: absolute; top: 10px; left: 10px; background-color: #6c757d;">Back</button>
-                <h3 style="text-align: center; margin-bottom: 20px;">Application Details</h3>
-                <div id="history-form-content"></div>
-                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                    <button type="button" id="history-delete-btn" class="action-btn"
-                        style="background-color: #dc3545; display: none;">Delete Record</button>
-                    @if(Auth::user()->hasPermissionTo('government_agent_approval'))
-                        <button type="button" id="history-cancel-btn" class="action-btn"
-                            style="background-color: #ffc107; color: #333; display: none;">Cancel Booking</button>
-                        <button type="button" id="history-reapprove-btn" class="action-btn"
-                            style="background-color: #28a745; color: white; display: none;">Re-approve Booking</button>
-                    @endif
-                </div>
-            </div>
-        </div>
+
 
         <!-- Generic Modal for confirmations -->
         <div id="modal-overlay" class="modal-overlay" style="z-index: 1002;">
@@ -266,223 +246,7 @@
             const hideModal = () => modalOverlay.classList.remove('active');
             // --- END: Generic Modal Logic ---
 
-            // --- START: Hall Booking History Logic ---
-            const historyReviewOverlay = document.getElementById('history-review-overlay');
-            const historyBackBtn = document.getElementById('history-back-btn');
-            const historyFormContent = document.getElementById('history-form-content');
-            const historyDownloadBtn = document.getElementById('history-download-btn');
-            const historyCancelBtn = document.getElementById('history-cancel-btn');
-            const historyDeleteBtn = document.getElementById('history-delete-btn');
-            let currentBookingId = null;
 
-            function renderHistoryFields(booking) {
-                currentBookingId = booking.booking_id;
-                const hallName = booking.hall ? booking.hall.hall_type : (booking.requested_hall_type || 'N/A');
-
-                historyFormContent.innerHTML = `
-                        <div class="form-row">
-                            <div class="form-group"><label>Applicant Name</label><p>${booking.applicant_name}</p></div>
-                            <div class="form-group"><label>Booked Hall</label><p>${hallName}</p></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group"><label>Programme/Event</label><p>${booking.programme}</p></div>
-                            <div class="form-group"><label>Participants</label><p>${booking.participants}</p></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group"><label>Event Date & Time</label><p>${booking.event_date} at ${booking.event_time}</p></div>
-                            <div class="form-group"><label>Approval Status</label><p style="font-weight: bold; text-transform: capitalize; color: ${booking.final_approval === 'approved' ? 'green' : (booking.final_approval === 'rejected' ? 'red' : 'grey')};">${booking.final_approval}</p></div>
-                        </div>
-                        ${booking.reason_of_rejection ? `<div class="form-row"><div class="form-group" style="flex-basis: 100%"><label>Reason of Rejection/Cancellation</label><p style="background-color: #fff3f3;">${booking.reason_of_rejection}</p></div></div>` : ''}
-                        <div id="cancel-reason-container" style="display: none; margin-top: 15px;"><label for="cancel-reason" style="font-weight: bold; color: #dc3545;">Reason for Cancellation*</label><textarea id="cancel-reason" style="width: 100%;" rows="3"></textarea></div>
-                    `;
-
-                if (historyCancelBtn) historyCancelBtn.style.display = (booking.final_approval === 'approved') ? 'inline-block' : 'none';
-
-                // Show Re-approve button only for cancelled bookings
-                const historyReapproveBtn = document.getElementById('history-reapprove-btn');
-                if (historyReapproveBtn) {
-                    historyReapproveBtn.style.display = (booking.final_approval === 'cancelled') ? 'inline-block' : 'none';
-                }
-
-                // Conditional Delete Button Logic
-                const today = new Date();
-                const eventDate = new Date(booking.event_date);
-                today.setHours(0, 0, 0, 0);
-
-                if (eventDate < today) {
-                    historyDeleteBtn.style.display = 'inline-block';
-                    historyDeleteBtn.disabled = false;
-                    historyDeleteBtn.title = 'Delete this record.';
-                } else {
-                    historyDeleteBtn.style.display = 'inline-block'; // Keep it visible but disabled
-                    historyDeleteBtn.disabled = true;
-                    historyDeleteBtn.title = 'Records can only be deleted after the event date has passed.';
-                }
-            }
-
-            document.querySelectorAll('.review-btn').forEach(button => button.addEventListener('click', function () {
-                renderHistoryFields(JSON.parse(this.closest('tr').dataset.booking));
-                historyReviewOverlay.style.display = 'flex';
-            }));
-
-            historyBackBtn.addEventListener('click', () => historyReviewOverlay.style.display = 'none');
-            if (historyDownloadBtn) {
-                historyDownloadBtn.addEventListener('click', () => { if (currentBookingId) window.open(`/hall-bookings/${currentBookingId}/download`, '_blank'); });
-            }
-
-            if (historyCancelBtn) {
-                historyCancelBtn.addEventListener('click', function () {
-                    const cancelReasonContainer = document.getElementById('cancel-reason-container');
-                    const cancelReasonTextarea = document.getElementById('cancel-reason');
-
-                    // Show the reason textarea if not already shown
-                    if (cancelReasonContainer.style.display === 'none') {
-                        cancelReasonContainer.style.display = 'block';
-                        cancelReasonTextarea.value = '';
-                        cancelReasonTextarea.focus();
-                        return;
-                    }
-
-                    // Validate reason is provided
-                    const reason = cancelReasonTextarea.value.trim();
-                    if (!reason) {
-                        showModal('Validation Error', 'Please provide a reason for cancellation.', [
-                            { text: 'OK', class: 'back-button', onClick: hideModal }
-                        ]);
-                        return;
-                    }
-
-                    // Show confirmation modal
-                    showModal('Confirm Cancellation', 'Are you sure you want to cancel this approved booking?', [
-                        { text: 'Yes, Cancel', class: 'btn-danger', onClick: () => performCancelApproved(currentBookingId, reason) },
-                        { text: 'No', class: 'btn-secondary', onClick: hideModal }
-                    ]);
-                });
-            }
-
-            // Re-approve button logic
-            const historyReapproveBtn = document.getElementById('history-reapprove-btn');
-            if (historyReapproveBtn) {
-                historyReapproveBtn.addEventListener('click', function () {
-                    showModal('Confirm Re-approval', 'Are you sure you want to re-approve this cancelled booking?', [
-                        { text: 'Yes, Re-approve', class: 'btn-success', onClick: () => performReApprove(currentBookingId) },
-                        { text: 'Cancel', class: 'btn-secondary', onClick: hideModal }
-                    ]);
-                });
-            }
-
-            // New Delete Logic
-            if (historyDeleteBtn) {
-                historyDeleteBtn.addEventListener('click', function () {
-                    if (this.disabled) return;
-                    showModal('Confirm Deletion', 'Are you sure you want to permanently delete this booking record?', [
-                        { text: 'Yes, Delete', class: 'btn-danger', onClick: () => performDelete(currentBookingId) },
-                        { text: 'Cancel', class: 'btn-secondary', onClick: hideModal }
-                    ]);
-                });
-            }
-
-            const performDelete = async (bookingId) => {
-                showModal('Processing...', 'Deleting record, please wait...', []);
-                const url = `/hall-bookings/${bookingId}`;
-                try {
-                    const response = await fetch(url, {
-                        method: 'DELETE',
-                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-                    });
-                    const result = await response.json();
-                    if (!response.ok) {
-                        showModal('Error', result.message || 'An unknown error occurred.', [{ text: 'OK', class: 'back-button', onClick: hideModal }]);
-                    } else {
-                        const row = document.querySelector(`tr[data-hall-row="${bookingId}"]`);
-                        if (row) row.remove();
-                        historyReviewOverlay.style.display = 'none';
-                        showModal('Success', result.message, [{ text: 'OK', class: 'back-button', onClick: hideModal }]);
-                    }
-                } catch (error) {
-                    showModal('Request Failed', 'Could not connect to the server.', [{ text: 'OK', class: 'back-button', onClick: hideModal }]);
-                }
-            };
-
-            const performCancelApproved = async (bookingId, reason) => {
-                showModal('Processing...', 'Cancelling booking, please wait...', []);
-                const url = `/hall-bookings/${bookingId}/cancel-approved`;
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: JSON.stringify({ reason: reason })
-                    });
-                    const result = await response.json();
-                    if (!response.ok || !result.success) {
-                        showModal('Error', result.message || 'An unknown error occurred.', [{ text: 'OK', class: 'back-button', onClick: hideModal }]);
-                    } else {
-                        // Update the row in the table
-                        const row = document.querySelector(`tr[data-hall-row="${bookingId}"]`);
-                        if (row) {
-                            const bookingData = JSON.parse(row.dataset.booking);
-                            bookingData.final_approval = 'cancelled';
-                            bookingData.reason_of_rejection = reason;
-                            row.dataset.booking = JSON.stringify(bookingData);
-                            const statusCell = row.querySelector('td:nth-child(5) span');
-                            if (statusCell) {
-                                statusCell.textContent = 'Cancelled';
-                                statusCell.style.color = 'grey';
-                            }
-                            // Re-render the form
-                            renderHistoryFields(bookingData);
-                        }
-                        showModal('Success', result.message, [{ text: 'OK', class: 'back-button', onClick: hideModal }]);
-                    }
-                } catch (error) {
-                    showModal('Request Failed', 'Could not connect to the server.', [{ text: 'OK', class: 'back-button', onClick: hideModal }]);
-                }
-            };
-
-            const performReApprove = async (bookingId) => {
-                showModal('Processing...', 'Re-approving booking, please wait...', []);
-                const url = `/hall-bookings/${bookingId}/re-approve`;
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
-                    const result = await response.json();
-                    if (!response.ok || !result.success) {
-                        showModal('Error', result.message || 'An unknown error occurred.', [{ text: 'OK', class: 'back-button', onClick: hideModal }]);
-                    } else {
-                        // Update the row in the table
-                        const row = document.querySelector(`tr[data-hall-row="${bookingId}"]`);
-                        if (row) {
-                            const bookingData = JSON.parse(row.dataset.booking);
-                            bookingData.final_approval = 'approved';
-                            bookingData.reason_of_rejection = null;
-                            row.dataset.booking = JSON.stringify(bookingData);
-                            const statusCell = row.querySelector('td:nth-child(5) span');
-                            if (statusCell) {
-                                statusCell.textContent = 'Approved';
-                                statusCell.style.color = 'green';
-                            }
-                            // Re-render the form
-                            renderHistoryFields(bookingData);
-                        }
-                        showModal('Success', result.message, [{ text: 'OK', class: 'back-button', onClick: hideModal }]);
-                    }
-                } catch (error) {
-                    showModal('Request Failed', 'Could not connect to the server.', [{ text: 'OK', class: 'back-button', onClick: hideModal }]);
-                }
-            };
-            // --- END: Hall Booking History Logic ---
 
             // --- START: Quarter History Logic ---
             const quartersHistoryBody = document.getElementById('quarters-history-body');
@@ -503,16 +267,16 @@
                         const statusClass = `status-${status.toLowerCase()}`;
                         const downloadUrl = "{{ route('quarter.download-pdf', ['id' => ':id']) }}".replace(':id', app.application_id);
                         row.innerHTML = `
-                                <td>${index + 1}</td>
-                                <td>${app.officer_name || 'N/A'}</td>
-                                <td>${new Date(app.date_created).toLocaleDateString()}</td>
-                                <td>${app.quarter_type || 'N/A'}</td>
-                                <td><span class="${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
-                                <td class="action-cell">
-                                    <a href="${viewUrl}" class="action-btn" style="background-color: #007bff; text-decoration: none;">View</a>
-                                    <a href="${downloadUrl}" class="action-btn" style="background-color: #28a745; text-decoration: none;" target="_blank">Download</a>
-                                </td>
-                            `;
+                                    <td>${index + 1}</td>
+                                    <td>${app.officer_name || 'N/A'}</td>
+                                    <td>${new Date(app.date_created).toLocaleDateString()}</td>
+                                    <td>${app.quarter_type || 'N/A'}</td>
+                                    <td><span class="${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+                                    <td class="action-cell">
+                                        <a href="${viewUrl}" class="action-btn" style="background-color: #007bff; text-decoration: none;">View</a>
+                                        <a href="${downloadUrl}" class="action-btn" style="background-color: #28a745; text-decoration: none;" target="_blank">Download</a>
+                                    </td>
+                                `;
                         quartersHistoryBody.appendChild(row);
                     });
                 })

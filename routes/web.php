@@ -105,6 +105,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/hall-bookings/{hallBooking}/review', [HallBookingController::class, 'review'])->name('hall_bookings.review');
     Route::post('/hall-bookings/{hallBooking}/cancel-approved', [HallBookingController::class, 'cancelApproved'])->name('hall_bookings.cancelApproved');
     Route::post('/hall-bookings/{hallBooking}/re-approve', [HallBookingController::class, 'reApprove'])->name('hall_bookings.reApprove');
+    Route::get('/hall-bookings/{hallBooking}/processed', [HallBookingController::class, 'showProcessed'])->name('hall_bookings.processed');
     Route::get('/seequarters', [QuarterController::class, 'seeQuarters'])->name('seequarters');
     Route::get('/occupantdetails', [QuarterController::class, 'showOccupantDetails'])->name('occupantdetails');
     Route::get('/family-quarter-application/{id}/review', [QuarterAllocationController::class, 'showFamilyQuarterReview'])->name('family-quarter.review');

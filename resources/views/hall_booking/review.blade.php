@@ -226,9 +226,33 @@
                 </div>
             </div>
         </div>
+
+        {{-- Success/Info Modal --}}
+        <div id="success-modal"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+            <div
+                style="background: white; padding: 25px; border-radius: 8px; max-width: 400px; width: 90%; text-align: center;">
+                <h3 id="success-modal-title" style="color: #28a745; margin-bottom: 15px;">Success</h3>
+                <p id="success-modal-message" style="margin-bottom: 20px; color: #333;">Operation successful.</p>
+                <button id="success-modal-btn" class="btn btn-primary"
+                    style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">OK</button>
+            </div>
+        </div>
     </section>
 
     <script>
+        function showSuccessModal(message, redirectUrl) {
+            document.getElementById('success-modal-message').textContent = message;
+            document.getElementById('success-modal').style.display = 'flex';
+            
+            document.getElementById('success-modal-btn').onclick = function() {
+                document.getElementById('success-modal').style.display = 'none';
+                if (redirectUrl) {
+                    window.location.href = redirectUrl;
+                }
+            };
+        }
+
         function toggleRejectionReason() {
             const decision = document.getElementById('ga_decision').value;
             const reasonContainer = document.getElementById('rejection-reason-container');
@@ -279,8 +303,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Action completed successfully.');
-                        window.location.href = "{{ route('dashboard') }}";
+                        showSuccessModal(data.message || 'Action completed successfully.', "{{ route('dashboard') }}");
                     } else {
                         alert('Error: ' + data.message);
                     }
@@ -317,8 +340,8 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Booking cancelled successfully.');
-                        window.location.href = "{{ route('dashboard') }}";
+                        closeCancelModal();
+                        showSuccessModal('Booking cancelled successfully.', "{{ route('dashboard') }}");
                     } else {
                         alert('Error: ' + data.message);
                     }

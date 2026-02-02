@@ -25,7 +25,7 @@
                 <td>{{ ucfirst($booking->additional_government_agent_approved) }}</td>
                 <td>{{ ucfirst($booking->government_agent_approved) }}</td>
                 <td>
-                    <a href="{{ route('hall_bookings.review', $booking->booking_id) }}" class="action-btn review-btn"
+                    <a href="{{ route('hall_bookings.review', $booking->booking_id) }}" class="action-btn review-link-btn"
                         style="text-decoration: none; text-align: center;">Review</a>
                 </td>
             </tr>

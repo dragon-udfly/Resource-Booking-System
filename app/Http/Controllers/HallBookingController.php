@@ -359,6 +359,22 @@ class HallBookingController extends Controller
         return view('hall_booking.review', compact('hallBooking'));
     }
 
+    public function showProcessed(HallBooking $hallBooking)
+    {
+        $user = Auth::user();
+        $isApprover = $user->hasPermissionTo('administrative_officer_approval') ||
+            $user->hasPermissionTo('additional_government_agent_approval') ||
+            $user->hasPermissionTo('government_agent_approval');
+
+        if (!$isApprover && $user->hasPermissionTo('requester')) {
+            if ($hallBooking->filled_by_nic != $user->nic_number) {
+                abort(403, 'Unauthorized access: You can only view your own bookings.');
+            }
+        }
+
+        return view('hall_booking.processed', compact('hallBooking'));
+    }
+
     public function approve(HallBooking $hallBooking)
     {
         $user = Auth::user();
