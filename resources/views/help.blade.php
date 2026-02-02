@@ -4,10 +4,58 @@
 
 @section('page_styles')
     <style>
+        /* Page Header Styles */
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .page-header h2 {
+            font-size: 2em;
+            font-weight: bold;
+            color: #0056b3;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+            display: inline-block;
+        }
+
+        /* Button Bar Styles */
+        .button-bar {
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 1000px; /* Match help container width */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .home-btn { background-color: #6c757d; }
+        .back-btn { background-color: #007bff; }
+        
+        .btn:hover { opacity: 0.9; }
+
         .help-container {
             width: 100%;
             max-width: 1000px;
-            margin: 20px auto;
+            margin: 0 auto 40px auto; /* Added bottom margin */
             padding: 20px;
             background-color: white;
             border-radius: 8px;
@@ -90,6 +138,11 @@
 
 @section('content')
     <section class="banner">
+        <div class="button-bar">
+            <a href="#" onclick="history.back(); return false;" class="btn back-btn">Back</a>
+            <a href="{{ Auth::check() ? route('homepage') : route('home') }}" class="btn home-btn">Home</a>
+        </div>
+
         <div class="page-header">
             <h2>How to Use</h2>
         </div>
