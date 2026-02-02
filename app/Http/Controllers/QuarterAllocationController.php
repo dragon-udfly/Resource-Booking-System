@@ -138,9 +138,7 @@ class QuarterAllocationController extends Controller
             $quarterAllocation->vacate_date = Carbon::now()->addYears(5);
             $quarterAllocation->quarter_id = $request->selected_quarter; // ASSIGN QUARTER ID
 
-            if ($request->ga_note) {
-                $quarterAllocation->ga_note = $request->ga_note;
-            }
+            $quarterAllocation->ga_note = $request->ga_note;
 
             // 4. Update Special Reason Fields (Marking)
             if ($application->familyQuarterApplication && $application->familyQuarterApplication->markingFamilyQuarter) {
