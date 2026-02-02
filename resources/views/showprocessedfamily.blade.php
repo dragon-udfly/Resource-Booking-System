@@ -547,21 +547,6 @@
 
                 {{-- Reconsider (GA/AGA/AO, Allocated or Rejected Status) --}}
                 @if($allocation && in_array($allocation->allocation_status, ['allocated', 'rejected']))
-                    @if(Auth::user()->hasPermissionTo('government_agent_approval') || Auth::user()->hasPermissionTo('additional_government_agent_approval') || Auth::user()->hasPermissionTo('administrative_officer_approval'))
-                        <form id="reconsider-form"
-                            action="{{ route('quarter.reconsider', ['id' => $application->application_id]) }}" method="POST"
-                            style="display: inline;">
-                            @csrf
-                            @if(Auth::user()->hasPermissionTo('government_agent_approval'))
-                                <input type="hidden" name="ga_note" id="reconsider-note-input">
-                            @elseif(Auth::user()->hasPermissionTo('additional_government_agent_approval'))
-                                <input type="hidden" name="aga_note" id="reconsider-note-input">
-                            @elseif(Auth::user()->hasPermissionTo('administrative_officer_approval'))
-                                <input type="hidden" name="ao_note" id="reconsider-note-input">
-                            @endif
-                            <button type="button" id="reconsider-button" class="btn btn-warning">Reconsider</button>
-                        </form>
-                    @endif
                 @endif
 
                 <a href="{{ route('quarter.download-pdf', ['id' => $application->application_id]) }}" class="btn btn-info"
@@ -659,55 +644,7 @@
                 });
             }
 
-            // Reconsider Button Handler
-            const reconsiderBtn = document.getElementById('reconsider-button');
-            const reconsiderForm = document.getElementById('reconsider-form');
-            const reconsiderNoteInput = document.getElementById('reconsider-note-input');
 
-            if (reconsiderBtn) {
-                reconsiderBtn.addEventListener('click', function (e) {
-                    e.preventDefault();
-
-                    // Show modal to collect note
-                    showModal('Reconsider Application', `<div style="text-align: left; margin-bottom: 15px;">
-                    <label for="modal-reconsider-note" style="font-weight: bold; color: #007bff; display: block; margin-bottom: 8px;">Reason for Reconsideration*</label>
-                    <textarea id="modal-reconsider-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit;" rows="4" placeholder="Enter reason for reconsideration..."></textarea>
-                </div>`, [
-                        {
-                            text: 'Reconsider',
-                            class: 'btn btn-warning',
-                            onClick: () => {
-                                const noteTextarea = document.getElementById('modal-reconsider-note');
-                                const note = noteTextarea ? noteTextarea.value.trim() : '';
-
-                                if (!note) {
-                                    alert('Please provide a reason for reconsideration.');
-                                    return;
-                                }
-
-                                hideModal();
-
-                                // Set the note and show final confirmation
-                                reconsiderNoteInput.value = note;
-
-                                setTimeout(() => {
-                                    showModal('Confirm Reconsideration', 'Are you sure you want to reconsider this application? The status will change to pending.', [
-                                        { text: 'Yes, Reconsider', class: 'btn btn-warning', onClick: () => reconsiderForm.submit() },
-                                        { text: 'Cancel', class: 'btn btn-secondary', onClick: hideModal }
-                                    ]);
-                                }, 100);
-                            }
-                        },
-                        { text: 'Close', class: 'btn btn-secondary', onClick: hideModal }
-                    ]);
-
-                    // Focus on textarea after modal opens
-                    setTimeout(() => {
-                        const noteTextarea = document.getElementById('modal-reconsider-note');
-                        if (noteTextarea) noteTextarea.focus();
-                    }, 100);
-                });
-            }
         });
     </script>
 @endpush
