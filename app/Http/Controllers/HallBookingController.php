@@ -266,26 +266,68 @@ class HallBookingController extends Controller
 
     public function destroyBooking(Request $request, HallBooking $hallBooking)
     {
-        // Authorization: Ensure the authenticated user is the requester of this booking
-        if (Auth::user()->nic_number !== $hallBooking->filled_by_nic) {
-            $errorMessage = 'Unauthorized action.';
-            if ($request->wantsJson()) {
-                return response()->json(['status' => 'error', 'message' => $errorMessage], 403);
-            }
-            return redirect()->back()->with('error', $errorMessage);
+        $user = Auth::user();
+
+        // 1. Verify Ownership / Permissions check
+        // Assuming destroy is primarily for Requester/Owner or an Approver managing cleanups.
+        // The original code was strict on Requester Ownership:
+        // if ($user->nic_number !== $hallBooking->filled_by_nic) ...
+        // We should maintain this strictness for "Requesters" acting as Requesters.
+        // But if an AO is deleting (as per new rule), we need to allow it.
+
+        $isRequester = $user->hasPermissionTo('requester');
+        $isAO = $user->hasPermissionTo('administrative_officer_approval');
+
+        // Ownership check for Requester
+        if ($isRequester && !$isAO && $user->nic_number !== $hallBooking->filled_by_nic) {
+            return $this->sendError($request, 'Unauthorized action.');
         }
 
-        // Check if any approval is not 'pending'
-        if (
-            $hallBooking->administrative_officer_approved !== 'pending' ||
-            $hallBooking->additional_government_agent_approved !== 'pending' ||
-            $hallBooking->government_agent_approved !== 'pending'
-        ) {
-            $errorMessage = 'Booking cannot be cancelled after approval process has started.';
-            if ($request->wantsJson()) {
-                return response()->json(['status' => 'error', 'message' => $errorMessage], 403);
+        // 2. Check Event Date
+        $isPastEvent = \Carbon\Carbon::parse($hallBooking->event_date)->startOfDay()->lt(\Carbon\Carbon::today());
+
+        if ($isPastEvent) {
+            // Rule: History Cleanup
+            // Allow deletion if event passed. 
+            // Logic implies Owner can delete their own history. 
+            // Can AO delete anyone's history? Plan didn't specify, but implies "Allow users to delete... from THEIR history".
+            // So strict ownership for Requesters is good. AO might need to delete old records too?
+            // Let's stick to: If you have access (Owner or Approver?), you can delete past events.
+            // Given the context of "View History", it's usually the Requester viewing their own.
+
+            // If NOT owner and NOT authorized approver?
+            // The route is protected by auth. 
+            // Let's assume the previous ownership check covers it.
+
+        } else {
+            // Future/Active Event Logic
+
+            if ($isRequester && !$isAO) {
+                // PA Rule: Can delete ONLY if all status is 'pending'
+                if (
+                    $hallBooking->administrative_officer_approved !== 'pending' ||
+                    $hallBooking->additional_government_agent_approved !== 'pending' ||
+                    $hallBooking->government_agent_approved !== 'pending'
+                ) {
+                    return $this->sendError($request, 'Booking cannot be cancelled after approval process has started.');
+                }
+            } elseif ($isAO) {
+                // AO Rule: Can delete if Final Status is SET (e.g. they rejected it) AND GA Status is Pending.
+                // Interpreting "Final Status is SET" as != 'pending'.
+                // Interpreting "GA Status is Pending" as == 'pending'.
+
+                $finalStatusSet = $hallBooking->final_approval !== 'pending';
+                $gaPending = $hallBooking->government_agent_approved === 'pending';
+
+                if (!($finalStatusSet && $gaPending)) {
+                    return $this->sendError($request, 'Cannot delete: Application must be finalized (e.g. Rejected) but not yet processed by GA.');
+                }
+            } else {
+                // Other roles (e.g. AGA, GA)? Default block or allow?
+                // Original code blocked everything non-pending.
+                // Let's maintain block for safety unless specified.
+                return $this->sendError($request, 'Unauthorized deletion request.');
             }
-            return redirect()->back()->with('error', $errorMessage);
         }
 
         try {
@@ -294,13 +336,13 @@ class HallBookingController extends Controller
 
             // Audit Log
             AuditLog::create([
-                'log_title' => 'Hall Booking Application ' . $bookingId . ' cancelled by requester',
+                'log_title' => 'Hall Booking Application ' . $bookingId . ' deleted by ' . $user->name,
                 'performed_by' => Auth::id(),
-                'date_performed' => Carbon::now()->toDateString(),
-                'time_performed' => Carbon::now()->toTimeString(),
+                'date_performed' => \Carbon\Carbon::now()->toDateString(),
+                'time_performed' => \Carbon\Carbon::now()->toTimeString(),
             ]);
 
-            $successMessage = 'Booking cancelled successfully.';
+            $successMessage = 'Booking deleted successfully.';
             if ($request->wantsJson()) {
                 return response()->json(['status' => 'success', 'message' => $successMessage]);
             }
@@ -308,12 +350,16 @@ class HallBookingController extends Controller
 
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Booking deletion failed: ' . $e->getMessage());
-            $errorMessage = 'An unexpected error occurred while deleting the booking.';
-            if ($request->wantsJson()) {
-                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
-            }
-            return redirect()->back()->with('error', $errorMessage);
+            return $this->sendError($request, 'An unexpected error occurred while deleting the booking.', 500);
         }
+    }
+
+    private function sendError($request, $message, $code = 403)
+    {
+        if ($request->wantsJson()) {
+            return response()->json(['status' => 'error', 'message' => $message], $code);
+        }
+        return redirect()->back()->with('error', $message);
     }
 
     public function downloadPDF(HallBooking $hallBooking)

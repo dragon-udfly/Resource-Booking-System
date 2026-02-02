@@ -113,12 +113,40 @@
                 <a href="{{ route('hall_bookings.download', $hallBooking->booking_id) }}" class="btn"
                     style="background-color: #17a2b8; color: white; padding: 10px 20px; text-decoration: none; display: inline-block; margin-right: 10px;" target="_blank">Download PDF</a>
 
-                {{-- Delete logic: Only if event date passed --}}
+                {{-- Delete logic --}}
                 @php
                     $today = \Carbon\Carbon::today();
                     $eventDate = \Carbon\Carbon::parse($hallBooking->event_date);
+                    $isPast = $eventDate < $today;
+                    
+                    $user = Auth::user();
+                    $isAO = $user->hasPermissionTo('administrative_officer_approval');
+                    $canDelete = false;
+
+                    if ($isPast) {
+                        $canDelete = true;
+                    } elseif ($isAO) {
+                         // AO Rule: Final Status SET and GA Pending
+                         $finalStatusSet = $hallBooking->final_approval !== 'pending';
+                         $gaPending = $hallBooking->government_agent_approved === 'pending';
+                         if ($finalStatusSet && $gaPending) {
+                             $canDelete = true;
+                         }
+                    }
                 @endphp
-                @if($eventDate < $today)
+                
+                {{-- DEBUG SECTION --}}
+                <div style="font-size: 10px; color: #888; border: 1px solid #ccc; padding: 5px; margin-bottom: 5px; display: block;">
+                    DEBUG:
+                    Date: {{ $eventDate->toDateString() }} / Today: {{ $today->toDateString() }} <br>
+                    Is Past: {{ $isPast ? 'Yes' : 'No' }} <br>
+                    Is AO: {{ $isAO ? 'Yes' : 'No' }} <br>
+                    Final: {{ $hallBooking->final_approval }} / GA: {{ $hallBooking->government_agent_approved }} <br>
+                    Can Delete: {{ $canDelete ? 'Yes' : 'No' }}
+                </div>
+                {{-- END DEBUG --}}
+
+                @if($canDelete)
                     <button onclick="confirmDelete()" class="btn btn-danger"
                         style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-left: 10px;">Delete Record</button>
                 @endif
