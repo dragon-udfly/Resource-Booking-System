@@ -4,26 +4,26 @@
 
 @section('page_styles')
     <style>
-        div a {
-            display: block; 
-            padding: 20px 40px; 
-            background-color: #007bff; 
-            color: white; 
-            text-decoration: none; 
-            border-radius: 8px; 
-            font-size: 1.5em; 
-            text-align: center; 
+        .btn-row a {
+            display: block;
+            padding: 20px 40px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1.5em;
+            text-align: center;
             transition: background-color 0.3s ease;
         }
 
         .btn-row {
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100%; 
-            gap: 80px; 
-            display: flex; 
-            flex-direction: row; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            gap: 80px;
+            display: flex;
+            flex-direction: row;
             padding: 20px;
         }
 
@@ -37,7 +37,7 @@
         .h2-class {
             text-align: center;
             margin-bottom: 20px;
-            color:rgb(90, 90, 98);
+            color: rgb(90, 90, 98);
             font-size: 20px;
         }
     </style>
@@ -46,7 +46,7 @@
 @section('content')
     <section class="banner">
         <br />
-        <h1 class="h1-class">Admin Dashboard</h1> 
+        <h1 class="h1-class">Admin Dashboard</h1>
         <br />
         <p class="h2-class">Manage system resources</p>
         <div class="btn-row">
