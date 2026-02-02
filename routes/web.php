@@ -11,13 +11,13 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+use App\Http\Controllers\FileController;
+
 Route::get('/homepage', function () {
     return view('homepage');
 })->name('homepage');
 
-Route::get('/help', function () {
-    return view('help');
-})->name('help');
+Route::get('/help', [FileController::class, 'showHelp'])->name('help');
 
 Route::get('/about', function () {
     return view('about');
