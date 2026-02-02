@@ -364,13 +364,18 @@
 
                 {{-- Reconsider (GA/AGA/AO, Allocated or Rejected Status) --}}
 
-                {{-- Restore (GA Only, Rejected Status) - Keep existing for backward compatibility --}}
+                {{-- Restore (GA, AGA, AO Only, Rejected Status) --}}
                 @if($allocation && $allocation->allocation_status == 'rejected')
-                    @if(Auth::user()->hasPermissionTo('government_agent_approval'))
+                    @if(
+                            Auth::user()->hasPermissionTo('government_agent_approval') ||
+                            Auth::user()->hasPermissionTo('additional_government_agent_approval') ||
+                            Auth::user()->hasPermissionTo('administrative_officer_approval')
+                        )
                         <form id="restore-form"
                             action="{{ route('scheduled-quarter.restore', ['id' => $application->application_id]) }}" method="POST"
                             style="display: inline;">
                             @csrf
+                            <input type="hidden" name="restore_note" id="restore-note-input">
                             <button type="button" id="restore-button" class="btn btn-warning">Restore to Pending</button>
                         </form>
                     @endif
@@ -448,9 +453,9 @@
 
                     // Show modal to collect note
                     showModal('Cancel Allocation', `<div style="text-align: left; margin-bottom: 15px;">
-                            <label for="modal-cancel-note" style="font-weight: bold; color: #dc3545; display: block; margin-bottom: 8px;">Reason for Cancellation (GA Note)*</label>
-                            <textarea id="modal-cancel-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; resize: vertical;" rows="4" placeholder="Enter reason for cancellation..."></textarea>
-                        </div>`, [
+                                <label for="modal-cancel-note" style="font-weight: bold; color: #dc3545; display: block; margin-bottom: 8px;">Reason for Cancellation (GA Note)*</label>
+                                <textarea id="modal-cancel-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; resize: vertical;" rows="4" placeholder="Enter reason for cancellation..."></textarea>
+                            </div>`, [
                         {
                             text: 'Cancel Allocation',
                             class: 'btn btn-danger',
@@ -487,6 +492,51 @@
                 });
             }
 
+
+            }
+
+            // Restore Button Handler
+            const restoreBtn = document.getElementById('restore-button');
+            const restoreForm = document.getElementById('restore-form');
+            const restoreNoteInput = document.getElementById('restore-note-input');
+
+            if (restoreBtn) {
+                restoreBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    showModal('Restore Application', `<div style="text-align: left; margin-bottom: 15px;">
+                        <label for="modal-restore-note" style="font-weight: bold; color: #856404; display: block; margin-bottom: 8px;">Reason for Restoration (Mandatory)*</label>
+                        <textarea id="modal-restore-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; resize: vertical;" rows="4" placeholder="Enter reason for restoring application..."></textarea>
+                    </div>`, [
+                        {
+                            text: 'Restore Application',
+                            class: 'btn btn-warning',
+                            onClick: () => {
+                                const noteTextarea = document.getElementById('modal-restore-note');
+                                const note = noteTextarea ? noteTextarea.value.trim() : '';
+
+                                if (!note) {
+                                    alert('Please provide a reason for restoration.');
+                                    return;
+                                }
+
+                                hideModal();
+
+                                // Set the note and submit
+                                restoreNoteInput.value = note;
+                                restoreForm.submit();
+                            }
+                        },
+                        { text: 'Close', class: 'btn btn-secondary', onClick: hideModal }
+                    ]);
+
+                    // Focus on textarea
+                    setTimeout(() => {
+                        const noteTextarea = document.getElementById('modal-restore-note');
+                        if (noteTextarea) noteTextarea.focus();
+                    }, 100);
+                });
+            }
 
         });
     </script>

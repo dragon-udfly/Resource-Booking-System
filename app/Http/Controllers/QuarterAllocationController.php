@@ -1143,12 +1143,23 @@ class QuarterAllocationController extends Controller
         return view('showprocessedfamily', compact('application', 'calculatedGrade'));
     }
 
-    public function restoreScheduledQuarterApplication($id)
+    public function restoreQuarterApplication(Request $request, $id)
     {
-        // 1. Authorization
-        if (!Auth::user()->hasPermissionTo('government_agent_approval')) {
+        // 1. Authorization - Check if user has ANY of the required permissions
+        if (
+            !Auth::user()->hasPermissionTo('government_agent_approval') &&
+            !Auth::user()->hasPermissionTo('additional_government_agent_approval') &&
+            !Auth::user()->hasPermissionTo('administrative_officer_approval')
+        ) {
             return redirect()->back()->with('error', 'You do not have permission to perform this action.');
         }
+
+        // 2. Validation
+        $request->validate([
+            'restore_note' => 'required|string|max:2000',
+        ], [
+            'restore_note.required' => 'A reason for restoration is required.',
+        ]);
 
         DB::beginTransaction();
         try {
@@ -1166,29 +1177,41 @@ class QuarterAllocationController extends Controller
 
             $oldStatus = $quarterAllocation->allocation_status;
 
-            // Reset allocation to pending status
+            // 3. Update Status
             $quarterAllocation->allocation_status = 'pending';
-            $quarterAllocation->quarter_id = null;
-            $quarterAllocation->allocation_date = null;
-            $quarterAllocation->vacate_date = null;
+
+            // 4. Append Note based on Role
+            $noteContent = "\n[Restore Note]: " . $request->restore_note;
+
+            if (Auth::user()->hasPermissionTo('government_agent_approval')) {
+                $quarterAllocation->ga_note = ($quarterAllocation->ga_note ?? '') . $noteContent;
+            } elseif (Auth::user()->hasPermissionTo('additional_government_agent_approval')) {
+                $quarterAllocation->aga_note = ($quarterAllocation->aga_note ?? '') . $noteContent;
+            } elseif (Auth::user()->hasPermissionTo('administrative_officer_approval')) {
+                $quarterAllocation->ao_note = ($quarterAllocation->ao_note ?? '') . $noteContent;
+            }
+
+            // Note: quarter_id and dates are preserved/null as they were upon rejection. 
+            // We do not explicitly clear them again here as they should have been cleared at rejection.
+
             $quarterAllocation->save();
 
             // Create audit log
             AuditLog::create([
-                'log_title' => 'Scheduled Quarter Application Restored',
+                'log_title' => 'Quarter Application Restored',
                 'performed_by' => Auth::id(),
-                'details' => "Application ID: {$id} restored from {$oldStatus} to pending by GA",
+                'details' => "Application ID: {$id} restored from {$oldStatus} to pending by " . Auth::user()->name,
                 'date_performed' => Carbon::now()->toDateString(),
                 'time_performed' => Carbon::now()->toTimeString(),
             ]);
 
             DB::commit();
 
-            return redirect()->route('history')->with('success', 'Application successfully restored to pending status!');
+            return redirect()->back()->with('success', 'Application successfully restored to pending status!');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Scheduled Quarter Restore Failed: ' . $e->getMessage(), [
+            Log::error('Quarter Restore Failed: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
             ]);
             return redirect()->back()->with('error', 'An unexpected error occurred. Please check the logs.');

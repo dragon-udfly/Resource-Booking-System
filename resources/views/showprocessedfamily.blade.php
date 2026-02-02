@@ -549,6 +549,21 @@
                 @if($allocation && in_array($allocation->allocation_status, ['allocated', 'rejected']))
                 @endif
 
+                {{-- Restore (GA, AGA, AO Only, Rejected Status) --}}
+                @if($allocation && $allocation->allocation_status == 'rejected')
+                    @if(Auth::user()->hasPermissionTo('government_agent_approval') || 
+                        Auth::user()->hasPermissionTo('additional_government_agent_approval') || 
+                        Auth::user()->hasPermissionTo('administrative_officer_approval'))
+                        <form id="restore-form"
+                            action="{{ route('family-quarter.restore', ['id' => $application->application_id]) }}" method="POST"
+                            style="display: inline;">
+                            @csrf
+                            <input type="hidden" name="restore_note" id="restore-note-input">
+                            <button type="button" id="restore-button" class="btn btn-warning">Restore to Pending</button>
+                        </form>
+                    @endif
+                @endif
+
                 <a href="{{ route('quarter.download-pdf', ['id' => $application->application_id]) }}" class="btn btn-info"
                     target="_blank">Download</a>
             </div>
@@ -644,6 +659,52 @@
                 });
             }
 
+
+            }
+
+
+            // Restore Button Handler
+            const restoreBtn = document.getElementById('restore-button');
+            const restoreForm = document.getElementById('restore-form');
+            const restoreNoteInput = document.getElementById('restore-note-input');
+
+            if (restoreBtn) {
+                restoreBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    showModal('Restore Application', `<div style="text-align: left; margin-bottom: 15px;">
+                        <label for="modal-restore-note" style="font-weight: bold; color: #856404; display: block; margin-bottom: 8px;">Reason for Restoration (Mandatory)*</label>
+                        <textarea id="modal-restore-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; resize: vertical;" rows="4" placeholder="Enter reason for restoring application..."></textarea>
+                    </div>`, [
+                        {
+                            text: 'Restore Application',
+                            class: 'btn btn-warning',
+                            onClick: () => {
+                                const noteTextarea = document.getElementById('modal-restore-note');
+                                const note = noteTextarea ? noteTextarea.value.trim() : '';
+
+                                if (!note) {
+                                    alert('Please provide a reason for restoration.');
+                                    return;
+                                }
+
+                                hideModal();
+
+                                // Set the note and submit
+                                restoreNoteInput.value = note;
+                                restoreForm.submit();
+                            }
+                        },
+                        { text: 'Close', class: 'btn btn-secondary', onClick: hideModal }
+                    ]);
+
+                    // Focus on textarea
+                    setTimeout(() => {
+                        const noteTextarea = document.getElementById('modal-restore-note');
+                        if (noteTextarea) noteTextarea.focus();
+                    }, 100);
+                });
+            }
 
         });
     </script>
