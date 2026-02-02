@@ -327,6 +327,38 @@ class HallBookingController extends Controller
         return $pdf->download('hall_booking_Application_' . $hallBooking->booking_id . '.pdf');
     }
 
+    public function review(HallBooking $hallBooking)
+    {
+        $user = Auth::user();
+
+        // Check if user has permission to view
+        $isApprover = $user->hasPermissionTo('administrative_officer_approval') ||
+            $user->hasPermissionTo('additional_government_agent_approval') ||
+            $user->hasPermissionTo('government_agent_approval');
+
+        if (!$isApprover && $user->hasPermissionTo('requester')) {
+            // Check ownership using NIC number as user_id is not present in HallBooking
+            if ($hallBooking->filled_by_nic != $user->nic_number) {
+                \Illuminate\Support\Facades\Log::info('Review Check Failed (NIC Mismatch)', [
+                    'user_nic' => $user->nic_number,
+                    'booking_nic' => $hallBooking->filled_by_nic,
+                ]);
+                abort(403, 'Unauthorized access: NIC Mismatch (' . ($hallBooking->filled_by_nic ?? 'null') . ' vs ' . ($user->nic_number ?? 'null') . ')');
+            }
+        }
+
+        if (
+            !$user->hasPermissionTo('requester') &&
+            !$user->hasPermissionTo('administrative_officer_approval') &&
+            !$user->hasPermissionTo('additional_government_agent_approval') &&
+            !$user->hasPermissionTo('government_agent_approval')
+        ) {
+            abort(403, 'Unauthorized access');
+        }
+
+        return view('hall_booking.review', compact('hallBooking'));
+    }
+
     public function approve(HallBooking $hallBooking)
     {
         $user = Auth::user();
@@ -405,16 +437,25 @@ class HallBookingController extends Controller
 
     public function cancelApproved(Request $request, HallBooking $hallBooking)
     {
-        $request->validate([
-            'reason' => 'required|string|max:500',
-        ]);
+        $user = Auth::user();
+        $isRequester = $user->hasPermissionTo('requester');
 
-        if (Auth::user()->hasPermissionTo('government_agent_approval')) {
+        // Reason is required for GA (if not requester), but optional for requester
+        $rules = [
+            'reason' => ($isRequester) ? 'nullable|string|max:500' : 'required|string|max:500',
+        ];
+
+        // Also allow AO to cancel if needed (from blade: AO has cancel button too)
+        if ($user->hasPermissionTo('administrative_officer_approval')) {
+            $rules['reason'] = 'nullable|string|max:500';
+        }
+
+        $request->validate($rules);
+
+        if ($user->hasPermissionTo('government_agent_approval')) {
             if ($hallBooking->final_approval === 'approved') {
                 $hallBooking->final_approval = 'cancelled';
                 $hallBooking->reason_of_rejection = $request->reason;
-                // Reset internal approvals just in case, or leave them as history? 
-                // Typically cancellation keeps the record that it WAS approved but now cancelled.
                 $hallBooking->save();
 
                 AuditLog::create([
@@ -428,6 +469,53 @@ class HallBookingController extends Controller
             }
             return response()->json(['success' => false, 'message' => 'This booking is not currently approved.'], 422);
         }
+
+        // Requester Logic
+        if ($isRequester) {
+            // Verify ownership
+            if ($hallBooking->filled_by_nic !== $user->nic_number) {
+                // If not owner, check if they have approver permissions to proceed to subsequent blocks?
+                // But subsequent blocks are separate if statements.
+                // If they are Requester AND Approver, they might fall through?
+                // But here we are inside "if ($isRequester)".
+                // If they are primarily acting as requester (but canceling someone else's), deny.
+                // Unless they are also AO?
+                if (!$user->hasPermissionTo('administrative_officer_approval') && !$user->hasPermissionTo('government_agent_approval')) {
+                    abort(403, 'Unauthorized access: You can only cancel your own bookings.');
+                }
+                // If they are AO/GA, let them pass this block (don't execute requester cancel) to reach AO/GA block?
+                // Or just execute cancel here if they are AO? AO block is below.
+            } else {
+                // Owner cancelling
+                $hallBooking->final_approval = 'cancelled';
+                $hallBooking->save();
+
+                AuditLog::create([
+                    'log_title' => 'Booking ' . $hallBooking->booking_id . ' cancelled by Requester.',
+                    'performed_by' => Auth::id(),
+                    'date_performed' => Carbon::now()->toDateString(),
+                    'time_performed' => Carbon::now()->toTimeString(),
+                ]);
+
+                return response()->json(['success' => true, 'message' => 'Booking cancelled successfully.']);
+            }
+        }
+
+        // AO Logic (if AO uses this endpoint, blade line 131 calls cancelApproved too likely?)
+        // Blade line 131 calls showCancelModal -> confirmCancel -> cancelApproved route.
+        if ($user->hasPermissionTo('administrative_officer_approval')) {
+            $hallBooking->final_approval = 'cancelled';
+            $hallBooking->save();
+
+            AuditLog::create([
+                'log_title' => 'Booking ' . $hallBooking->booking_id . ' cancelled by Administrative Officer.',
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+            return response()->json(['success' => true, 'message' => 'Booking cancelled successfully.']);
+        }
+
         return response()->json(['success' => false, 'message' => 'You do not have permission to cancel this booking.'], 403);
     }
 
