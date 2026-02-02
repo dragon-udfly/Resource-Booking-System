@@ -5,8 +5,7 @@
 @section('content')
     <section class="banner">
         <div class="page-header">
-            <h2>Help</h2>
-            <p>Help documentation specific to the application context will be displayed here.</p>
+            <h2>How to Use</h2>
         </div>
     </section>
 @endsection
