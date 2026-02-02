@@ -2,15 +2,6 @@
 
 This guide provides step-by-step instructions for Administrators to manage officer accounts within the District Secretariat Resource Booking System.
 
-## Table of Contents
-1. [Overview](#overview)
-2. [Accessing Officer Management](#accessing-officer-management)
-3. [Adding a New Officer](#adding-a-new-officer)
-4. [Modifying an Officer Account](#modifying-an-officer-account)
-5. [Deleting an Officer Account](#deleting-an-officer-account)
-6. [Managing Grade Salaries](#managing-grade-salaries)
-7. [Understanding Permissions](#understanding-permissions)
-
 ---
 
 ## Overview
@@ -30,7 +21,7 @@ The Officer Management module allows Administrators to create, update, and remov
     - **Phone Number**: 10-digit format.
     - **NIC Number**: Unique National Identity Card number.
     - **Passcode**: Temporary password for the user.
-3. **Select Permissions**: Check the boxes for the modules this officer is allowed to access/manage (see [Understanding Permissions](#understanding-permissions)).
+3. **Select Permissions**: Check the boxes for the modules this officer is allowed to access/manage.
 4. Click **Create Account**.
 5. Confirm the action in the popup modal.
 
