@@ -1211,7 +1211,10 @@ class QuarterAllocationController extends Controller
                     // If quarter becomes available again (not full), update status
                     // Reload to get fresh occupant count after decrement
                     $quarter->refresh();
-                    if ($quarter->current_occupant_number < $quarter->occupant_number) {
+                    // Global handling for Family Quarters with 0 capacity (implicitly 1)
+                    $maxOccupants = ($quarter->quarter_type === 'Family' && $quarter->occupant_number === 0) ? 1 : $quarter->occupant_number;
+
+                    if ($quarter->current_occupant_number < $maxOccupants) {
                         $quarter->status = 'Unallocated';
                         $quarter->save();
                     }
