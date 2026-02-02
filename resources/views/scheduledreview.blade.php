@@ -552,10 +552,6 @@
                     @if(Auth::user()->hasPermissionTo('additional_government_agent_approval'))
                         <button type="submit" name="submit_action" value="Submit" id="submit-button"
                             class="btn btn-success">Submit</button>
-                        {{-- if aga_verified_status= 0 (No) --}}
-                        {{-- update is_aga_verified and aga_note in quarter_allocation--}}
-                        <button type="submit" name="submit_action" value="Reject" id="reject-button"
-                            class="btn btn-danger">Reject</button>
                     @endif
                     @if(Auth::user()->hasPermissionTo('administrative_officer_approval'))
                         {{-- update is_ao_verified and ao_note --}}
