@@ -16,13 +16,11 @@ class MarkingFamilyQuarter extends Model
     protected $fillable = [
         'f_application_id',
         'f_department',
-        'f_years_since_application_created',
         'f_number_of_dependant',
         'is_dependant_with_disability',
         'f_distance_of_residency',
-        'f_spacial_reason',
-        'total_mark',
-        'date_calculated',
+        'f_special_reason',
+        'f_special_reason_marks',
     ];
 
     public function familyQuarterApplication()

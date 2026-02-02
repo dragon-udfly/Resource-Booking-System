@@ -373,7 +373,7 @@
                     </tr>
                     <tr>
                         <td style="border: 1px solid #dee2e6; padding: 8px 12px;">Special Reasons (Provided By Government Agent):</td>
-                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_spacial_reason ?? 'Not Mentioned' }}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_special_reason ?? 'Not Mentioned' }}</td>
                         <td style="border: 1px solid #dee2e6; padding: 8px 12px;">{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_special_reason_mark ?? 'N/A' }}</td>
                     </tr>
                 </tbody>

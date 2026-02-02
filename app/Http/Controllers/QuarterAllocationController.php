@@ -13,6 +13,7 @@ use App\Models\MarkingScheme;
 use App\Models\Quarter;
 use App\Models\User;
 use App\Models\GradeSalarySetting;
+use App\Services\MarkingCalculatorService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -78,11 +79,16 @@ class QuarterAllocationController extends Controller
 
         $availableQuarters = $quarterQuery->get();
 
+        // Calculate marking breakdown dynamically
+        $markingCalculator = new MarkingCalculatorService();
+        $markingBreakdown = $markingCalculator->calculateDynamicScore($application->familyQuarterApplication);
+
         return view('familyreview', [
             'application' => $application,
             'calculatedGrade' => $calculatedGrade,
             'gradeSalarySettings' => $gradeSalarySettings,
-            'availableQuarters' => $availableQuarters
+            'availableQuarters' => $availableQuarters,
+            'markingBreakdown' => $markingBreakdown,
         ]);
     }
 
@@ -138,28 +144,47 @@ class QuarterAllocationController extends Controller
                     ]);
                 }
             } elseif ($action === 'allocate' && $user->hasPermissionTo('government_agent_approval')) {
-                $validated = $request->validate(['selected_quarter' => 'required|exists:quarters,quarter_id']);
+                // Family quarters don't require quarter selection - allocation is approved without assigning specific quarter
+                $validated = $request->validate([
+                    'ga_approval_status' => 'required|in:1',
+                    'ga_note' => 'nullable|string|max:2000',
+                    'f_special_reason' => 'nullable|string|max:2000',
+                    'f_special_reason_marks' => 'nullable|integer|min:0|max:10',
+                ], [
+                    'ga_approval_status.required' => 'GA approval status is required.',
+                    'ga_approval_status.in' => 'GA approval must be set to "Yes" to allocate.',
+                    'f_special_reason_marks.max' => 'Special reason marks cannot exceed 10.',
+                ]);
 
-                $quarterAllocation->quarter_id = $validated['selected_quarter'];
+                // Update quarter allocation
                 $quarterAllocation->allocation_status = 'allocated';
                 $quarterAllocation->allocation_date = Carbon::now();
-                $quarterAllocation->vacate_date = Carbon::now()->addYears(5); // Set vacate date to 5 years from allocation
+                $quarterAllocation->vacate_date = Carbon::now()->addYears(5);
+
                 if ($request->ga_note) {
-                    $quarterAllocation->ga_note = trim(($quarterAllocation->ga_note ?? '') . "\n" . $request->ga_note);
+                    $quarterAllocation->ga_note = $request->ga_note;
                 }
 
-                $allocatedQuarter = Quarter::find($validated['selected_quarter']);
-                $allocatedQuarter->current_occupant_number += 1;
-                if ($allocatedQuarter->current_occupant_number >= $allocatedQuarter->occupant_number) {
-                    $allocatedQuarter->status = 'Occupied';
-                }
-                $allocatedQuarter->save();
+                // Update special reason fields in marking table
+                if ($application->familyQuarterApplication && $application->familyQuarterApplication->markingFamilyQuarter) {
+                    $marking = $application->familyQuarterApplication->markingFamilyQuarter;
 
-                $successMessage = 'Quarter allocated successfully.';
+                    if ($request->has('f_special_reason')) {
+                        $marking->f_special_reason = $request->f_special_reason;
+                    }
+
+                    if ($request->has('f_special_reason_marks')) {
+                        $marking->f_special_reason_marks = $request->f_special_reason_marks;
+                    }
+
+                    $marking->save();
+                }
+
+                $successMessage = 'Family quarter application allocated successfully.';
                 AuditLog::create([
                     'log_title' => 'GA Allocated Family Quarter',
                     'performed_by' => $user->id,
-                    'details' => "App ID: {$id} allocated to Quarter ID: {$validated['selected_quarter']}",
+                    'details' => "App ID: {$id} - Family quarter allocated",
                     'date_performed' => Carbon::now()->toDateString(),
                     'time_performed' => Carbon::now()->toTimeString(),
                 ]);
@@ -168,6 +193,13 @@ class QuarterAllocationController extends Controller
                 if ($request->ga_note) {
                     $quarterAllocation->ga_note = trim(($quarterAllocation->ga_note ?? '') . "\n" . $request->ga_note);
                 }
+
+                // Update special reason marks if provided
+                if ($request->has('f_special_reason_marks')) {
+                    $application->familyQuarterApplication->markingFamilyQuarter->f_special_reason_marks = $request->f_special_reason_marks;
+                    $application->familyQuarterApplication->markingFamilyQuarter->save();
+                }
+
                 $successMessage = 'Application rejected successfully.';
                 AuditLog::create([
                     'log_title' => 'GA Rejected Family Application',
@@ -337,24 +369,17 @@ class QuarterAllocationController extends Controller
 
     private function _createMarkingFamilyQuarter(Request $request, $f_application_id)
     {
-        $total_mark = $this->calculateFamilyQuarterMark($request);
         return MarkingFamilyQuarter::create([
             'f_application_id' => $f_application_id,
             'f_department' => $request->marking_f_department,
-            'f_years_since_application_created' => 0, // Default value
             'f_number_of_dependant' => $request->number_of_dependant,
             'is_dependant_with_disability' => $request->is_dependant_with_disability,
             'f_distance_of_residency' => $request->f_distance_of_residency,
-            'f_spacial_reason' => $request->f_spacial_reason,
-            'total_mark' => $total_mark,
-            'date_calculated' => Carbon::now(),
+            'f_special_reason' => $request->f_special_reason,
         ]);
     }
 
-    private function calculateFamilyQuarterMark(Request $request)
-    {
-        // implement logic
-    }
+
 
     public function markingScheme()
     {

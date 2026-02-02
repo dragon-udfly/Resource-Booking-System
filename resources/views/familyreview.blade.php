@@ -296,7 +296,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Total Mark:</label>
-                    <p>51</p>
+                    <p style="font-weight: bold; font-size: 1.2em; color: #0056b3;">{{ $markingBreakdown['total'] ?? 0 }}</p>
                 </div>
             </div>
 
@@ -309,59 +309,91 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @php
-                        $marking_schemes = \App\Models\MarkingScheme::all()->keyBy('marking_option');
-                    @endphp
                     <tr>
                         <td>Applicant's Department</td>
                         <td>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_department ?? 'N/A' }}</td>
-                        <td>20</td>
-                        {{-- <td>{{ $marking_schemes[$application->familyQuarterApplication?->markingFamilyQuarter?->f_department]['defined_mark'] ?? 'N/A' }}</td> --}}
+                        <td>{{ $markingBreakdown['department'] ?? 0 }}</td>
+                    </tr>
+                    <tr>
+                        <td>Seniority (Years since application)</td>
+                        <td>
+                            @if($application->date_created)
+                                {{ floor(\Carbon\Carbon::parse($application->date_created)->diffInYears(\Carbon\Carbon::now())) }} years
+                            @else
+                                N/A
+                            @endif
+                        </td>
+                        <td>{{ $markingBreakdown['seniority'] ?? 0 }}</td>
                     </tr>
                     <tr>
                         <td>Number of Dependant</td>
                         <td>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_number_of_dependant ?? 'N/A' }}</td>
-                        <td>6</td>
-                        {{-- <td>{{ $marking_schemes[$application->familyQuarterApplication?->markingFamilyQuarter?->f_number_of_dependant]['defined_mark'] ?? 'N/A' }}</td> --}}
+                        <td>{{ $markingBreakdown['dependents'] ?? 0 }}</td>
                     </tr>
                     <tr>
                         <td>Dependant(s) with Disability</td>
                         <td>{{ isset($application->familyQuarterApplication?->markingFamilyQuarter?->is_dependant_with_disability) ? ($application->familyQuarterApplication?->markingFamilyQuarter?->is_dependant_with_disability ? 'Yes' : 'No') : 'N/A' }}</td>
-                        <td>0</td>
-                        {{-- <td>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->is_dependant_with_disability ? ($marking_schemes['is_dependant_with_disability_true']['defined_mark'] ?? 'N/A') : ($marking_schemes['is_dependant_with_disability_false']['defined_mark'] ?? 'N/A') }}</td> --}}
+                        <td>{{ $markingBreakdown['disability'] ?? 0 }}</td>
                     </tr>
                     <tr>
                         <td>Distance of Residency</td>
                         <td>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_distance_of_residency ?? 'N/A' }}</td>
-                        <td>25</td>
-                        {{-- <td>{{ $marking_schemes[$application->familyQuarterApplication?->markingFamilyQuarter?->f_distance_of_residency]['defined_mark'] ?? 'N/A' }}</td> --}}
+                        <td>{{ $markingBreakdown['distance'] ?? 0 }}</td>
                     </tr>
                     <tr>
-                        <td>Special Reasons (Provided By Government Agent): </td>
-                        <td>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_spacial_reason ?? 'Not Mentioned' }}</td> 
-                        <td>0</td>
+                        <td colspan="3" style="background-color: #f0f8ff; font-weight: bold;">Special Reasons (Provided During Submission)</td>
                     </tr>
+                    <tr>
+                        <td colspan="2" style="padding: 15px;">
+                            @if(Auth::user()->hasPermissionTo('government_agent_approval'))
+                                <textarea name="f_special_reason" 
+                                          form="review-form"
+                                          rows="4" 
+                                          class="form-control" 
+                                          placeholder="Enter special reasons or circumstances for this application"
+                                          style="width: 100%; border: 1px solid #ced4da; border-radius: 4px; padding: 8px;">{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_special_reason ?? '' }}</textarea>
+                                <small style="color: #6c757d;">Government Agent can add/edit special reasons</small>
+                            @else
+                                {{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_special_reason ?? 'Not Mentioned' }}
+                            @endif
+                        </td>
+                        <td>-</td>
+                    </tr>
+                    @if(Auth::user()->hasPermissionTo('government_agent_approval'))
+                        <tr style="background-color: #fff3cd;">
+                            <td colspan="3" style="font-weight: bold; color: #856404;">
+                                <strong>⚠ Manual Marks for Special Reasons (Government Agent Only)</strong>
+                            </td>
+                        </tr>
+                        <tr style="background-color: #fff3cd;">
+                            <td>Additional Marks for Special Circumstances</td>
+                            <td>
+                                <input type="number" 
+                                       name="f_special_reason_marks" 
+                                       form="review-form"
+                                       min="0" 
+                                       max="10" 
+                                       value="{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_special_reason_marks ?? 0 }}" 
+                                       class="form-control"
+                                       style="width: 100px;">
+                                <small style="color: #856404;">Max: 10 marks</small>
+                            </td>
+                            <td>{{ $markingBreakdown['special_reason'] ?? 0 }}</td>
+                        </tr>
+                    @else
+                        <tr>
+                            <td>Special Reason Marks (Assigned by GA)</td>
+                            <td>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_special_reason_marks ?? 0 }}</td>
+                            <td>{{ $markingBreakdown['special_reason'] ?? 0 }}</td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
            <br />
-           
-            @if(Auth::user()->hasPermissionTo('government_agent_approval'))
-                <form id="mark-calculation" class="form-group" action="" method="POST">
-                    @csrf
-                    <div class="form-row">
-                        <label for="f_special_reason">Special Reasons: (for Government Agent Review)</label>
-                        <textarea name="f_special_reason" id="f_special_reason" rows="3" class="form-control" style="width: 100%;"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <button type="submit" name="action" value="calcualte-mark" id="calculate-mark-button" class="btn btn-success">Calculate Again</button>
-                    </div>
-                </form>
-            @endif       
         </div>
         <div class="form-container">
-            <form id="review-form" action="{{ route('family-quarter.review.update', ['id' => $application->application_id]) }}" method="POST">
-                @csrf
-                @method('PATCH')
+            <form id="review-form"
+            action="{{ route('family-quarter.allocate', ['id' => $application->application_id]) }}" method="POST">@csrf
 
                 <h3 class="form-section-title">G) Allocation Process Details</h3>
                 <div class="form-row">
@@ -527,7 +559,7 @@
                         {{-- if ga_approval_status is 1(Yes) and selected_quarter is not empty--}}
                         {{-- update quarter_id and is_ga_verified and ga_note and allocation_status and allocation_date in quarter_allocation--}}
                         {{-- update vacate_date, allocation date + 5 years --}}
-                        <button type="submit" name="action" value="allocate" id="allocate-button" class="btn btn-success" disabled>Allocate</button>
+                        <button type="submit" name="action" value="allocate" id="allocate-button" class="btn btn-success">Allocate</button>
                         {{-- if ga_approval_status in 0(No) --}}
                         {{-- update is_ga_verified and ga_note and allocation_status in quarter_allocation--}}
                         <button type="submit" name="action" value="reject" id="reject-button" class="btn btn-danger">Reject</button>
@@ -601,6 +633,106 @@ document.addEventListener('DOMContentLoaded', function () {
         modalOverlay.classList.remove('active');
     };
 
+    // Allocate Button Handler (for GA only)
+    const allocateBtn = document.getElementById('allocate-button');
+    if (allocateBtn) {
+        const gaApprovalStatus = document.getElementById('ga_approval_status');
+        
+        // Function to update allocate button state
+        const updateAllocateButton = () => {
+            console.log('GA Approval Status:', gaApprovalStatus ? gaApprovalStatus.value : 'not found');
+            if (gaApprovalStatus && gaApprovalStatus.value === '1') {
+                allocateBtn.disabled = false;
+                allocateBtn.style.opacity = '1';
+                allocateBtn.style.cursor = 'pointer';
+                allocateBtn.style.backgroundColor = '#28a745';
+                console.log('Allocate button ENABLED');
+            } else {
+                allocateBtn.disabled = true;
+                allocateBtn.style.opacity = '0.5';
+                allocateBtn.style.cursor = 'not-allowed';
+                allocateBtn.style.backgroundColor = '#6c757d';
+                console.log('Allocate button DISABLED - GA approval must be "Yes"');
+            }
+        };
+
+        // Set initial state to enabled, then let JavaScript control it
+        allocateBtn.disabled = false;
+        
+        // Wait a moment for DOM to be ready, then update
+        setTimeout(() => {
+            updateAllocateButton();
+        }, 100);
+
+        // Update on GA approval status change
+        if (gaApprovalStatus) {
+            gaApprovalStatus.addEventListener('change', updateAllocateButton);
+        }
+
+        // Click handler for allocate button
+        allocateBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const gaApprovalValue = gaApprovalStatus ? gaApprovalStatus.value : '';
+
+            // Validation
+            if (gaApprovalValue !== '1') {
+                const buttons = [{ text: 'OK', class: 'btn btn-info', onClick: hideModal }];
+                showModal('Validation Error', 'GA approval must be set to "Yes" to allocate.', buttons);
+                return;
+            }
+
+            // Confirmation Dialog
+            const confirmButtons = [
+                { text: 'Yes, Allocate', class: 'btn btn-success', onClick: () => performAllocation() },
+                { text: 'Cancel', class: 'btn btn-secondary', onClick: hideModal }
+            ];
+            showModal('Confirm Allocation', 'Are you sure you want to allocate this family quarter application?', confirmButtons);
+        });
+
+        const performAllocation = async () => {
+            const loadingButtons = [];
+            showModal('Processing...', 'Submitting allocation, please wait...', loadingButtons);
+
+            const formData = new FormData(form);
+            const url = form.getAttribute('action');
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    const errorButtons = [{ text: 'OK', class: 'btn btn-info', onClick: hideModal }];
+                    showModal('Error', result.message || 'An unknown error occurred.', errorButtons);
+                } else {
+                    if (result.redirect_url) {
+                        window.location.href = result.redirect_url;
+                    } else {
+                        const successButtons = [
+                            { text: 'Go to Dashboard', class: 'btn btn-success', onClick: () => window.location.href = '/dashboard' },
+                            { text: 'Stay on Page', class: 'btn btn-info', onClick: () => window.location.reload() }
+                        ];
+                        showModal('Success', result.message, successButtons);
+                    }
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                const errorButtons = [{ text: 'OK', class: 'btn btn-danger', onClick: hideModal }];
+                showModal('Request Failed', 'Could not connect to the server. Please check your network connection.', errorButtons);
+            }
+        };
+    }
+
+    // Reject Button Handler (for GA only)
     if (rejectBtn) {
         rejectBtn.addEventListener('click', function (e) {
             e.preventDefault();
