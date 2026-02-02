@@ -115,10 +115,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/seequarters', [QuarterController::class, 'seeQuarters'])->name('seequarters');
     Route::get('/occupantdetails', [QuarterController::class, 'showOccupantDetails'])->name('occupantdetails');
     Route::get('/family-quarter-application/{id}/review', [QuarterAllocationController::class, 'showFamilyQuarterReview'])->name('family-quarter.review');
-    Route::post('/family-quarter-application/{id}/allocate', [QuarterAllocationController::class, 'updateFamilyQuarterReview'])->name('family-quarter.allocate');
+    Route::post('/family-quarter-application/{id}/allocate', [QuarterAllocationController::class, 'allocateFamilyQuarter'])->name('family-quarter.allocate');
+    Route::post('/family-quarter-application/{id}/reject', [QuarterAllocationController::class, 'rejectFamilyQuarter'])->name('family-quarter.reject');
     Route::patch('/family-quarter-application/{id}/review', [QuarterAllocationController::class, 'updateFamilyQuarterReview'])->name('family-quarter.review.update');
     Route::get('/scheduled-quarter-application/{id}/review', [QuarterAllocationController::class, 'showScheduledQuarterReview'])->name('scheduled-quarter.review');
-    Route::post('/scheduled-quarter-application/{id}/allocate', [QuarterAllocationController::class, 'allocateQuarter'])->name('scheduled-quarter.allocate');
+    Route::post('/scheduled-quarter-application/{id}/allocate', [QuarterAllocationController::class, 'allocateScheduledQuarter'])->name('scheduled-quarter.allocate');
     Route::post('/scheduled-quarter-application/{id}/restore', [QuarterAllocationController::class, 'restoreScheduledQuarterApplication'])->name('scheduled-quarter.restore');
     Route::post('/quarter-application/{id}/cancel-allocation', [QuarterAllocationController::class, 'cancelAllocation'])->name('quarter.cancelAllocation');
     Route::delete('/scheduled-quarter-application/{id}/delete', [QuarterAllocationController::class, 'deleteScheduledQuarterApplication'])->name('scheduled-quarter.delete');

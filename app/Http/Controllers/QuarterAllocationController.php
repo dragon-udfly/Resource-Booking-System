@@ -92,6 +92,173 @@ class QuarterAllocationController extends Controller
         ]);
     }
 
+    public function allocateFamilyQuarter(Request $request, $id)
+    {
+        $application = QuarterApplication::with('quarterAllocation')->where('application_id', $id)->firstOrFail();
+        if (!$application->quarterAllocation) {
+            return redirect()->back()->with('error', 'Application allocation record not found.');
+        }
+
+        $user = Auth::user();
+
+        // Authorization check
+        if (!$user->hasPermissionTo('government_agent_approval')) {
+            return redirect()->back()->with('error', 'You do not have permission to allocate quarters.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // 1. Validation
+            $validated = $request->validate([
+                'ga_approval_status' => 'required|in:1',
+                'selected_quarter' => 'required|exists:quarters,quarter_id',
+                'ga_note' => 'nullable|string|max:2000',
+                'f_special_reason' => 'nullable|string|max:2000',
+                'f_special_reason_marks' => 'nullable|integer|min:0|max:10',
+            ], [
+                'ga_approval_status.required' => 'GA approval status is required.',
+                'ga_approval_status.in' => 'GA approval must be set to "Yes" to allocate.',
+                'selected_quarter.required' => 'You must select a quarter to allocate.',
+                'f_special_reason_marks.max' => 'Special reason marks cannot exceed 10.',
+            ]);
+
+            $quarterAllocation = $application->quarterAllocation;
+
+            // 2. Fetch Selected Quarter & Check Availability
+            $quarter = Quarter::findOrFail($request->selected_quarter);
+
+            // Availability Check: Only checking status as per simple family rule
+            if ($quarter->status !== 'Unallocated') {
+                return redirect()->back()->with('error', 'The selected quarter is already allocated.');
+            }
+
+            // 3. Update Quarter Allocation Record
+            $quarterAllocation->allocation_status = 'allocated';
+            $quarterAllocation->allocation_date = Carbon::now();
+            $quarterAllocation->vacate_date = Carbon::now()->addYears(5);
+            $quarterAllocation->quarter_id = $request->selected_quarter; // ASSIGN QUARTER ID
+
+            if ($request->ga_note) {
+                $quarterAllocation->ga_note = $request->ga_note;
+            }
+
+            // 4. Update Special Reason Fields (Marking)
+            if ($application->familyQuarterApplication && $application->familyQuarterApplication->markingFamilyQuarter) {
+                $marking = $application->familyQuarterApplication->markingFamilyQuarter;
+
+                if ($request->has('f_special_reason')) {
+                    $marking->f_special_reason = $request->f_special_reason;
+                }
+
+                if ($request->has('f_special_reason_marks')) {
+                    $marking->f_special_reason_marks = $request->f_special_reason_marks;
+                }
+                $marking->save();
+            }
+
+            // 5. Update Quarter Status (No occupancy increment)
+            $quarter->status = 'Allocated';
+            $quarter->save();
+
+            $quarterAllocation->save();
+
+            AuditLog::create([
+                'log_title' => 'GA Allocated Family Quarter',
+                'performed_by' => $user->id,
+                'details' => "App ID: {$id} - Assigned Quarter: {$quarter->quarter_id}",
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            DB::commit();
+
+            $successMessage = 'Family quarter allocated successfully to ' . $quarter->quarter_id;
+            return redirect()->route('dashboard')->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Family Quarter Allocation Failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return redirect()->back()->with('error', 'An unexpected error occurred: ' . $e->getMessage());
+        }
+    }
+
+    public function rejectFamilyQuarter(Request $request, $id)
+    {
+        $application = QuarterApplication::with('quarterAllocation')->where('application_id', $id)->firstOrFail();
+        if (!$application->quarterAllocation) {
+            return redirect()->back()->with('error', 'Application allocation record not found.');
+        }
+
+        $user = Auth::user();
+
+        // Authorization check
+        if (!$user->hasPermissionTo('government_agent_approval')) {
+            return redirect()->back()->with('error', 'You do not have permission to reject applications.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // Validation: GA Note is mandatory
+            $request->validate([
+                'ga_note' => 'required|string|max:2000',
+            ], [
+                'ga_note.required' => 'A rejection note is required.',
+            ]);
+
+            $quarterAllocation = $application->quarterAllocation;
+
+            // 1. Update Allocation Record
+            $quarterAllocation->allocation_status = 'rejected';
+
+            // Save old quarter ID to free it up
+            $quarterId = $quarterAllocation->quarter_id;
+
+            // Clear assignment details
+            $quarterAllocation->quarter_id = null;
+            $quarterAllocation->allocation_date = null;
+            $quarterAllocation->vacate_date = null;
+
+            $quarterAllocation->ga_note = trim(($quarterAllocation->ga_note ?? '') . "\n" . $request->ga_note);
+
+            // Update special reason marks if provided
+            if ($application->familyQuarterApplication && $application->familyQuarterApplication->markingFamilyQuarter) {
+                if ($request->has('f_special_reason_marks')) {
+                    $application->familyQuarterApplication->markingFamilyQuarter->f_special_reason_marks = $request->f_special_reason_marks;
+                    $application->familyQuarterApplication->markingFamilyQuarter->save();
+                }
+            }
+
+            $quarterAllocation->save();
+
+            // 2. Update Quarter Status (No occupancy decrement)
+            if ($quarterId) {
+                $quarter = Quarter::find($quarterId);
+                // Only reset status if it exists
+                if ($quarter) {
+                    $quarter->status = 'Unallocated';
+                    $quarter->save();
+                }
+            }
+
+            AuditLog::create([
+                'log_title' => 'GA Rejected Family Application',
+                'performed_by' => $user->id,
+                'details' => "App ID: {$id} - Rejected",
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('dashboard')->with('success', 'Application rejected successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Family Quarter Rejection Failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return redirect()->back()->with('error', 'An unexpected error occurred: ' . $e->getMessage());
+        }
+    }
+
     public function updateFamilyQuarterReview(Request $request, $id)
     {
         $application = QuarterApplication::with('quarterAllocation')->where('application_id', $id)->firstOrFail();
@@ -107,9 +274,10 @@ class QuarterAllocationController extends Controller
             $action = $request->input('action');
             Log::info('Family Review Action: ' . $action, ['user_id' => $user->id, 'inputs' => $request->all()]);
 
-            $noteTimestamp = 'I reviewed this application on ' . Carbon::now()->format('Y-m-d') . ' at ' . Carbon::now()->format('H:i:s') . '.';
-            $successMessage = 'Application review submitted successfully.';
+            $successMessage = 'Application update submitted successfully.';
 
+            // Handling Submit Action (AO/AGA Verification)
+            // Note: Allocation and Rejection are now handled by separate methods
             if ($action === 'Submit') {
                 $validated = $request->validate([
                     'ao_verified_status' => 'nullable|in:0,1',
@@ -119,7 +287,6 @@ class QuarterAllocationController extends Controller
                 ]);
 
                 if ($user->hasPermissionTo('administrative_officer_approval') && $request->has('ao_verified_status')) {
-                    Log::info('Entering AO Block');
                     $quarterAllocation->is_ao_verified = $validated['ao_verified_status'];
                     $quarterAllocation->ao_note = $request->ao_note;
                     AuditLog::create([
@@ -132,7 +299,6 @@ class QuarterAllocationController extends Controller
                 }
 
                 if ($user->hasPermissionTo('additional_government_agent_approval') && $request->has('aga_verified_status')) {
-                    Log::info('Entering AGA Block', ['status' => $validated['aga_verified_status'], 'note' => $request->aga_note]);
                     $quarterAllocation->is_aga_verified = $validated['aga_verified_status'];
                     $quarterAllocation->aga_note = $request->aga_note;
                     AuditLog::create([
@@ -143,116 +309,8 @@ class QuarterAllocationController extends Controller
                         'time_performed' => Carbon::now()->toTimeString(),
                     ]);
                 }
-            } elseif ($action === 'allocate' && $user->hasPermissionTo('government_agent_approval')) {
-                // 1. Validation
-                $validated = $request->validate([
-                    'ga_approval_status' => 'required|in:1',
-                    'selected_quarter' => 'required|exists:quarters,quarter_id',
-                    'ga_note' => 'nullable|string|max:2000',
-                    'f_special_reason' => 'nullable|string|max:2000',
-                    'f_special_reason_marks' => 'nullable|integer|min:0|max:10',
-                ], [
-                    'ga_approval_status.required' => 'GA approval status is required.',
-                    'ga_approval_status.in' => 'GA approval must be set to "Yes" to allocate.',
-                    'selected_quarter.required' => 'You must select a quarter to allocate.',
-                    'f_special_reason_marks.max' => 'Special reason marks cannot exceed 10.',
-                ]);
-
-                // 2. Fetch Selected Quarter & Check Availability
-                $quarter = Quarter::findOrFail($request->selected_quarter);
-
-                // Concurrent Check: Is it still available? (Status Unallocated OR Has Vacancy)
-                if ($quarter->status !== 'Unallocated' && ($quarter->current_occupant_number >= $quarter->occupant_number)) {
-                    return redirect()->back()->with('error', 'The selected quarter is no longer available (Full Capacity).');
-                }
-
-                // 3. Update Quarter Allocation Record
-                $quarterAllocation->allocation_status = 'allocated';
-                $quarterAllocation->allocation_date = Carbon::now();
-                $quarterAllocation->vacate_date = Carbon::now()->addYears(5);
-                $quarterAllocation->quarter_id = $request->selected_quarter; // ASSIGN QUARTER ID
-
-                if ($request->ga_note) {
-                    $quarterAllocation->ga_note = $request->ga_note;
-                }
-
-                // 4. Update Special Reason Fields (Marking)
-                if ($application->familyQuarterApplication && $application->familyQuarterApplication->markingFamilyQuarter) {
-                    $marking = $application->familyQuarterApplication->markingFamilyQuarter;
-
-                    if ($request->has('f_special_reason')) {
-                        $marking->f_special_reason = $request->f_special_reason;
-                    }
-
-                    if ($request->has('f_special_reason_marks')) {
-                        $marking->f_special_reason_marks = $request->f_special_reason_marks;
-                    }
-                    $marking->save();
-                }
-
-                // 5. Update Quarter Occupancy
-                // Increment occupant number
-                $quarter->current_occupant_number += 1;
-
-                // If capacity reached, mark as Allocated
-                if ($quarter->current_occupant_number >= $quarter->occupant_number) {
-                    $quarter->status = 'Allocated';
-                }
-                $quarter->save();
-
-                $successMessage = 'Family quarter allocated successfully to ' . $quarter->quarter_id;
-                AuditLog::create([
-                    'log_title' => 'GA Allocated Family Quarter',
-                    'performed_by' => $user->id,
-                    'details' => "App ID: {$id} - Assigned Quarter: {$quarter->quarter_id}",
-                    'date_performed' => Carbon::now()->toDateString(),
-                    'time_performed' => Carbon::now()->toTimeString(),
-                ]);
-            } elseif ($action === 'reject' && $user->hasPermissionTo('government_agent_approval')) {
-                // 1. Update Allocation Record
-                $quarterAllocation->allocation_status = 'rejected';
-
-                // Save old quarter ID for decrementing
-                $quarterId = $quarterAllocation->quarter_id;
-
-                // Clear assignment details
-                $quarterAllocation->quarter_id = null;
-                $quarterAllocation->allocation_date = null;
-                $quarterAllocation->vacate_date = null;
-
-                if ($request->ga_note) {
-                    $quarterAllocation->ga_note = trim(($quarterAllocation->ga_note ?? '') . "\n" . $request->ga_note);
-                }
-
-                // 2. Decrement Occupancy if a quarter was previously assigned
-                if ($quarterId) {
-                    $quarter = Quarter::find($quarterId);
-                    if ($quarter && $quarter->current_occupant_number > 0) {
-                        $quarter->decrement('current_occupant_number');
-                        $quarter->refresh();
-                        // Reset status if logic applies (though family quarters usually have capacity 1)
-                        if ($quarter->current_occupant_number < $quarter->occupant_number) {
-                            $quarter->status = 'Unallocated';
-                            $quarter->save();
-                        }
-                    }
-                }
-
-                // Update special reason marks if provided
-                if ($request->has('f_special_reason_marks')) {
-                    $application->familyQuarterApplication->markingFamilyQuarter->f_special_reason_marks = $request->f_special_reason_marks;
-                    $application->familyQuarterApplication->markingFamilyQuarter->save();
-                }
-
-                $successMessage = 'Application rejected successfully.';
-                AuditLog::create([
-                    'log_title' => 'GA Rejected Family Application',
-                    'performed_by' => $user->id,
-                    'details' => "App ID: {$id} - Rejected",
-                    'date_performed' => Carbon::now()->toDateString(),
-                    'time_performed' => Carbon::now()->toTimeString(),
-                ]);
             } elseif ($action === 'Reject' && $user->hasPermissionTo('additional_government_agent_approval')) {
+                // Keep AGA Reject here as it's separate from GA Reject
                 $quarterAllocation->allocation_status = 'rejected';
                 if ($request->aga_note) {
                     $quarterAllocation->aga_note = trim(($quarterAllocation->aga_note ?? '') . "\n" . $request->aga_note);
@@ -829,102 +887,30 @@ class QuarterAllocationController extends Controller
             }
         }
 
-        // Handle Allocate action for GA (existing logic)
-        // 1. Validation
-        $validator = Validator::make($request->all(), [
-            'selected_quarter' => 'required|exists:quarters,quarter_id',
-            'ga_approval_status' => 'required|in:1',
-            'ga_note' => 'nullable|string|max:2000',
-        ], [
-            'ga_approval_status.in' => 'Update denied: Government Agent approval is required.',
-            'selected_quarter.required' => 'Please select a quarter to allocate.',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 422);
-        }
-
-        // 2. Authorization
-        if (!Auth::user()->hasPermissionTo('government_agent_approval')) {
-            return response()->json(['status' => 'error', 'message' => 'You do not have permission to perform this action.'], 403);
-        }
-
-        DB::beginTransaction();
-        try {
-            $application = QuarterApplication::with('quarterAllocation')->findOrFail($id);
-            $quarterAllocation = $application->quarterAllocation;
-
-            if (!$quarterAllocation) {
-                return response()->json(['status' => 'error', 'message' => 'Application allocation record not found.'], 404);
-            }
-
-            $quarter = Quarter::findOrFail($request->selected_quarter);
-
-            // 3. Critical Server-Side Check for availability
-            if ($quarter->status !== 'Unallocated' && ($quarter->current_occupant_number >= $quarter->occupant_number)) {
-                return response()->json(['status' => 'error', 'message' => 'This quarter is no longer available.'], 409);
-            }
-
-            // 4. Update QuarterAllocation Table
-            $quarterAllocation->quarter_id = $request->selected_quarter;
-            $quarterAllocation->allocation_status = 'allocated';
-            $quarterAllocation->ga_note = $request->ga_note;
-            $quarterAllocation->allocation_date = Carbon::now();
-            $quarterAllocation->vacate_date = Carbon::now()->addYears(5);
-            $quarterAllocation->save();
-
-            // 5. Update Quarters Table
-            // Check if adding another occupant would exceed the capacity
-            if ($quarter->current_occupant_number + 1 > $quarter->occupant_number) {
-                return response()->json(['status' => 'error', 'message' => 'Cannot allocate: Quarter is already at full capacity.'], 409);
-            }
-
-            $quarter->current_occupant_number += 1;
-            if ($quarter->current_occupant_number >= $quarter->occupant_number) {
-                $quarter->status = 'Allocated';
-            }
-            $quarter->date_modified = Carbon::now(); // Update date_modified
-            $quarter->save();
-
-            // 6. Update Audit Log
-            AuditLog::create([
-                'log_title' => 'Scheduled Quarter Allocated',
-                'performed_by' => Auth::id(),
-                'details' => "Application ID: {$id} allocated to Quarter ID: {$request->selected_quarter}",
-                'date_performed' => Carbon::now()->toDateString(),
-                'time_performed' => Carbon::now()->toTimeString(),
-            ]);
-
-            DB::commit();
-
-            return response()->json(['status' => 'success', 'message' => 'Quarter allocated successfully!', 'redirect_url' => route('dashboard')]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Scheduled Quarter Allocation Failed: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-            ]);
-            return response()->json(['status' => 'error', 'message' => 'An unexpected server error occurred. Please check the logs.'], 500);
-        }
+        // This block should not be reached if 'allocate' action is handled above
+        // and AO/AGA verification is handled.
+        // If it is reached, it implies an invalid state or missing action.
+        return response()->json(['status' => 'error', 'message' => 'Invalid action or insufficient permissions.'], 400);
     }
 
     private function rejectScheduledQuarterApplication(Request $request, $id)
     {
-        // 1. Validation
+        // 1. Authorization
+        if (!Auth::user()->hasPermissionTo('government_agent_approval')) {
+            return response()->json(['status' => 'error', 'message' => 'You do not have permission to perform this action.'], 403);
+        }
+
+        // 2. Validation
         $validator = Validator::make($request->all(), [
             'ga_approval_status' => 'required|in:0',
-            'ga_note' => 'nullable|string|max:2000',
+            'ga_note' => 'required|string|max:2000', // GA Note is mandatory
         ], [
             'ga_approval_status.in' => 'To reject an application, GA approval must be set to "No".',
+            'ga_note.required' => 'A rejection note is required.',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 422);
-        }
-
-        // 2. Authorization
-        if (!Auth::user()->hasPermissionTo('government_agent_approval')) {
-            return response()->json(['status' => 'error', 'message' => 'You do not have permission to perform this action.'], 403);
         }
 
         DB::beginTransaction();
@@ -941,13 +927,14 @@ class QuarterAllocationController extends Controller
             $quarterId = $quarterAllocation->quarter_id;
 
             $quarterAllocation->allocation_status = 'rejected';
+            // Use append strategy if note exists, otherwise just set it
             $quarterAllocation->ga_note = $request->ga_note;
             $quarterAllocation->quarter_id = null; // Clear assignment
             $quarterAllocation->allocation_date = null;
             $quarterAllocation->vacate_date = null;
             $quarterAllocation->save();
 
-            // Release Occupancy if applicable
+            // Release Occupancy if applicable works for Scheduled Logic (decrement is allowed here)
             if ($quarterId) {
                 $quarter = Quarter::find($quarterId);
                 if ($quarter && $quarter->current_occupant_number > 0) {

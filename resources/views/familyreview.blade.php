@@ -760,7 +760,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const gaApprovalStatus = document.getElementById('ga_approval_status');
             const agaVerifiedStatus = document.getElementById('aga_verified_status');
-            
+            const gaNote = document.getElementById('ga_note');
+
             // Validation: GA approval must be set to "No" or AGA verified must be set to "No"
             if (gaApprovalStatus && gaApprovalStatus.value !== '0') {
                 const buttons = [{ text: 'OK', class: 'btn btn-danger', onClick: hideModal }];
@@ -772,26 +773,78 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            // New Validation: GA Note Required for Rejection
+            if (gaApprovalStatus && (!gaNote || !gaNote.value.trim())) {
+                const buttons = [{ text: 'OK', class: 'btn btn-danger', onClick: hideModal }];
+                showModal('Validation Error', 'Please provided a note explaining the reason for rejection.', buttons);
+                return;
+            }
+
+
             // Confirmation Dialog
             const confirmButtons = [
                 { 
                     text: 'Yes, Reject', 
                     class: 'btn btn-danger', 
-                    onClick: () => { 
-                        hideModal(); 
-                        // Append action input to ensure it's sent with form.submit()
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'action';
-                        input.value = rejectBtn.value;
-                        form.appendChild(input);
-                        form.submit(); 
-                    } 
+                    onClick: () => performRejection() 
                 },
                 { text: 'Cancel', class: 'btn btn-secondary', onClick: hideModal }
             ];
             showModal('Confirm Rejection', 'Are you sure you want to reject this application?', confirmButtons);
         });
+
+        const performRejection = async () => {
+            const loadingButtons = [];
+            showModal('Processing...', 'Submitting rejection, please wait...', loadingButtons);
+
+            const formData = new FormData(form);
+            // Append explicit action for clarity, though route handles it
+            formData.append('action', 'reject');
+
+            // Determine URL based on who is rejecting
+            // If GA (ga_approval_status exists), use the dedicated reject route
+            // If AGA/AO (aga_verified_status exists), keep using original form action (review update)
+            let url = form.getAttribute('action'); 
+            const gaApprovalStatus = document.getElementById('ga_approval_status');
+            
+            if (gaApprovalStatus) {
+                // GA Rejection -> Switch to reject route
+                 url = url.replace('/allocate', '/reject');
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    const errorButtons = [{ text: 'OK', class: 'btn btn-info', onClick: hideModal }];
+                    showModal('Error', result.message || 'An unknown error occurred.', errorButtons);
+                } else {
+                    if (result.redirect_url) {
+                        window.location.href = result.redirect_url;
+                    } else {
+                        const successButtons = [
+                            { text: 'Go to Dashboard', class: 'btn btn-success', onClick: () => window.location.href = '/dashboard' },
+                            { text: 'Stay on Page', class: 'btn btn-info', onClick: () => window.location.reload() }
+                        ];
+                        showModal('Success', result.message, successButtons);
+                    }
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                const errorButtons = [{ text: 'OK', class: 'btn btn-danger', onClick: hideModal }];
+                showModal('Request Failed', 'Could not connect to the server. Please check your network connection.', errorButtons);
+            }
+        };
     }
 
     // Delete Button Handler
