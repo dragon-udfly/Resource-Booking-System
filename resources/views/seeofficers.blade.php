@@ -86,7 +86,8 @@
             <h2 style="color: rgb(6, 4, 60); font-weight: bold">Officers List</h2>
 
                 <!-- Grade Salary Table (Read Only) -->
-                <div style="margin: 20px auto; width: 80%; overflow-x: auto;">
+                <div style="margin: 20px auto; width: 100%; overflow-x: auto;">
+                    <p>Grade Salary Details</p>
                     <table
                         style="width: 100%; border-collapse: collapse; margin-bottom: 20px; box-shadow: none; background-color: transparent;">
                         <thead>
