@@ -121,7 +121,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/scheduled-quarter-application/{id}/review', [QuarterAllocationController::class, 'showScheduledQuarterReview'])->name('scheduled-quarter.review');
     Route::post('/scheduled-quarter-application/{id}/allocate', [QuarterAllocationController::class, 'allocateScheduledQuarter'])->name('scheduled-quarter.allocate');
     Route::post('/scheduled-quarter-application/{id}/restore', [QuarterAllocationController::class, 'restoreScheduledQuarterApplication'])->name('scheduled-quarter.restore');
-    Route::post('/quarter-application/{id}/cancel-allocation', [QuarterAllocationController::class, 'cancelAllocation'])->name('quarter.cancelAllocation');
+    Route::post('/scheduled-quarter-application/{id}/cancel-allocation', [QuarterAllocationController::class, 'cancelScheduledQuarter'])->name('scheduled-quarter.cancel');
+    Route::post('/family-quarter-application/{id}/cancel-allocation', [QuarterAllocationController::class, 'cancelFamilyQuarter'])->name('family-quarter.cancel');
     Route::delete('/scheduled-quarter-application/{id}/delete', [QuarterAllocationController::class, 'deleteScheduledQuarterApplication'])->name('scheduled-quarter.delete');
     Route::delete('/family-quarter-application/{id}/delete', [QuarterAllocationController::class, 'deleteFamilyQuarterApplication'])->name('family-quarter.delete');
     Route::get('/quarter-application/{id}/download-pdf', [QuarterAllocationController::class, 'downloadPdf'])->name('quarter.download-pdf');

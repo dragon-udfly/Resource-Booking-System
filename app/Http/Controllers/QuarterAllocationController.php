@@ -1195,7 +1195,7 @@ class QuarterAllocationController extends Controller
         }
     }
 
-    public function cancelAllocation(Request $request, $id)
+    public function cancelScheduledQuarter(Request $request, $id)
     {
         // Authorization - only GA can cancel allocations
         if (!Auth::user()->hasPermissionTo('government_agent_approval')) {
@@ -1238,16 +1238,17 @@ class QuarterAllocationController extends Controller
             // If a quarter was assigned, update the quarter's current occupant number
             if ($quarterId) {
                 $quarter = Quarter::find($quarterId);
-                if ($quarter && $quarter->current_occupant_number > 0) {
-                    $quarter->decrement('current_occupant_number');
+                if ($quarter) {
+                    // Scheduled Quarters: Decrement Occupancy
+                    if ($quarter->current_occupant_number > 0) {
+                        $quarter->decrement('current_occupant_number');
+                    }
 
-                    // If quarter becomes available again (not full), update status
                     // Reload to get fresh occupant count after decrement
                     $quarter->refresh();
-                    // Global handling for Family Quarters with 0 capacity (implicitly 1)
-                    $maxOccupants = ($quarter->quarter_type === 'Family' && $quarter->occupant_number === 0) ? 1 : $quarter->occupant_number;
 
-                    if ($quarter->current_occupant_number < $maxOccupants) {
+                    // If quarter becomes available again (not full), update status
+                    if ($quarter->current_occupant_number < $quarter->occupant_number) {
                         $quarter->status = 'Unallocated';
                         $quarter->save();
                     }
@@ -1256,7 +1257,7 @@ class QuarterAllocationController extends Controller
 
             // Create audit log
             AuditLog::create([
-                'log_title' => 'Quarter Allocation Cancelled',
+                'log_title' => 'Scheduled Quarter Allocation Cancelled',
                 'performed_by' => Auth::id(),
                 'details' => "Application ID: {$id} allocation cancelled from {$oldStatus} to rejected by GA. Quarter: {$quarterId} released.",
                 'date_performed' => Carbon::now()->toDateString(),
@@ -1265,11 +1266,84 @@ class QuarterAllocationController extends Controller
 
             DB::commit();
 
-            return redirect()->back()->with('success', 'Quarter allocation cancelled successfully!');
+            return redirect()->back()->with('success', 'Scheduled Quarter allocation cancelled successfully!');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Quarter Allocation Cancellation Failed: ' . $e->getMessage(), [
+            Log::error('Scheduled Quarter Cancel Failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return redirect()->back()->with('error', 'An unexpected error occurred. Please check the logs.');
+        }
+    }
+
+    public function cancelFamilyQuarter(Request $request, $id)
+    {
+        // Authorization - only GA can cancel allocations
+        if (!Auth::user()->hasPermissionTo('government_agent_approval')) {
+            return redirect()->back()->with('error', 'You do not have permission to perform this action.');
+        }
+
+        // Validate GA note is provided
+        $request->validate([
+            'ga_note' => 'required|string|max:500',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $application = QuarterApplication::with('quarterAllocation.quarter')->findOrFail($id);
+            $quarterAllocation = $application->quarterAllocation;
+
+            if (!$quarterAllocation) {
+                return redirect()->back()->with('error', 'Application allocation record not found.');
+            }
+
+            // Only allow cancellation if status is allocated
+            if ($quarterAllocation->allocation_status !== 'allocated') {
+                return redirect()->back()->with('error', 'Only allocated applications can be cancelled.');
+            }
+
+            $oldStatus = $quarterAllocation->allocation_status;
+            $quarterId = $quarterAllocation->quarter_id;
+
+            // Update allocation status to rejected and clear allocation details
+            $quarterAllocation->allocation_status = 'rejected';
+            $quarterAllocation->ga_note = $request->ga_note;
+
+            // Clear allocation details as requested
+            $quarterAllocation->quarter_id = null;
+            $quarterAllocation->allocation_date = null;
+            $quarterAllocation->vacate_date = null;
+
+            $quarterAllocation->save();
+
+            // If a quarter was assigned, reset its status to Unallocated
+            if ($quarterId) {
+                $quarter = Quarter::find($quarterId);
+                if ($quarter) {
+                    // Family Quarters: DO NOT Decrement Occupancy (stays at 0 or whatever it was)
+                    // Just reset status to Unallocated
+                    $quarter->status = 'Unallocated';
+                    $quarter->save();
+                }
+            }
+
+            // Create audit log
+            AuditLog::create([
+                'log_title' => 'Family Quarter Allocation Cancelled',
+                'performed_by' => Auth::id(),
+                'details' => "Application ID: {$id} allocation cancelled from {$oldStatus} to rejected by GA. Quarter: {$quarterId} released.",
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Family Quarter allocation cancelled successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Family Quarter Cancel Failed: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
             ]);
             return redirect()->back()->with('error', 'An unexpected error occurred. Please check the logs.');

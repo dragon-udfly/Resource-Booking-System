@@ -352,7 +352,7 @@
                 @if($allocation && $allocation->allocation_status == 'allocated')
                     @if(Auth::user()->hasPermissionTo('government_agent_approval'))
                         <form id="cancel-allocation-form"
-                            action="{{ route('quarter.cancelAllocation', ['id' => $application->application_id]) }}" method="POST"
+                            action="{{ route('scheduled-quarter.cancel', ['id' => $application->application_id]) }}" method="POST"
                             style="display: inline;">
                             @csrf
                             <input type="hidden" name="ga_note" id="cancel-ga-note-input">
