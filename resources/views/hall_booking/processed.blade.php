@@ -134,20 +134,8 @@
                          }
                     }
                 @endphp
-                
-                {{-- DEBUG SECTION --}}
-                <div style="font-size: 10px; color: #888; border: 1px solid #ccc; padding: 5px; margin-bottom: 5px; display: block;">
-                    DEBUG:
-                    Date: {{ $eventDate->toDateString() }} / Today: {{ $today->toDateString() }} <br>
-                    Is Past: {{ $isPast ? 'Yes' : 'No' }} <br>
-                    Is AO: {{ $isAO ? 'Yes' : 'No' }} <br>
-                    Final: {{ $hallBooking->final_approval }} / GA: {{ $hallBooking->government_agent_approved }} <br>
-                    Can Delete: {{ $canDelete ? 'Yes' : 'No' }}
-                </div>
-                {{-- END DEBUG --}}
-
                 @if($canDelete)
-                    <button onclick="confirmDelete()" class="btn btn-danger"
+                    <button onclick="showDeleteModal()" class="btn btn-danger"
                         style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-left: 10px;">Delete Record</button>
                 @endif
 
@@ -162,6 +150,22 @@
                     @endif
                 @endif
 
+            </div>
+        </div>
+
+        {{-- Delete Confirmation Modal --}}
+        <div id="delete-modal"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+            <div
+                style="background: white; padding: 25px; border-radius: 8px; max-width: 400px; width: 90%; text-align: center;">
+                <h3 style="color: #dc3545; margin-bottom: 15px;">Confirm Deletion</h3>
+                <p style="margin-bottom: 20px;">Are you sure you want to permanently delete this booking record? This action cannot be undone.</p>
+                <div style="margin-top: 20px;">
+                    <button onclick="performDelete()" class="btn btn-danger"
+                        style="background-color: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">Yes, Delete</button>
+                    <button onclick="closeDeleteModal()" class="btn btn-secondary"
+                        style="background-color: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Cancel</button>
+                </div>
             </div>
         </div>
 
@@ -213,13 +217,17 @@
         }
 
         // --- Delete Logic ---
-        function confirmDelete() {
-            if(!confirm('Are you sure you want to permanently delete this booking record?')) return;
+        function showDeleteModal() {
+            document.getElementById('delete-modal').style.display = 'flex';
+        }
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').style.display = 'none';
+        }
+
+        function performDelete() {
+            closeDeleteModal(); 
             
-            fetch("{{ route('hall_bookings.destroy_by_requester', $hallBooking->booking_id) }}", { // Wait, is this the right route? Or a generic one?
-                // History was using DELETE /hall-bookings/{id}
-                // Check web.php... delete /hall-bookings/{hallBooking} => hall_bookings.destroy_by_requester
-                // This seems to be the one.
+            fetch("{{ route('hall_bookings.destroy_by_requester', $hallBooking->booking_id) }}", { 
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -228,8 +236,8 @@
             })
             .then(response => response.json())
             .then(data => {
-                if(data.success || data.message) { // destroyBooking returns json?
-                    showSuccessModal('Record deleted successfully.', "{{ route('history') }}");
+                if(data.success || data.message) { 
+                    showSuccessModal(data.message || 'Record deleted successfully.', "{{ route('history') }}");
                 } else {
                      showSuccessModal('Error deleting record.');
                 }
