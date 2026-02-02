@@ -113,8 +113,18 @@
                     <h3 style="text-align: center; margin-bottom: 20px;">Review Hall Booking Application</h3>
                     <div id="approver-form-content"></div>
                     <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                        <button type="button" id="approver-approve-btn" class="action-btn approve" style="background-color: #28a745; color: white; padding: 10px 20px;">Approve</button>
-                        <button type="button" id="approver-reject-btn" class="action-btn reject" style="background-color: #dc3545; color: white; padding: 10px 20px;">Reject</button>
+                        @if(Auth::user()->hasPermissionTo('administrative_officer_approval'))
+                            <button type="button" id="approver-approve-btn" class="action-btn approve ao-btn" style="background-color: #28a745; color: white; padding: 10px 20px; display: none;">Approve</button>
+                            <button type="button" id="approver-reject-btn" class="action-btn reject ao-btn" style="background-color: #dc3545; color: white; padding: 10px 20px; display: none;">Reject</button>
+                        @endif
+                        @if(Auth::user()->hasPermissionTo('additional_government_agent_approval'))
+                            <button type="button" id="approver-approve-btn" class="action-btn approve aga-btn" style="background-color: #28a745; color: white; padding: 10px 20px; display: none;">Approve</button>
+                            <button type="button" id="approver-reject-btn" class="action-btn reject aga-btn" style="background-color: #dc3545; color: white; padding: 10px 20px; display: none;">Reject</button>
+                        @endif
+                        @if(Auth::user()->hasPermissionTo('government_agent_approval'))
+                            <button type="button" id="approver-approve-btn" class="action-btn approve ga-btn" style="background-color: #28a745; color: white; padding: 10px 20px; display: none;">Approve</button>
+                            <button type="button" id="approver-reject-btn" class="action-btn reject ga-btn" style="background-color: #dc3545; color: white; padding: 10px 20px; display: none;">Reject</button>
+                        @endif
                         <button type="button" id="approver-download-btn" class="action-btn" style="background-color: #29f00f; color: white; padding: 10px 20px;">Download</button>
                     </div>
                 </div>
@@ -285,6 +295,27 @@
                             </div>
                         `;
                         approverFormContent.innerHTML = fieldsHtml;
+                        
+                        // Control button visibility based on user role and approval status
+                        const aoButtons = document.querySelectorAll('.ao-btn');
+                        const agaButtons = document.querySelectorAll('.aga-btn');
+                        const gaButtons = document.querySelectorAll('.ga-btn');
+                        
+                        // Hide all buttons initially
+                        aoButtons.forEach(btn => btn.style.display = 'none');
+                        agaButtons.forEach(btn => btn.style.display = 'none');
+                        gaButtons.forEach(btn => btn.style.display = 'none');
+                        
+                        // Show buttons based on role and pending status
+                        if (booking.administrative_officer_approved === 'pending') {
+                            aoButtons.forEach(btn => btn.style.display = 'inline-block');
+                        }
+                        if (booking.additional_government_agent_approved === 'pending') {
+                            agaButtons.forEach(btn => btn.style.display = 'inline-block');
+                        }
+                        if (booking.government_agent_approved === 'pending') {
+                            gaButtons.forEach(btn => btn.style.display = 'inline-block');
+                        }
                     }
 
                     document.querySelectorAll('.review-btn').forEach(button => {
