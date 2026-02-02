@@ -633,47 +633,59 @@ document.addEventListener('DOMContentLoaded', function () {
         modalOverlay.classList.remove('active');
     };
 
-    // Allocate Button Handler (for GA only)
+        // Allocate Button Handler (for GA only)
     const allocateBtn = document.getElementById('allocate-button');
     if (allocateBtn) {
         const gaApprovalStatus = document.getElementById('ga_approval_status');
+        const quarterRadios = document.querySelectorAll('.quarter-radio'); // Get all radio buttons
         
         // Function to update allocate button state
         const updateAllocateButton = () => {
-            console.log('GA Approval Status:', gaApprovalStatus ? gaApprovalStatus.value : 'not found');
-            if (gaApprovalStatus && gaApprovalStatus.value === '1') {
+            const isGaApproved = gaApprovalStatus && gaApprovalStatus.value === '1';
+            let isQuarterSelected = false;
+            
+            quarterRadios.forEach(radio => {
+                if (radio.checked) {
+                    isQuarterSelected = true;
+                }
+            });
+
+            console.log('GA Approved:', isGaApproved, 'Quarter Selected:', isQuarterSelected);
+
+            if (isGaApproved && isQuarterSelected) {
                 allocateBtn.disabled = false;
                 allocateBtn.style.opacity = '1';
                 allocateBtn.style.cursor = 'pointer';
                 allocateBtn.style.backgroundColor = '#28a745';
-                console.log('Allocate button ENABLED');
             } else {
                 allocateBtn.disabled = true;
                 allocateBtn.style.opacity = '0.5';
                 allocateBtn.style.cursor = 'not-allowed';
                 allocateBtn.style.backgroundColor = '#6c757d';
-                console.log('Allocate button DISABLED - GA approval must be "Yes"');
             }
         };
 
-        // Set initial state to enabled, then let JavaScript control it
-        allocateBtn.disabled = false;
+        // Set initial state
+        updateAllocateButton();
         
-        // Wait a moment for DOM to be ready, then update
-        setTimeout(() => {
-            updateAllocateButton();
-        }, 100);
-
-        // Update on GA approval status change
+        // Listeners
         if (gaApprovalStatus) {
             gaApprovalStatus.addEventListener('change', updateAllocateButton);
         }
+        
+        quarterRadios.forEach(radio => {
+            radio.addEventListener('change', updateAllocateButton);
+        });
 
         // Click handler for allocate button
         allocateBtn.addEventListener('click', function (e) {
             e.preventDefault();
 
             const gaApprovalValue = gaApprovalStatus ? gaApprovalStatus.value : '';
+            let selectedQuarter = null;
+            quarterRadios.forEach(radio => {
+                if (radio.checked) selectedQuarter = radio.value;
+            });
 
             // Validation
             if (gaApprovalValue !== '1') {
@@ -682,12 +694,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            if (!selectedQuarter) {
+                const buttons = [{ text: 'OK', class: 'btn btn-info', onClick: hideModal }];
+                showModal('Validation Error', 'Please select a quarter from the available list.', buttons);
+                return;
+            }
+
             // Confirmation Dialog
             const confirmButtons = [
                 { text: 'Yes, Allocate', class: 'btn btn-success', onClick: () => performAllocation() },
                 { text: 'Cancel', class: 'btn btn-secondary', onClick: hideModal }
             ];
-            showModal('Confirm Allocation', 'Are you sure you want to allocate this family quarter application?', confirmButtons);
+            showModal('Confirm Allocation', 'Are you sure you want to allocate this family quarter application to Quarter ' + selectedQuarter + '?', confirmButtons);
         });
 
         const performAllocation = async () => {
@@ -695,6 +713,9 @@ document.addEventListener('DOMContentLoaded', function () {
             showModal('Processing...', 'Submitting allocation, please wait...', loadingButtons);
 
             const formData = new FormData(form);
+            // Manually append the action 'allocate' since it's not included in FormData when submitting via fetch/js
+            formData.append('action', 'allocate');
+
             const url = form.getAttribute('action');
 
             try {

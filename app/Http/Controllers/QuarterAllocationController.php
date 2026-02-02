@@ -144,28 +144,39 @@ class QuarterAllocationController extends Controller
                     ]);
                 }
             } elseif ($action === 'allocate' && $user->hasPermissionTo('government_agent_approval')) {
-                // Family quarters don't require quarter selection - allocation is approved without assigning specific quarter
+                // 1. Validation
                 $validated = $request->validate([
                     'ga_approval_status' => 'required|in:1',
+                    'selected_quarter' => 'required|exists:quarters,quarter_id',
                     'ga_note' => 'nullable|string|max:2000',
                     'f_special_reason' => 'nullable|string|max:2000',
                     'f_special_reason_marks' => 'nullable|integer|min:0|max:10',
                 ], [
                     'ga_approval_status.required' => 'GA approval status is required.',
                     'ga_approval_status.in' => 'GA approval must be set to "Yes" to allocate.',
+                    'selected_quarter.required' => 'You must select a quarter to allocate.',
                     'f_special_reason_marks.max' => 'Special reason marks cannot exceed 10.',
                 ]);
 
-                // Update quarter allocation
+                // 2. Fetch Selected Quarter & Check Availability
+                $quarter = Quarter::findOrFail($request->selected_quarter);
+
+                // Concurrent Check: Is it still available? (Status Unallocated OR Has Vacancy)
+                if ($quarter->status !== 'Unallocated' && ($quarter->current_occupant_number >= $quarter->occupant_number)) {
+                    return redirect()->back()->with('error', 'The selected quarter is no longer available (Full Capacity).');
+                }
+
+                // 3. Update Quarter Allocation Record
                 $quarterAllocation->allocation_status = 'allocated';
                 $quarterAllocation->allocation_date = Carbon::now();
                 $quarterAllocation->vacate_date = Carbon::now()->addYears(5);
+                $quarterAllocation->quarter_id = $request->selected_quarter; // ASSIGN QUARTER ID
 
                 if ($request->ga_note) {
                     $quarterAllocation->ga_note = $request->ga_note;
                 }
 
-                // Update special reason fields in marking table
+                // 4. Update Special Reason Fields (Marking)
                 if ($application->familyQuarterApplication && $application->familyQuarterApplication->markingFamilyQuarter) {
                     $marking = $application->familyQuarterApplication->markingFamilyQuarter;
 
@@ -176,15 +187,24 @@ class QuarterAllocationController extends Controller
                     if ($request->has('f_special_reason_marks')) {
                         $marking->f_special_reason_marks = $request->f_special_reason_marks;
                     }
-
                     $marking->save();
                 }
 
-                $successMessage = 'Family quarter application allocated successfully.';
+                // 5. Update Quarter Occupancy
+                // Increment occupant number
+                $quarter->current_occupant_number += 1;
+
+                // If capacity reached, mark as Allocated
+                if ($quarter->current_occupant_number >= $quarter->occupant_number) {
+                    $quarter->status = 'Allocated';
+                }
+                $quarter->save();
+
+                $successMessage = 'Family quarter allocated successfully to ' . $quarter->quarter_id;
                 AuditLog::create([
                     'log_title' => 'GA Allocated Family Quarter',
                     'performed_by' => $user->id,
-                    'details' => "App ID: {$id} - Family quarter allocated",
+                    'details' => "App ID: {$id} - Assigned Quarter: {$quarter->quarter_id}",
                     'date_performed' => Carbon::now()->toDateString(),
                     'time_performed' => Carbon::now()->toTimeString(),
                 ]);
@@ -1083,9 +1103,15 @@ class QuarterAllocationController extends Controller
             $oldStatus = $quarterAllocation->allocation_status;
             $quarterId = $quarterAllocation->quarter_id;
 
-            // Update allocation status to rejected
+            // Update allocation status to rejected and clear allocation details
             $quarterAllocation->allocation_status = 'rejected';
             $quarterAllocation->ga_note = $request->ga_note;
+
+            // Clear allocation details as requested
+            $quarterAllocation->quarter_id = null;
+            $quarterAllocation->allocation_date = null;
+            $quarterAllocation->vacate_date = null;
+
             $quarterAllocation->save();
 
             // If a quarter was assigned, update the quarter's current occupant number
@@ -1093,6 +1119,14 @@ class QuarterAllocationController extends Controller
                 $quarter = Quarter::find($quarterId);
                 if ($quarter && $quarter->current_occupant_number > 0) {
                     $quarter->decrement('current_occupant_number');
+
+                    // If quarter becomes available again (not full), update status
+                    // Reload to get fresh occupant count after decrement
+                    $quarter->refresh();
+                    if ($quarter->current_occupant_number < $quarter->occupant_number) {
+                        $quarter->status = 'Unallocated';
+                        $quarter->save();
+                    }
                 }
             }
 
@@ -1100,7 +1134,7 @@ class QuarterAllocationController extends Controller
             AuditLog::create([
                 'log_title' => 'Quarter Allocation Cancelled',
                 'performed_by' => Auth::id(),
-                'details' => "Application ID: {$id} allocation cancelled from {$oldStatus} to rejected by GA. Quarter: {$quarterId}",
+                'details' => "Application ID: {$id} allocation cancelled from {$oldStatus} to rejected by GA. Quarter: {$quarterId} released.",
                 'date_performed' => Carbon::now()->toDateString(),
                 'time_performed' => Carbon::now()->toTimeString(),
             ]);

@@ -186,6 +186,11 @@
         .btn-info {
             background-color: #17a2b8;
         }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
     </style>
 @endsection
 
@@ -616,11 +621,11 @@
                     // Show modal to collect note
                     showModal('Cancel Allocation', `<div style="text-align: left; margin-bottom: 15px;">
                     <label for="modal-cancel-note" style="font-weight: bold; color: #dc3545; display: block; margin-bottom: 8px;">Reason for Cancellation (GA Note)*</label>
-                    <textarea id="modal-cancel-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit;" rows="4" placeholder="Enter reason for cancellation..."></textarea>
+                    <textarea id="modal-cancel-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; resize: vertical;" rows="4" placeholder="Enter reason for cancellation..."></textarea>
                 </div>`, [
                         {
                             text: 'Cancel Allocation',
-                            class: 'btn',
+                            class: 'btn btn-danger', // Added btn-danger for visibility
                             onClick: () => {
                                 const noteTextarea = document.getElementById('modal-cancel-note');
                                 const note = noteTextarea ? noteTextarea.value.trim() : '';
@@ -637,7 +642,7 @@
 
                                 setTimeout(() => {
                                     showModal('Confirm Cancellation', 'Are you sure you want to cancel this allocation? The status will change to rejected.', [
-                                        { text: 'Yes, Cancel', class: 'btn', onClick: () => cancelAllocationForm.submit() },
+                                        { text: 'Yes, Cancel', class: 'btn btn-danger', onClick: () => cancelAllocationForm.submit() }, // Added btn-danger here too
                                         { text: 'No', class: 'btn btn-secondary', onClick: hideModal }
                                     ]);
                                 }, 100);
