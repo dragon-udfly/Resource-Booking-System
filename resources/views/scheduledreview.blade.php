@@ -684,6 +684,9 @@
 
                     const formData = new FormData(formElement); // Use formElement here
 
+                    // Fix: Explicitly append the action 'allocate' so the backend knows what to do
+                    formData.append('submit_action', 'allocate');
+
                     try {
                         const response = await fetch(url, {
                             method: 'POST',

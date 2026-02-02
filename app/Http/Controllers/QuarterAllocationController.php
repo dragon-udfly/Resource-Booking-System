@@ -209,9 +209,33 @@ class QuarterAllocationController extends Controller
                     'time_performed' => Carbon::now()->toTimeString(),
                 ]);
             } elseif ($action === 'reject' && $user->hasPermissionTo('government_agent_approval')) {
+                // 1. Update Allocation Record
                 $quarterAllocation->allocation_status = 'rejected';
+
+                // Save old quarter ID for decrementing
+                $quarterId = $quarterAllocation->quarter_id;
+
+                // Clear assignment details
+                $quarterAllocation->quarter_id = null;
+                $quarterAllocation->allocation_date = null;
+                $quarterAllocation->vacate_date = null;
+
                 if ($request->ga_note) {
                     $quarterAllocation->ga_note = trim(($quarterAllocation->ga_note ?? '') . "\n" . $request->ga_note);
+                }
+
+                // 2. Decrement Occupancy if a quarter was previously assigned
+                if ($quarterId) {
+                    $quarter = Quarter::find($quarterId);
+                    if ($quarter && $quarter->current_occupant_number > 0) {
+                        $quarter->decrement('current_occupant_number');
+                        $quarter->refresh();
+                        // Reset status if logic applies (though family quarters usually have capacity 1)
+                        if ($quarter->current_occupant_number < $quarter->occupant_number) {
+                            $quarter->status = 'Unallocated';
+                            $quarter->save();
+                        }
+                    }
                 }
 
                 // Update special reason marks if provided
