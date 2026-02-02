@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,7 +20,8 @@
 
         body {
             font-family: Arial, sans-serif;
-            min-height: 100vh; /* Ensure full viewport height */
+            min-height: 100vh;
+            /* Ensure full viewport height */
             display: flex;
             flex-direction: column;
             background-color: #f4f4f4;
@@ -34,7 +36,8 @@
             flex-direction: column;
             align-items: center;
             padding: 20px;
-            flex-grow: 1; /* Allows banner to expand and fill space so footer sits at bottom */
+            flex-grow: 1;
+            /* Allows banner to expand and fill space so footer sits at bottom */
         }
 
         /* Styles moved from dashboard.blade.php */
@@ -55,14 +58,16 @@
         }
 
         table {
-            width: 90%; /* Adjust table width */
+            width: 90%;
+            /* Adjust table width */
             margin: 20px auto;
             border-collapse: collapse;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             background-color: #fff;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 12px 15px;
             text-align: left;
@@ -96,19 +101,26 @@
         .action-btn.approve {
             background-color: #28a745;
         }
+
         .action-btn.approve:hover {
             background-color: #218838;
         }
+
         .action-btn.reject {
             background-color: #dc3545;
         }
+
         .action-btn.reject:hover {
             background-color: #c82333;
         }
-        .action-btn.review-btn {
+
+        .action-btn.review-btn,
+        .action-btn.review-link-btn {
             background-color: #007bff;
         }
-        .action-btn.review-btn:hover {
+
+        .action-btn.review-btn:hover,
+        .action-btn.review-link-btn:hover {
             background-color: #0056b3;
         }
     </style>
@@ -117,8 +129,9 @@
     @yield('page_styles')
 
 </head>
+
 <body>
-    
+
     {{-- 1. Database Connection Check Overlay --}}
     @include('partials.check_db_overlay')
 
@@ -138,4 +151,5 @@
     {{-- Slot for page-specific scripts --}}
     @stack('scripts')
 </body>
+
 </html>

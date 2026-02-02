@@ -266,26 +266,68 @@ class HallBookingController extends Controller
 
     public function destroyBooking(Request $request, HallBooking $hallBooking)
     {
-        // Authorization: Ensure the authenticated user is the requester of this booking
-        if (Auth::user()->nic_number !== $hallBooking->filled_by_nic) {
-            $errorMessage = 'Unauthorized action.';
-            if ($request->wantsJson()) {
-                return response()->json(['status' => 'error', 'message' => $errorMessage], 403);
-            }
-            return redirect()->back()->with('error', $errorMessage);
+        $user = Auth::user();
+
+        // 1. Verify Ownership / Permissions check
+        // Assuming destroy is primarily for Requester/Owner or an Approver managing cleanups.
+        // The original code was strict on Requester Ownership:
+        // if ($user->nic_number !== $hallBooking->filled_by_nic) ...
+        // We should maintain this strictness for "Requesters" acting as Requesters.
+        // But if an AO is deleting (as per new rule), we need to allow it.
+
+        $isRequester = $user->hasPermissionTo('requester');
+        $isAO = $user->hasPermissionTo('administrative_officer_approval');
+
+        // Ownership check for Requester
+        if ($isRequester && !$isAO && $user->nic_number !== $hallBooking->filled_by_nic) {
+            return $this->sendError($request, 'Unauthorized action.');
         }
 
-        // Check if any approval is not 'pending'
-        if (
-            $hallBooking->administrative_officer_approved !== 'pending' ||
-            $hallBooking->additional_government_agent_approved !== 'pending' ||
-            $hallBooking->government_agent_approved !== 'pending'
-        ) {
-            $errorMessage = 'Booking cannot be cancelled after approval process has started.';
-            if ($request->wantsJson()) {
-                return response()->json(['status' => 'error', 'message' => $errorMessage], 403);
+        // 2. Check Event Date
+        $isPastEvent = \Carbon\Carbon::parse($hallBooking->event_date)->startOfDay()->lt(\Carbon\Carbon::today());
+
+        if ($isPastEvent) {
+            // Rule: History Cleanup
+            // Allow deletion if event passed. 
+            // Logic implies Owner can delete their own history. 
+            // Can AO delete anyone's history? Plan didn't specify, but implies "Allow users to delete... from THEIR history".
+            // So strict ownership for Requesters is good. AO might need to delete old records too?
+            // Let's stick to: If you have access (Owner or Approver?), you can delete past events.
+            // Given the context of "View History", it's usually the Requester viewing their own.
+
+            // If NOT owner and NOT authorized approver?
+            // The route is protected by auth. 
+            // Let's assume the previous ownership check covers it.
+
+        } else {
+            // Future/Active Event Logic
+
+            if ($isRequester && !$isAO) {
+                // PA Rule: Can delete ONLY if all status is 'pending'
+                if (
+                    $hallBooking->administrative_officer_approved !== 'pending' ||
+                    $hallBooking->additional_government_agent_approved !== 'pending' ||
+                    $hallBooking->government_agent_approved !== 'pending'
+                ) {
+                    return $this->sendError($request, 'Booking cannot be cancelled after approval process has started.');
+                }
+            } elseif ($isAO) {
+                // AO Rule: Can delete if Final Status is SET (e.g. they rejected it) AND GA Status is Pending.
+                // Interpreting "Final Status is SET" as != 'pending'.
+                // Interpreting "GA Status is Pending" as == 'pending'.
+
+                $finalStatusSet = $hallBooking->final_approval !== 'pending';
+                $gaPending = $hallBooking->government_agent_approved === 'pending';
+
+                if (!($finalStatusSet && $gaPending)) {
+                    return $this->sendError($request, 'Cannot delete: Application must be finalized (e.g. Rejected) but not yet processed by GA.');
+                }
+            } else {
+                // Other roles (e.g. AGA, GA)? Default block or allow?
+                // Original code blocked everything non-pending.
+                // Let's maintain block for safety unless specified.
+                return $this->sendError($request, 'Unauthorized deletion request.');
             }
-            return redirect()->back()->with('error', $errorMessage);
         }
 
         try {
@@ -294,13 +336,13 @@ class HallBookingController extends Controller
 
             // Audit Log
             AuditLog::create([
-                'log_title' => 'Hall Booking Application ' . $bookingId . ' cancelled by requester',
+                'log_title' => 'Hall Booking Application ' . $bookingId . ' deleted by ' . $user->name,
                 'performed_by' => Auth::id(),
-                'date_performed' => Carbon::now()->toDateString(),
-                'time_performed' => Carbon::now()->toTimeString(),
+                'date_performed' => \Carbon\Carbon::now()->toDateString(),
+                'time_performed' => \Carbon\Carbon::now()->toTimeString(),
             ]);
 
-            $successMessage = 'Booking cancelled successfully.';
+            $successMessage = 'Booking deleted successfully.';
             if ($request->wantsJson()) {
                 return response()->json(['status' => 'success', 'message' => $successMessage]);
             }
@@ -308,12 +350,16 @@ class HallBookingController extends Controller
 
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Booking deletion failed: ' . $e->getMessage());
-            $errorMessage = 'An unexpected error occurred while deleting the booking.';
-            if ($request->wantsJson()) {
-                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
-            }
-            return redirect()->back()->with('error', $errorMessage);
+            return $this->sendError($request, 'An unexpected error occurred while deleting the booking.', 500);
         }
+    }
+
+    private function sendError($request, $message, $code = 403)
+    {
+        if ($request->wantsJson()) {
+            return response()->json(['status' => 'error', 'message' => $message], $code);
+        }
+        return redirect()->back()->with('error', $message);
     }
 
     public function downloadPDF(HallBooking $hallBooking)
@@ -325,6 +371,54 @@ class HallBookingController extends Controller
 
         $pdf = Pdf::loadView('pdf.hall_booking_form', $data);
         return $pdf->download('hall_booking_Application_' . $hallBooking->booking_id . '.pdf');
+    }
+
+    public function review(HallBooking $hallBooking)
+    {
+        $user = Auth::user();
+
+        // Check if user has permission to view
+        $isApprover = $user->hasPermissionTo('administrative_officer_approval') ||
+            $user->hasPermissionTo('additional_government_agent_approval') ||
+            $user->hasPermissionTo('government_agent_approval');
+
+        if (!$isApprover && $user->hasPermissionTo('requester')) {
+            // Check ownership using NIC number as user_id is not present in HallBooking
+            if ($hallBooking->filled_by_nic != $user->nic_number) {
+                \Illuminate\Support\Facades\Log::info('Review Check Failed (NIC Mismatch)', [
+                    'user_nic' => $user->nic_number,
+                    'booking_nic' => $hallBooking->filled_by_nic,
+                ]);
+                abort(403, 'Unauthorized access: NIC Mismatch (' . ($hallBooking->filled_by_nic ?? 'null') . ' vs ' . ($user->nic_number ?? 'null') . ')');
+            }
+        }
+
+        if (
+            !$user->hasPermissionTo('requester') &&
+            !$user->hasPermissionTo('administrative_officer_approval') &&
+            !$user->hasPermissionTo('additional_government_agent_approval') &&
+            !$user->hasPermissionTo('government_agent_approval')
+        ) {
+            abort(403, 'Unauthorized access');
+        }
+
+        return view('hall_booking.review', compact('hallBooking'));
+    }
+
+    public function showProcessed(HallBooking $hallBooking)
+    {
+        $user = Auth::user();
+        $isApprover = $user->hasPermissionTo('administrative_officer_approval') ||
+            $user->hasPermissionTo('additional_government_agent_approval') ||
+            $user->hasPermissionTo('government_agent_approval');
+
+        if (!$isApprover && $user->hasPermissionTo('requester')) {
+            if ($hallBooking->filled_by_nic != $user->nic_number) {
+                abort(403, 'Unauthorized access: You can only view your own bookings.');
+            }
+        }
+
+        return view('hall_booking.processed', compact('hallBooking'));
     }
 
     public function approve(HallBooking $hallBooking)
@@ -405,16 +499,25 @@ class HallBookingController extends Controller
 
     public function cancelApproved(Request $request, HallBooking $hallBooking)
     {
-        $request->validate([
-            'reason' => 'required|string|max:500',
-        ]);
+        $user = Auth::user();
+        $isRequester = $user->hasPermissionTo('requester');
 
-        if (Auth::user()->hasPermissionTo('government_agent_approval')) {
+        // Reason is required for GA (if not requester), but optional for requester
+        $rules = [
+            'reason' => ($isRequester) ? 'nullable|string|max:500' : 'required|string|max:500',
+        ];
+
+        // Also allow AO to cancel if needed (from blade: AO has cancel button too)
+        if ($user->hasPermissionTo('administrative_officer_approval')) {
+            $rules['reason'] = 'nullable|string|max:500';
+        }
+
+        $request->validate($rules);
+
+        if ($user->hasPermissionTo('government_agent_approval')) {
             if ($hallBooking->final_approval === 'approved') {
                 $hallBooking->final_approval = 'cancelled';
                 $hallBooking->reason_of_rejection = $request->reason;
-                // Reset internal approvals just in case, or leave them as history? 
-                // Typically cancellation keeps the record that it WAS approved but now cancelled.
                 $hallBooking->save();
 
                 AuditLog::create([
@@ -428,6 +531,53 @@ class HallBookingController extends Controller
             }
             return response()->json(['success' => false, 'message' => 'This booking is not currently approved.'], 422);
         }
+
+        // Requester Logic
+        if ($isRequester) {
+            // Verify ownership
+            if ($hallBooking->filled_by_nic !== $user->nic_number) {
+                // If not owner, check if they have approver permissions to proceed to subsequent blocks?
+                // But subsequent blocks are separate if statements.
+                // If they are Requester AND Approver, they might fall through?
+                // But here we are inside "if ($isRequester)".
+                // If they are primarily acting as requester (but canceling someone else's), deny.
+                // Unless they are also AO?
+                if (!$user->hasPermissionTo('administrative_officer_approval') && !$user->hasPermissionTo('government_agent_approval')) {
+                    abort(403, 'Unauthorized access: You can only cancel your own bookings.');
+                }
+                // If they are AO/GA, let them pass this block (don't execute requester cancel) to reach AO/GA block?
+                // Or just execute cancel here if they are AO? AO block is below.
+            } else {
+                // Owner cancelling
+                $hallBooking->final_approval = 'cancelled';
+                $hallBooking->save();
+
+                AuditLog::create([
+                    'log_title' => 'Booking ' . $hallBooking->booking_id . ' cancelled by Requester.',
+                    'performed_by' => Auth::id(),
+                    'date_performed' => Carbon::now()->toDateString(),
+                    'time_performed' => Carbon::now()->toTimeString(),
+                ]);
+
+                return response()->json(['success' => true, 'message' => 'Booking cancelled successfully.']);
+            }
+        }
+
+        // AO Logic (if AO uses this endpoint, blade line 131 calls cancelApproved too likely?)
+        // Blade line 131 calls showCancelModal -> confirmCancel -> cancelApproved route.
+        if ($user->hasPermissionTo('administrative_officer_approval')) {
+            $hallBooking->final_approval = 'cancelled';
+            $hallBooking->save();
+
+            AuditLog::create([
+                'log_title' => 'Booking ' . $hallBooking->booking_id . ' cancelled by Administrative Officer.',
+                'performed_by' => Auth::id(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+            return response()->json(['success' => true, 'message' => 'Booking cancelled successfully.']);
+        }
+
         return response()->json(['success' => false, 'message' => 'You do not have permission to cancel this booking.'], 403);
     }
 

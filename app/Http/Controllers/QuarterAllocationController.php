@@ -958,7 +958,23 @@ class QuarterAllocationController extends Controller
             ->where('quarter_type', 'Family')
             ->firstOrFail();
 
-        return view('showprocessedfamily', compact('application'));
+        // Calculate grade based on salary
+        $gradeSalarySettings = GradeSalarySetting::all();
+        $calculatedGrade = 'N/A';
+        $applicantMonthlySalary = $application->monthly_salary;
+        if ($applicantMonthlySalary !== null) {
+            foreach ($gradeSalarySettings as $setting) {
+                if ($applicantMonthlySalary >= $setting->min_salary && $setting->max_salary === null) {
+                    $calculatedGrade = $setting->grade;
+                    break;
+                } elseif ($applicantMonthlySalary >= $setting->min_salary && $applicantMonthlySalary <= $setting->max_salary) {
+                    $calculatedGrade = $setting->grade;
+                    break;
+                }
+            }
+        }
+
+        return view('showprocessedfamily', compact('application', 'calculatedGrade'));
     }
 
     public function restoreScheduledQuarterApplication($id)

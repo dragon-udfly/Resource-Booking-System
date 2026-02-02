@@ -180,6 +180,12 @@
 
         .btn-secondary {
             background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
         }
     </style>
 @endsection
@@ -475,7 +481,7 @@
 
                                 setTimeout(() => {
                                     showModal('Confirm Cancellation', 'Are you sure you want to cancel this allocation? The status will change to rejected.', [
-                                        { text: 'Yes, Cancel', class: 'btn', onClick: () => cancelAllocationForm.submit() },
+                                        { text: 'Yes, Cancel', class: 'btn btn-danger', onClick: () => cancelAllocationForm.submit() },
                                         { text: 'No', class: 'btn btn-secondary', onClick: hideModal }
                                     ]);
                                 }, 100);

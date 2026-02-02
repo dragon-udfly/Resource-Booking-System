@@ -209,7 +209,7 @@
                     <p>{{ $application->nic ?? 'N/A' }}</p>
                 </div>
             </div>
-            <!-- Add all other fields from family application in a read-only format -->
+
             <div class="form-row">
                 <div class="form-group">
                     <label>3. Date of Birth:</label>
@@ -220,6 +220,62 @@
                     <p>{{ $application->designation ?? 'N/A' }}</p>
                 </div>
             </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>5. Gender:</label>
+                    <p>{{ $application->gender ?? 'N/A' }}</p>
+                </div>
+                <div class="form-group">
+                    <label>6. Service and Grade:</label>
+                    <p>{{ $application->service_grade ?? 'N/A' }}</p>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>7. Permanent Address:</label>
+                    <p>{{ $application->permanent_address ?? 'N/A' }}</p>
+                </div>
+                <div class="form-group">
+                    <label>8. Temporary Address:</label>
+                    <p>{{ $application->temporary_address ?? 'N/A' }}</p>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>9. Monthly Salary (excluding allowances):</label>
+                    <p>{{ $application->monthly_salary ?? 'N/A' }}</p>
+                </div>
+                <div class="form-group">
+                    <label>10. Telephone Number:</label>
+                    <p>{{ $application->phone_number ?? 'N/A' }}</p>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>11. Email Address:</label>
+                    <p>{{ $application->email ?? 'N/A' }}</p>
+                </div>
+                <div class="form-group">
+                    <label>12. Date of Assumption of Duties in Vavuniya:</label>
+                    <p>{{ $application->date_of_assumption_of_duties ?? 'N/A' }}</p>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>13. Date of Last Salary Increment:</label>
+                    <p>{{ $application->familyQuarterApplication?->f_date_of_last_salary_increment ?? 'N/A' }}</p>
+                </div>
+                <div class="form-group">
+                    <label>14. Is applicant a transferred officer?</label>
+                    <p>{{ $application->familyQuarterApplication?->f_transformed_officer ?? 'N/A' }}</p>
+                </div>
+            </div>
+
             <h3 class="form-section-title">B) Spouse Details</h3>
             <div class="form-row">
                 <div class="form-group">
@@ -228,14 +284,181 @@
                 </div>
                 <div class="form-group">
                     <label>2. Is your spouse employed in government service?</label>
-                    <p>{{ isset($application->familyQuarterApplication?->f_is_spouse_employed) ? ($application->familyQuarterApplication?->f_is_spouse_employed ? 'Yes' : 'No') : 'N/A' }}
-                    </p>
+                    <p>{{ isset($application->familyQuarterApplication?->f_is_spouse_employed) ? ($application->familyQuarterApplication?->f_is_spouse_employed ? 'Yes' : 'No') : 'N/A' }}</p>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>3. Spouse's Designation:</label>
+                    <p>{{ $application->familyQuarterApplication?->f_spouse_designation ?? 'N/A' }}</p>
+                </div>
+                <div class="form-group">
+                    <label>4. Department / Office Name:</label>
+                    <p>{{ $application->familyQuarterApplication?->f_spouse_department_office ?? 'N/A' }}</p>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>5. Monthly Salary (excluding allowances):</label>
+                    <p>{{ $application->familyQuarterApplication?->f_spouse_monthly_salary ?? 'N/A' }}</p>
+                </div>
+                <div class="form-group">
+                    <label>6. Date of Last Salary Increment:</label>
+                    <p>{{ $application->familyQuarterApplication?->f_spouse_last_increment_date ?? 'N/A' }}</p>
+                </div>
+            </div>
+
+            <h3 class="form-section-title">C) Children Details</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>1. Description of Children:</label>
+                    <p>{{ $application->familyQuarterApplication?->f_children_details_description ?? 'N/A' }}</p>
+                </div>
+            </div>
+
+            <h3 class="form-section-title">D) Property Ownership in Vavuniya District</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>1. Do you or your spouse or children under 18 own any land or house in Vavuniya District?</label>
+                    <p>{{ $application->familyQuarterApplication?->f_property_ownership_details ?? 'N/A' }}</p>
+                </div>
+            </div>
+
+            <h3 class="form-section-title">E) Previous Stay in Government Quarters</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Have you previously stayed in government quarters? (Duration in Years):</label>
+                    <p>{{ $application->familyQuarterApplication?->f_previous_government_quarter_duration ?? 'N/A' }}</p>
+                </div>
+            </div>
+
+            <h3 class="form-section-title">F) Marking Scheme and Marking</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Total Mark:</label>
+                    <p>{{ $application->familyQuarterApplication?->markingFamilyQuarter?->total_mark ?? 'N/A' }}</p>
+                </div>
+            </div>
+
+            <table class="marking-table" style="width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 20px;">
+                <thead>
+                    <tr>
+                        <th style="border: 1px solid #dee2e6; padding: 8px 12px; background-color: #e9ecef; font-weight: bold; color: #495057;">Criteria</th>
+                        <th style="border: 1px solid #dee2e6; padding: 8px 12px; background-color: #e9ecef; font-weight: bold; color: #495057;">Selection</th>
+                        <th style="border: 1px solid #dee2e6; padding: 8px 12px; background-color: #e9ecef; font-weight: bold; color: #495057;">Mark</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">Applicant's Department</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_department ?? 'N/A' }}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_department_mark ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">Number of Dependant</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_number_of_dependant ?? 'N/A' }}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_number_of_dependant_mark ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">Dependant(s) with Disability</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">{{ isset($application->familyQuarterApplication?->markingFamilyQuarter?->is_dependant_with_disability) ? ($application->familyQuarterApplication?->markingFamilyQuarter?->is_dependant_with_disability ? 'Yes' : 'No') : 'N/A' }}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">{{ $application->familyQuarterApplication?->markingFamilyQuarter?->is_dependant_with_disability_mark ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">Distance of Residency</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_distance_of_residency ?? 'N/A' }}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_distance_of_residency_mark ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">Special Reasons (Provided By Government Agent):</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_spacial_reason ?? 'Not Mentioned' }}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 8px 12px;">{{ $application->familyQuarterApplication?->markingFamilyQuarter?->f_special_reason_mark ?? 'N/A' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 class="form-section-title">G) Allocation Process Details</h3>
+            <div class="form-row">
+                <div class="form-group"><label>Monthly Salary:</label><p>{{ number_format($application->monthly_salary, 2) ?? 'N/A' }}</p></div>
+                <div class="form-group"><label>Applicant Grade (Service):</label><p>{{ $application->service_grade ?? 'N/A' }}</p></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Grade (Calculated):</label><p>{{ $calculatedGrade ?? 'N/A' }}</p></div>
+                <div class="form-group"><label>Gender:</label><p>{{ $application->gender ?? 'N/A' }}</p></div>
+            </div>
+
+            @php
+                $allocation = $application->quarterAllocation;
+            @endphp
+
+            <h3 class="form-section-title">H) Quarter Information</h3>
+            @if($allocation && $allocation->allocation_status == 'allocated' && $allocation->quarter)
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Allocated Quarter No (New):</label>
+                        <p>{{ $allocation->quarter->new_quarter_no ?? 'N/A' }}</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Allocated Quarter No (Old):</label>
+                        <p>{{ $allocation->quarter->old_quarter_no ?? 'N/A' }}</p>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Quarter Location:</label>
+                        <p>{{ $allocation->quarter->location ?? 'N/A' }}</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Quarter Type:</label>
+                        <p>{{ $allocation->quarter->quarter_type ?? 'N/A' }}</p>
+                    </div>
+                </div>
+            @else
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Quarter Status:</label>
+                        <p>No quarter has been allocated yet</p>
+                    </div>
+                </div>
+            @endif
+
+            <h3 class="form-section-title">I) Review and Allocation Details</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Administrative Officer Verification:</label>
+                    <p>{{ isset($allocation->ao_verified_status) ? ($allocation->ao_verified_status ? 'Verified' : 'Not Verified') : 'N/A' }}</p>
+                </div>
+                <div class="form-group">
+                    <label>AO Note:</label>
+                    <p>{{ $allocation->ao_note ?? 'N/A' }}</p>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Additional Government Agent Verification:</label>
+                    <p>{{ isset($allocation->aga_verified_status) ? ($allocation->aga_verified_status ? 'Verified' : 'Not Verified') : 'N/A' }}</p>
+                </div>
+                <div class="form-group">
+                    <label>AGA Note:</label>
+                    <p>{{ $allocation->aga_note ?? 'N/A' }}</p>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Government Agent Approval:</label>
+                    <p>{{ isset($allocation->ga_approval_status) ? ($allocation->ga_approval_status ? 'Approved' : 'Not Approved') : 'N/A' }}</p>
+                </div>
+                <div class="form-group">
+                    <label>GA Note:</label>
+                    <p>{{ $allocation->ga_note ?? 'N/A' }}</p>
                 </div>
             </div>
         </div>
 
         <div class="form-container">
-            <h3 class="form-section-title">C) Allocation Details</h3>
+            <h3 class="form-section-title">J) Final Allocation Status</h3>
             @php
                 $allocation = $application->quarterAllocation;
                 $statusClass = '';

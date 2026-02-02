@@ -101,6 +101,10 @@
             min-height: 40px;
         }
 
+        textarea {
+            resize: vertical;
+        }
+
         .form-section-title {
             font-size: 1.5em;
             font-weight: bold;
@@ -148,18 +152,22 @@
 
         .btn-success {
             background-color: #28a745;
+            color: white;
         }
 
         .btn-danger {
             background-color: #dc3545;
+            color: white;
         }
 
         .btn-info {
             background-color: #17a2b8;
+            color: white;
         }
 
         .btn-secondary {
             background-color: #6c757d;
+            color: white;
         }
 
         .button-group {
@@ -450,7 +458,8 @@
                         </div>
                         <div class="form-group">
                             <label for="aga_note">Additional Government Agent Note:</label>
-                            <textarea name="aga_note" id="aga_note" rows="3" class="form-control" style="width: 100%;">{{ optional($application->quarterAllocation)->aga_note ?? '' }}</textarea>
+                            <textarea name="aga_note" id="aga_note" rows="3" class="form-control"
+                                style="width: 100%;">{{ optional($application->quarterAllocation)->aga_note ?? '' }}</textarea>
                         </div>
                     </div>
                 @else
@@ -543,10 +552,6 @@
                     @if(Auth::user()->hasPermissionTo('additional_government_agent_approval'))
                         <button type="submit" name="submit_action" value="Submit" id="submit-button"
                             class="btn btn-success">Submit</button>
-                        {{-- if aga_verified_status= 0 (No) --}}
-                        {{-- update is_aga_verified and aga_note in quarter_allocation--}}
-                        <button type="submit" name="submit_action" value="Reject" id="reject-button"
-                            class="btn btn-danger">Reject</button>
                     @endif
                     @if(Auth::user()->hasPermissionTo('administrative_officer_approval'))
                         {{-- update is_ao_verified and ao_note --}}

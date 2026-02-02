@@ -109,7 +109,7 @@
                             <td>{{ $allocation->quarter->location ?? 'N/A' }}</td>
                             <td>{{ $allocation->application->officer_name ?? 'N/A' }}</td>
                             <td>{{ $allocation->application->designation ?? 'N/A' }}</td>
-                            <td>{{ $allocation->application->contact_number ?? 'N/A' }}</td>
+                            <td>{{ $allocation->application->phone_number ?? 'N/A' }}</td>
                             <td>
                                 <a href="{{ route('history.view_' . strtolower($allocation->application->quarter_type ?? 'scheduled'), ['id' => $allocation->application->application_id]) }}"
                                     class="btn" style="background-color: #007bff; padding: 5px 10px; font-size: 0.9em;">View</a>

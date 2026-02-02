@@ -81,6 +81,10 @@
             background-color: #f8f9fa;
             min-height: 40px;
         }
+
+        textarea {
+            resize: vertical;
+        }
         
         .form-section-title {
             font-size: 1.5em;
@@ -92,9 +96,10 @@
             width: 100%;
         }
 
-        .btn-success { background-color: #28a745; }
-        .btn-danger { background-color: #dc3545; }
-        .btn-download { background-color: #17a2b8; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-download { background-color: #17a2b8; color: white; }
+        .btn-info { background-color: #17a2b8; color: white; }
 
         .button-group {
             display: flex;
@@ -132,7 +137,7 @@
         .modal-content h3 { margin-top: 0; color: #333; }
         .modal-content p { margin-bottom: 20px; color: #555; }
         .modal-buttons { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
-        .btn-secondary { background-color: #6c757d; }
+        .btn-secondary { background-color: #6c757d; color: white; }
 
     </style>
 @endsection
@@ -530,9 +535,6 @@
                     @if(Auth::user()->hasPermissionTo('additional_government_agent_approval'))
                         {{-- update is_aga_verified and aga_note in quarter_allocation--}}
                         <button type="submit" name="action" value="Submit" id="submit-button" class="btn btn-success">Submit</button>
-                        {{-- if aga_verified_status= 0 (No) --}}
-                        {{-- update is_aga_verified and aga_note in quarter_allocation--}}
-                        <button type="submit" name="action" value="Reject" id="reject-button" class="btn btn-danger">Reject</button>
                     @endif
                     @if(Auth::user()->hasPermissionTo('administrative_officer_approval'))
                         {{-- update is_ao_verified and ao_note --}}

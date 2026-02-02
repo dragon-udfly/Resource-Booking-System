@@ -1,0 +1,227 @@
+@extends('layouts.normal_body_layout')
+
+@section('title', 'About')
+
+@section('page_styles')
+    <style>
+        /* Page Header Styles */
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .page-header h2 {
+            font-size: 2em;
+            font-weight: bold;
+            color: #0056b3;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+            display: inline-block;
+        }
+
+        /* Button Bar Styles */
+        .button-bar {
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 1000px;
+            /* Match help container width */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .home-btn {
+            background-color: #6c757d;
+        }
+
+        .back-btn {
+            background-color: #007bff;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .help-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto 40px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .accordion-item {
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 10px;
+        }
+
+        .accordion-header {
+            width: 100%;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px;
+        }
+
+        .accordion-header:hover {
+            background-color: #e2e6ea;
+        }
+
+        .accordion-header.active {
+            background-color: #007bff;
+            color: white;
+            color: #fff;
+            /* Ensure text is white when active */
+        }
+
+        /* Specific fix for active header text color if not applying correctly */
+        .accordion-header.active {
+            color: #ffffff !important;
+        }
+
+        .accordion-content {
+            padding: 0 18px;
+            background-color: white;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .accordion-content-inner {
+            padding: 20px 0;
+        }
+
+        /* Markdown Content Styles */
+        .accordion-content h1,
+        .accordion-content h2,
+        .accordion-content h3 {
+            margin-top: 15px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .accordion-content ul,
+        .accordion-content ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .accordion-content p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        /* Table Styles for Markdown Content */
+        .accordion-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .accordion-content th,
+        .accordion-content td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .accordion-content th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .icon {
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-header.active .icon {
+            transform: rotate(180deg);
+        }
+    </style>
+@endsection
+
+@section('content')
+    <section class="banner">
+        <div class="button-bar">
+            <a href="#" onclick="history.back(); return false;" class="btn back-btn">Back</a>
+            <a href="{{ Auth::check() ? route('homepage') : route('home') }}" class="btn home-btn">Home</a>
+        </div>
+
+        <div class="page-header">
+            <h2>About</h2>
+        </div>
+
+        <div class="help-container">
+            @if(count($documents) > 0)
+                @foreach($documents as $doc)
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            {{ $doc['title'] }}
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="accordion-content-inner">
+                                {!! $doc['content'] !!}
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <div class="alert alert-info">
+                    No details found.
+                </div>
+            @endif
+        </div>
+    </section>
+@endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const accordions = document.querySelectorAll('.accordion-header');
+
+            accordions.forEach(acc => {
+                acc.addEventListener('click', function () {
+                    this.classList.toggle('active');
+                    const panel = this.nextElementSibling;
+
+                    if (panel.style.maxHeight) {
+                        panel.style.maxHeight = null;
+                    } else {
+                        panel.style.maxHeight = panel.scrollHeight + "px";
+                    }
+                });
+            });
+        });
+    </script>
+@endpush

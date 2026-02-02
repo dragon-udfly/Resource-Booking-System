@@ -11,9 +11,15 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+use App\Http\Controllers\FileController;
+
 Route::get('/homepage', function () {
     return view('homepage');
 })->name('homepage');
+
+Route::get('/help', [FileController::class, 'showHelp'])->name('help');
+
+Route::get('/about', [FileController::class, 'showAbout'])->name('about');
 
 Route::get('/login', function () {
     return view('login');
@@ -102,8 +108,10 @@ Route::middleware(['auth'])->group(function () {
     // Approval Routes
     Route::post('/hall-bookings/{hallBooking}/approve', [HallBookingController::class, 'approve'])->name('hall_bookings.approve');
     Route::post('/hall-bookings/{hallBooking}/reject', [HallBookingController::class, 'reject'])->name('hall_bookings.reject');
+    Route::get('/hall-bookings/{hallBooking}/review', [HallBookingController::class, 'review'])->name('hall_bookings.review');
     Route::post('/hall-bookings/{hallBooking}/cancel-approved', [HallBookingController::class, 'cancelApproved'])->name('hall_bookings.cancelApproved');
     Route::post('/hall-bookings/{hallBooking}/re-approve', [HallBookingController::class, 'reApprove'])->name('hall_bookings.reApprove');
+    Route::get('/hall-bookings/{hallBooking}/processed', [HallBookingController::class, 'showProcessed'])->name('hall_bookings.processed');
     Route::get('/seequarters', [QuarterController::class, 'seeQuarters'])->name('seequarters');
     Route::get('/occupantdetails', [QuarterController::class, 'showOccupantDetails'])->name('occupantdetails');
     Route::get('/family-quarter-application/{id}/review', [QuarterAllocationController::class, 'showFamilyQuarterReview'])->name('family-quarter.review');
