@@ -30,7 +30,8 @@
             gap: 15px;
             margin-bottom: 20px;
             width: 100%;
-            max-width: 1000px; /* Match help container width */
+            max-width: 1000px;
+            /* Match help container width */
             margin-left: auto;
             margin-right: auto;
         }
@@ -47,15 +48,23 @@
             transition: background-color 0.3s ease;
         }
 
-        .home-btn { background-color: #6c757d; }
-        .back-btn { background-color: #007bff; }
-        
-        .btn:hover { opacity: 0.9; }
+        .home-btn {
+            background-color: #6c757d;
+        }
+
+        .back-btn {
+            background-color: #007bff;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
 
         .help-container {
             width: 100%;
             max-width: 1000px;
-            margin: 0 auto 40px auto; /* Added bottom margin */
+            margin: 0 auto 40px auto;
+            /* Added bottom margin */
             padding: 20px;
             background-color: white;
             border-radius: 8px;
@@ -140,7 +149,13 @@
     <section class="banner">
         <div class="button-bar">
             <a href="#" onclick="history.back(); return false;" class="btn back-btn">Back</a>
-            <a href="{{ Auth::check() ? route('homepage') : route('home') }}" class="btn home-btn">Home</a>
+            @if(Auth::check() && Auth::user()->role === 'admin')
+                <a href="{{ route('admin') }}" class="btn home-btn">Admin Panel</a>
+            @elseif(Auth::check())
+                <a href="{{ route('homepage') }}" class="btn home-btn">Home</a>
+            @else
+                <a href="{{ route('home') }}" class="btn home-btn">Home</a>
+            @endif
         </div>
 
         <div class="page-header">

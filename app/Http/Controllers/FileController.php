@@ -5,34 +5,26 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class FileController extends Controller
 {
     public function showHelp()
     {
-        $directory = public_path('docs/help');
         $documents = [];
 
-        if (File::exists($directory)) {
-            $files = File::files($directory);
+        // Load public help documents
+        $this->loadDocumentsFrom(public_path('docs/help'), $documents);
 
-            foreach ($files as $file) {
-                if ($file->getExtension() === 'md') {
-                    $content = File::get($file);
+        // Load system documents for Admin or Approval Officers
+        if (Auth::check()) {
+            $user = Auth::user();
+            $hasApprovalAccess = $user->hasPermissionTo('administrative_officer_approval') ||
+                $user->hasPermissionTo('additional_government_agent_approval') ||
+                $user->hasPermissionTo('government_agent_approval');
 
-                    // Convert Markdown to HTML
-                    // Assuming standard Laravel installation has Str::markdown (uses league/commonmark)
-                    $htmlContent = Str::markdown($content);
-
-                    // Create a readable title from the filename
-                    $filename = $file->getFilenameWithoutExtension();
-                    $title = ucwords(str_replace(['_', '-'], ' ', $filename));
-
-                    $documents[] = [
-                        'title' => $title,
-                        'content' => $htmlContent
-                    ];
-                }
+            if ($user->role === 'admin' || $hasApprovalAccess) {
+                $this->loadDocumentsFrom(public_path('docs/system'), $documents);
             }
         }
 
@@ -41,9 +33,14 @@ class FileController extends Controller
 
     public function showAbout()
     {
-        $directory = public_path('docs/details');
         $documents = [];
+        $this->loadDocumentsFrom(public_path('docs/details'), $documents);
 
+        return view('about', ['documents' => $documents]);
+    }
+
+    private function loadDocumentsFrom($directory, &$documents)
+    {
         if (File::exists($directory)) {
             $files = File::files($directory);
 
@@ -65,7 +62,5 @@ class FileController extends Controller
                 }
             }
         }
-
-        return view('about', ['documents' => $documents]);
     }
 }

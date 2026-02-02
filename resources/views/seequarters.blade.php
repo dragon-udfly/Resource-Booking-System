@@ -21,14 +21,16 @@
         }
 
         table {
-            width: 90%; /* Adjust table width */
+            width: 90%;
+            /* Adjust table width */
             margin: 20px auto;
             border-collapse: collapse;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             background-color: #fff;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 12px 15px;
             text-align: left;
@@ -59,10 +61,12 @@
             color: white;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
+
         /* Specific back button styles */
         .back-button {
             background-color: #6c757d;
         }
+
         .back-button:hover {
             background-color: #5a6268;
             transform: translateY(-1px);
@@ -72,9 +76,10 @@
 
 @section('content')
     <section class="banner">
-         <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
+        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
             <a href="#" onclick="history.back(); return false;" class="btn back-button">Back</a>
-            <a href="{{ route('occupantdetails') }}" class="btn back-button" style="background-color:rgb(38, 209, 11)">Occupant Details</a>
+            <a href="{{ route('occupantdetails') }}" class="btn back-button"
+                style="background-color:rgb(38, 209, 11)">Occupant Details</a>
         </div>
         <div class="page-header">
             <h2 style="color: rgb(6, 4, 60); font-weight: bold">Quarters Details</h2>
@@ -114,9 +119,12 @@
                             <td>{{ $quarter->status }}</td>
                             <td>{{ $quarter->allowed_gender }}</td>
                             <td>{{ $quarter->special_notice }}</td>
-                            <td>{{ $quarter->occupant_number }}</td>
+                            @php
+                                $maxOccupants = ($quarter->quarter_type === 'Family' && $quarter->occupant_number == 0) ? 1 : $quarter->occupant_number;
+                            @endphp
+                            <td>{{ $maxOccupants }}</td>
                             <td>{{ $quarter->current_occupant_number }}</td>
-                            <td>{{ $quarter->occupant_number - $quarter->current_occupant_number }}</td>
+                            <td>{{ $maxOccupants - $quarter->current_occupant_number }}</td>
                         </tr>
                     @endforeach
                 @endif

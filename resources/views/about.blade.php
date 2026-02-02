@@ -174,7 +174,13 @@
     <section class="banner">
         <div class="button-bar">
             <a href="#" onclick="history.back(); return false;" class="btn back-btn">Back</a>
-            <a href="{{ Auth::check() ? route('homepage') : route('home') }}" class="btn home-btn">Home</a>
+            @if(Auth::check() && Auth::user()->role === 'admin')
+                <a href="{{ route('admin') }}" class="btn home-btn">Admin Panel</a>
+            @elseif(Auth::check())
+                <a href="{{ route('homepage') }}" class="btn home-btn">Home</a>
+            @else
+                <a href="{{ route('home') }}" class="btn home-btn">Home</a>
+            @endif
         </div>
 
         <div class="page-header">

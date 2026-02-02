@@ -14,10 +14,10 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator; 
-use Illuminate\Support\Facades\DB; 
-use Illuminate\Support\Facades\Log; 
-use App\Models\GradeSalarySetting; 
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Models\GradeSalarySetting;
 
 class UserController extends Controller
 {
@@ -68,17 +68,17 @@ class UserController extends Controller
 
         if ($user->hasPermissionTo('requester')) {
             $hallBookings = HallBooking::with('hall')
-                                        ->where('filled_by_nic', $user->nic_number)
-                                        ->where('final_approval', 'pending')
-                                        ->orderBy('date_created', 'desc')
-                                        ->get();
+                ->where('filled_by_nic', $user->nic_number)
+                ->where('final_approval', 'pending')
+                ->orderBy('date_created', 'desc')
+                ->get();
 
             $quarterApplications = QuarterApplication::with('quarterAllocation')
-                                                    ->whereHas('quarterAllocation', function($query) {
-                                                        $query->where('allocation_status', 'pending');
-                                                    })
-                                                    ->orderBy('date_created', 'desc')
-                                                    ->get();
+                ->whereHas('quarterAllocation', function ($query) {
+                    $query->where('allocation_status', 'pending');
+                })
+                ->orderBy('date_created', 'desc')
+                ->get();
 
             return view('dashboard', [
                 'user' => $user,
@@ -87,16 +87,16 @@ class UserController extends Controller
             ]);
         } else {
             $bookings = HallBooking::with('hall')
-                                    ->where('final_approval', 'pending')
-                                    ->orderBy('date_created', 'desc')
-                                    ->get();
+                ->where('final_approval', 'pending')
+                ->orderBy('date_created', 'desc')
+                ->get();
 
             $quarterApplications = QuarterApplication::with('quarterAllocation')
-                                                    ->whereHas('quarterAllocation', function($query) {
-                                                        $query->where('allocation_status', 'pending');
-                                                    })
-                                                    ->orderBy('date_created', 'desc')
-                                                    ->get();
+                ->whereHas('quarterAllocation', function ($query) {
+                    $query->where('allocation_status', 'pending');
+                })
+                ->orderBy('date_created', 'desc')
+                ->get();
             return view('dashboard', [
                 'user' => $user,
                 'bookings' => $bookings,
@@ -115,7 +115,21 @@ class UserController extends Controller
     {
         if (Auth::check() && Auth::user()->hasPermissionTo('view_officers')) {
             $users = User::all(); // Fetch all users, including admins
-            return view('seeofficers', ['users' => $users]);
+
+            // Fetch grade salary settings for display
+            $gradeSalarySettings = GradeSalarySetting::all()->keyBy('grade');
+            $grades = $gradeSalarySettings->keys()->sort()->all();
+
+            // Add default grades if missing (for consistency with other views)
+            $defaultGrades = ['1 (G I)', '2 (G II)', '3 (G III)', '4 (G IV)', '5 (G V)', '5A'];
+            foreach ($defaultGrades as $defaultGrade) {
+                if (!in_array($defaultGrade, $grades)) {
+                    $grades[] = $defaultGrade;
+                }
+            }
+            sort($grades);
+
+            return view('seeofficers', ['users' => $users, 'gradeSalarySettings' => $gradeSalarySettings, 'grades' => $grades]);
         }
         return redirect()->back()->with('error', 'You do not have permission to view officers.');
     }
@@ -168,11 +182,19 @@ class UserController extends Controller
             ]);
 
             $permissions = [
-                'view_officers' => 0, 'view_officer_details' => 0, 'view_halls' => 0,
-                'view_hall_details' => 0, 'view_quarters' => 0, 'view_quarter_details' => 0,
-                'view_audit_log' => 0, 'administrative_officer_approval' => 0,
-                'additional_government_agent_approval' => 0, 'government_agent_approval' => 0,
-                'form_history' => 0, 'account_setting' => 0, 'requester' => 0,
+                'view_officers' => 0,
+                'view_officer_details' => 0,
+                'view_halls' => 0,
+                'view_hall_details' => 0,
+                'view_quarters' => 0,
+                'view_quarter_details' => 0,
+                'view_audit_log' => 0,
+                'administrative_officer_approval' => 0,
+                'additional_government_agent_approval' => 0,
+                'government_agent_approval' => 0,
+                'form_history' => 0,
+                'account_setting' => 0,
+                'requester' => 0,
             ];
 
             if ($request->has('permissions')) {
@@ -191,7 +213,7 @@ class UserController extends Controller
                 'date_performed' => Carbon::now()->toDateString(),
                 'time_performed' => Carbon::now()->toTimeString(),
             ]);
-            
+
             $successMessage = 'User account created successfully with ID ' . $newUserId . '.';
             if ($request->wantsJson()) {
                 return response()->json(['status' => 'success', 'message' => $successMessage]);
@@ -249,11 +271,19 @@ class UserController extends Controller
             $user->update($updateData);
 
             $allPermissions = [
-                'view_officers' => 0, 'view_officer_details' => 0, 'view_halls' => 0,
-                'view_hall_details' => 0, 'view_quarters' => 0, 'view_quarter_details' => 0,
-                'view_audit_log' => 0, 'administrative_officer_approval' => 0,
-                'additional_government_agent_approval' => 0, 'government_agent_approval' => 0,
-                'form_history' => 0, 'account_setting' => 0, 'requester' => 0,
+                'view_officers' => 0,
+                'view_officer_details' => 0,
+                'view_halls' => 0,
+                'view_hall_details' => 0,
+                'view_quarters' => 0,
+                'view_quarter_details' => 0,
+                'view_audit_log' => 0,
+                'administrative_officer_approval' => 0,
+                'additional_government_agent_approval' => 0,
+                'government_agent_approval' => 0,
+                'form_history' => 0,
+                'account_setting' => 0,
+                'requester' => 0,
             ];
 
             if ($request->has('permissions')) {
@@ -347,7 +377,7 @@ class UserController extends Controller
                 'date_performed' => Carbon::now()->toDateString(),
                 'time_performed' => Carbon::now()->toTimeString(),
             ]);
-            
+
             $successMessage = 'Passcode changed successfully.';
             if ($request->wantsJson()) {
                 return response()->json(['status' => 'success', 'message' => $successMessage]);
@@ -494,7 +524,7 @@ class UserController extends Controller
             ]);
 
             DB::commit();
-            
+
             $successMessage = 'Grade salary settings updated successfully!';
             if ($request->wantsJson()) {
                 return response()->json(['status' => 'success', 'message' => $successMessage]);
