@@ -19,9 +19,7 @@ Route::get('/homepage', function () {
 
 Route::get('/help', [FileController::class, 'showHelp'])->name('help');
 
-Route::get('/about', function () {
-    return view('about');
-})->name('about');
+Route::get('/about', [FileController::class, 'showAbout'])->name('about');
 
 Route::get('/login', function () {
     return view('login');

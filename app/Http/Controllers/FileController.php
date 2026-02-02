@@ -38,4 +38,34 @@ class FileController extends Controller
 
         return view('help', ['documents' => $documents]);
     }
+
+    public function showAbout()
+    {
+        $directory = public_path('docs/details');
+        $documents = [];
+
+        if (File::exists($directory)) {
+            $files = File::files($directory);
+
+            foreach ($files as $file) {
+                if ($file->getExtension() === 'md') {
+                    $content = File::get($file);
+
+                    // Convert Markdown to HTML
+                    $htmlContent = Str::markdown($content);
+
+                    // Create a readable title from the filename
+                    $filename = $file->getFilenameWithoutExtension();
+                    $title = ucwords(str_replace(['_', '-'], ' ', $filename));
+
+                    $documents[] = [
+                        'title' => $title,
+                        'content' => $htmlContent
+                    ];
+                }
+            }
+        }
+
+        return view('about', ['documents' => $documents]);
+    }
 }
