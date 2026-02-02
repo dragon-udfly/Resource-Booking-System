@@ -187,6 +187,11 @@
             background-color: #17a2b8;
             color: white;
         }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
     </style>
 @endsection
 
@@ -304,7 +309,8 @@
                 <div class="form-group">
                     <label>Final Allocation Status:</label>
                     <p class="{{ $statusClass }}" style="font-weight: bold; text-transform: capitalize;">
-                        {{ $allocation->allocation_status ?? 'N/A' }}</p>
+                        {{ $allocation->allocation_status ?? 'N/A' }}
+                    </p>
                 </div>
                 <div class="form-group">
                     <label>Allocation/Rejection Date:</label>
@@ -357,7 +363,6 @@
                 @endif
 
                 {{-- Reconsider (GA/AGA/AO, Allocated or Rejected Status) --}}
-                @endif
 
                 {{-- Restore (GA Only, Rejected Status) - Keep existing for backward compatibility --}}
                 @if($allocation && $allocation->allocation_status == 'rejected')
@@ -443,12 +448,12 @@
 
                     // Show modal to collect note
                     showModal('Cancel Allocation', `<div style="text-align: left; margin-bottom: 15px;">
-                    <label for="modal-cancel-note" style="font-weight: bold; color: #dc3545; display: block; margin-bottom: 8px;">Reason for Cancellation (GA Note)*</label>
-                    <textarea id="modal-cancel-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit;" rows="4" placeholder="Enter reason for cancellation..."></textarea>
-                </div>`, [
+                            <label for="modal-cancel-note" style="font-weight: bold; color: #dc3545; display: block; margin-bottom: 8px;">Reason for Cancellation (GA Note)*</label>
+                            <textarea id="modal-cancel-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; resize: vertical;" rows="4" placeholder="Enter reason for cancellation..."></textarea>
+                        </div>`, [
                         {
                             text: 'Cancel Allocation',
-                            class: 'btn',
+                            class: 'btn btn-danger',
                             onClick: () => {
                                 const noteTextarea = document.getElementById('modal-cancel-note');
                                 const note = noteTextarea ? noteTextarea.value.trim() : '';
