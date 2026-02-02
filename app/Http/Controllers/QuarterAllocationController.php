@@ -173,6 +173,15 @@ class QuarterAllocationController extends Controller
             DB::commit();
 
             $successMessage = 'Family quarter allocated successfully to ' . $quarter->quarter_id;
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $successMessage,
+                    'redirect_url' => route('dashboard')
+                ]);
+            }
+
             return redirect()->route('dashboard')->with('success', $successMessage);
 
         } catch (\Exception $e) {
@@ -249,6 +258,14 @@ class QuarterAllocationController extends Controller
             ]);
 
             DB::commit();
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Application rejected successfully.',
+                    'redirect_url' => route('dashboard')
+                ]);
+            }
 
             return redirect()->route('dashboard')->with('success', 'Application rejected successfully.');
 

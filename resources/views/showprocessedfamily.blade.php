@@ -660,8 +660,6 @@
             }
 
 
-            }
-
 
             // Restore Button Handler
             const restoreBtn = document.getElementById('restore-button');
