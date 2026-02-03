@@ -62,9 +62,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/settings/email/test', [App\Http\Controllers\SettingsController::class, 'testEmail'])->name('settings.email.test');
     Route::post('/settings/backup/db', [App\Http\Controllers\SettingsController::class, 'backupDatabase'])->name('settings.backup.db');
     Route::post('/settings/restore/db', [App\Http\Controllers\SettingsController::class, 'restoreDatabase'])->name('settings.restore.db');
+    Route::post('/settings/restore/halls', [App\Http\Controllers\SettingsController::class, 'restoreHalls'])->name('settings.restore.halls');
+    Route::post('/settings/restore/quarters', [App\Http\Controllers\SettingsController::class, 'restoreQuarters'])->name('settings.restore.quarters');
+    Route::post('/settings/restore/officers', [App\Http\Controllers\SettingsController::class, 'restoreOfficers'])->name('settings.restore.officers');
     Route::post('/settings/backup/halls', [App\Http\Controllers\SettingsController::class, 'backupHalls'])->name('settings.backup.halls');
     Route::post('/settings/backup/quarters', [App\Http\Controllers\SettingsController::class, 'backupQuarters'])->name('settings.backup.quarters');
     Route::post('/settings/backup/officers', [App\Http\Controllers\SettingsController::class, 'backupOfficers'])->name('settings.backup.officers');
+    Route::post('/settings/backup/hall-bookings', [App\Http\Controllers\SettingsController::class, 'backupHallBookings'])->name('settings.backup.hallbookings');
     Route::post('/settings/backup/scheduled-applications', [App\Http\Controllers\SettingsController::class, 'backupScheduledApplications'])->name('settings.backup.scheduled');
     Route::post('/settings/backup/family-applications', [App\Http\Controllers\SettingsController::class, 'backupFamilyApplications'])->name('settings.backup.family');
     Route::post('/settings/backup/grade-salary', [App\Http\Controllers\SettingsController::class, 'backupGradeSalary'])->name('settings.backup.gradesalary');

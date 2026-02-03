@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class SettingsController extends Controller
 {
@@ -120,6 +121,15 @@ class SettingsController extends Controller
     public function backupOfficers()
     {
         return $this->executeBackup(['user'], 'user', 'Officers Details Record Backup');
+    }
+
+    public function backupHallBookings()
+    {
+        $commands = [
+            'hall',
+            'hall_booking'
+        ];
+        return $this->executeBackup($commands, 'hall_bookings', 'Hall Booking Applications Backup');
     }
 
     public function backupScheduledApplications()
@@ -316,6 +326,167 @@ class SettingsController extends Controller
         } catch (\Exception $e) {
             Log::error("Database restore exception: " . $e->getMessage());
             return redirect()->back()->with('error_modal', "An unexpected error occurred during restore: " . $e->getMessage());
+        }
+    }
+
+    public function restoreHalls(Request $request)
+    {
+        return $this->handleSpecificRestore($request, 'hall', \App\Models\Hall::class);
+    }
+
+    public function restoreQuarters(Request $request)
+    {
+        return $this->handleSpecificRestore($request, 'quarters', \App\Models\Quarter::class);
+    }
+
+    public function restoreOfficers(Request $request)
+    {
+        return $this->handleSpecificRestore($request, 'user', \App\Models\User::class);
+    }
+
+    private function handleSpecificRestore(Request $request, $tableName, $modelClass)
+    {
+        $request->validate([
+            'backup_file' => 'required|file|mimes:sql,csv,txt|max:51200',
+        ]);
+
+        $file = $request->file('backup_file');
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        if ($extension === 'sql') {
+            return $this->importSql($file, $tableName);
+        } elseif ($extension === 'csv' || $extension === 'txt') {
+            return $this->importCsv($file, $tableName);
+        } else {
+            return redirect()->back()->with('error_modal', 'Invalid file type. Only .sql and .csv are supported.');
+        }
+    }
+
+    private function importSql($file, $tableName)
+    {
+        // Integrity Check: Look for CREATE TABLE or INSERT INTO specific table
+        $content = file_get_contents($file->getRealPath(), false, null, 0, 10000);
+        // Checking for table name quoted or unquoted
+        $pattern = "/(CREATE TABLE|INSERT INTO)\s+[`\"]?{$tableName}[`\"]?/i";
+
+        if (!preg_match($pattern, $content)) {
+            return redirect()->back()->with('error_modal', "Invalid SQL file. Could not find commands for table '{$tableName}'.");
+        }
+
+        $mysqldumpPath = env('MYSQLDUMP_PATH');
+        if (!$mysqldumpPath) {
+            return redirect()->back()->with('error_modal', 'MYSQLDUMP_PATH is not configured.');
+        }
+        $mysqlPath = str_replace('mysqldump', 'mysql', $mysqldumpPath);
+
+        $dbUser = env('DB_USERNAME');
+        $dbPass = env('DB_PASSWORD');
+        $dbName = env('DB_DATABASE');
+        $dbHost = env('DB_HOST');
+        $filePath = $file->getRealPath();
+
+        $command = "\"{$mysqlPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" \"{$dbName}\" < \"{$filePath}\"";
+
+        try {
+            exec($command, $output, $returnVar);
+            if ($returnVar === 0) {
+                \App\Models\AuditLog::create([
+                    'log_title' => "Restored {$tableName}",
+                    'details' => "Restored from SQL: " . $file->getClientOriginalName(),
+                    'performed_by' => auth()->id(),
+                    'date_performed' => date('Y-m-d'),
+                    'time_performed' => date('H:i:s'),
+                ]);
+                return redirect()->back()->with('success_modal', "Table '{$tableName}' restored successfully from SQL.");
+            }
+            return redirect()->back()->with('error_modal', "Restore failed. Return Code: {$returnVar}");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error_modal', "Exception: " . $e->getMessage());
+        }
+    }
+
+    private function importCsv($file, $tableName)
+    {
+        $path = $file->getRealPath();
+        $data = array_map('str_getcsv', file($path));
+
+        if (count($data) < 1) {
+            return redirect()->back()->with('error_modal', 'CSV file is empty.');
+        }
+
+        $headers = $data[0]; // First row is header
+        $rows = array_slice($data, 1);
+
+        // 1. Column Matching
+        $dbColumns = \Illuminate\Support\Facades\Schema::getColumnListing($tableName);
+
+        // Normalize for comparison (lowercase, trim)
+        $normalizedHeaders = array_map('strtolower', array_map('trim', $headers));
+        $normalizedDbCols = array_map('strtolower', $dbColumns);
+
+        // Check if all CSV headers exist in DB
+        $missingCols = array_diff($normalizedHeaders, $normalizedDbCols);
+        if (!empty($missingCols)) {
+            return redirect()->back()->with('error_modal', "Column Mismatch. CSV contains unknown columns: " . implode(', ', $missingCols));
+        }
+
+        // Check if all DB required columns are in CSV (optional, but good for integrity)
+        // For now, we perform a strict match of what IS in the CSV against DB.
+
+        DB::beginTransaction();
+        try {
+            // Truncate table before import? User "Replace" usually implies this.
+            DB::table($tableName)->truncate();
+
+            // Insert in chunks
+            $chunkSize = 500;
+            $insertData = [];
+
+            foreach ($rows as $rowIndex => $row) {
+                if (count($row) !== count($headers)) {
+                    continue; // Skip malformed rows
+                }
+
+                $rowData = array_combine($headers, $row);
+
+                // DATA TYPE VALIDATION (Basic) could go here on first few rows
+                // For now, trusting DB to throw error on insertion if type mismatch
+
+                // Clean empty strings to null if column is nullable?
+                // For simplified logic, we insert as is.
+                foreach ($rowData as $key => $value) {
+                    if ($value === '') {
+                        $rowData[$key] = null;
+                    }
+                }
+
+                $insertData[] = $rowData;
+
+                if (count($insertData) >= $chunkSize) {
+                    DB::table($tableName)->insert($insertData);
+                    $insertData = [];
+                }
+            }
+
+            if (!empty($insertData)) {
+                DB::table($tableName)->insert($insertData);
+            }
+
+            DB::commit();
+
+            \App\Models\AuditLog::create([
+                'log_title' => "Restored {$tableName}",
+                'details' => "Restored from CSV: " . $file->getClientOriginalName(),
+                'performed_by' => auth()->id(),
+                'date_performed' => date('Y-m-d'),
+                'time_performed' => date('H:i:s'),
+            ]);
+
+            return redirect()->back()->with('success_modal', "Table '{$tableName}' restored successfully from CSV.");
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error_modal', "CSV Import Failed: " . $e->getMessage());
         }
     }
 }

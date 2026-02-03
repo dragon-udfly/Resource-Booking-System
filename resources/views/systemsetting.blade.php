@@ -245,10 +245,20 @@
                             Hall Details Record: Save a SQL dump of all hall records.
                         </td>
                         <td style="text-align: center;">
-                            <form action="{{ route('settings.backup.halls') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
-                            </form>
+                            <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+                                <form action="{{ route('settings.backup.halls') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                                </form>
+                                <form action="{{ route('settings.restore.halls') }}" method="POST" enctype="multipart/form-data" 
+                                      onsubmit="return confirm('WARNING: This will replace all Hall data and cannot be undone. Are you sure?');">
+                                    @csrf
+                                    <label for="restore_halls" class="btn-save" style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
+                                        Restore
+                                    </label>
+                                    <input type="file" name="backup_file" id="restore_halls" accept=".sql,.csv" style="display: none;" onchange="this.form.submit()">
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     <tr>
@@ -256,10 +266,20 @@
                             Quarter Details Record: Save a SQL dump of all quarter records.
                         </td>
                         <td style="text-align: center;">
-                            <form action="{{ route('settings.backup.quarters') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
-                            </form>
+                            <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+                                <form action="{{ route('settings.backup.quarters') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                                </form>
+                                <form action="{{ route('settings.restore.quarters') }}" method="POST" enctype="multipart/form-data" 
+                                      onsubmit="return confirm('WARNING: This will replace all Quarter data and cannot be undone. Are you sure?');">
+                                    @csrf
+                                    <label for="restore_quarters" class="btn-save" style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
+                                        Restore
+                                    </label>
+                                    <input type="file" name="backup_file" id="restore_quarters" accept=".sql,.csv" style="display: none;" onchange="this.form.submit()">
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     <tr>
@@ -267,7 +287,28 @@
                             Officers Details Record: Save a SQL dump of all registered officer records.
                         </td>
                         <td style="text-align: center;">
-                            <form action="{{ route('settings.backup.officers') }}" method="POST">
+                            <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+                                <form action="{{ route('settings.backup.officers') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                                </form>
+                                <form action="{{ route('settings.restore.officers') }}" method="POST" enctype="multipart/form-data" 
+                                      onsubmit="return confirm('WARNING: This will replace all Officer data and cannot be undone. Are you sure?');">
+                                    @csrf
+                                    <label for="restore_officers" class="btn-save" style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
+                                        Restore
+                                    </label>
+                                    <input type="file" name="backup_file" id="restore_officers" accept=".sql,.csv" style="display: none;" onchange="this.form.submit()">
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Hall Booking Applications: Save a SQL dump of hall bookings and hall details.
+                        </td>
+                        <td style="text-align: center;">
+                            <form action="{{ route('settings.backup.hallbookings') }}" method="POST">
                                 @csrf
                                 <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
                             </form>
