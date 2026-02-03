@@ -426,21 +426,7 @@
                 modalOverlay.classList.remove('active');
             };
 
-            // Restore Button Handler (only if present)
-            const restoreBtn = document.getElementById('restore-button');
-            if (restoreBtn) {
-                const form = document.getElementById('restore-form');
-                restoreBtn.addEventListener('click', function (e) {
-                    e.preventDefault();
 
-                    // Confirmation Dialog
-                    const confirmButtons = [
-                        { text: 'Yes, Restore', class: 'btn btn-warning', onClick: () => form.submit() },
-                        { text: 'Cancel', class: 'btn btn-secondary', onClick: hideModal }
-                    ];
-                    showModal('Confirm Restore', 'Are you sure you want to restore this application to pending status?', confirmButtons);
-                });
-            }
 
             // Cancel Allocation Button Handler
             const cancelAllocationBtn = document.getElementById('cancel-allocation-button');
@@ -453,9 +439,9 @@
 
                     // Show modal to collect note
                     showModal('Cancel Allocation', `<div style="text-align: left; margin-bottom: 15px;">
-                                        <label for="modal-cancel-note" style="font-weight: bold; color: #dc3545; display: block; margin-bottom: 8px;">Reason for Cancellation (GA Note)*</label>
-                                        <textarea id="modal-cancel-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; resize: vertical;" rows="4" placeholder="Enter reason for cancellation..."></textarea>
-                                    </div>`, [
+                                            <label for="modal-cancel-note" style="font-weight: bold; color: #dc3545; display: block; margin-bottom: 8px;">Reason for Cancellation (GA Note)*</label>
+                                            <textarea id="modal-cancel-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; resize: vertical;" rows="4" placeholder="Enter reason for cancellation..."></textarea>
+                                        </div>`, [
                         {
                             text: 'Cancel Allocation',
                             class: 'btn btn-danger',
@@ -504,9 +490,9 @@
                     e.preventDefault();
 
                     showModal('Restore Application', `<div style="text-align: left; margin-bottom: 15px;">
-                                <label for="modal-restore-note" style="font-weight: bold; color: #856404; display: block; margin-bottom: 8px;">Reason for Restoration (Mandatory)*</label>
-                                <textarea id="modal-restore-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; resize: vertical;" rows="4" placeholder="Enter reason for restoring application..."></textarea>
-                            </div>`, [
+                                    <label for="modal-restore-note" style="font-weight: bold; color: #856404; display: block; margin-bottom: 8px;">Reason for Restoration (Mandatory)*</label>
+                                    <textarea id="modal-restore-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; resize: vertical;" rows="4" placeholder="Enter reason for restoring application..."></textarea>
+                                </div>`, [
                         {
                             text: 'Restore Application',
                             class: 'btn btn-warning',
