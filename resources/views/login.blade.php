@@ -5,9 +5,12 @@
 @section('page_styles')
     <style>
         .login-button:hover:not(:disabled) {
-            background-color: #0056b3; /* Darker blue on hover */
-            transform: translateY(-1px); /* Slight lift effect */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+            background-color: #0056b3;
+            /* Darker blue on hover */
+            transform: translateY(-1px);
+            /* Slight lift effect */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            /* Subtle shadow */
         }
 
         /* Generic button styles */
@@ -22,10 +25,12 @@
             color: white;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
+
         /* Specific back button styles */
         .back-button {
             background-color: #6c757d;
         }
+
         .back-button:hover {
             background-color: #5a6268;
             transform: translateY(-1px);
@@ -46,37 +51,23 @@
                     @csrf
                     <div style="margin-bottom: 20px;">
                         <label for="nic_number" style="display: block; margin-bottom: 5px;">NIC</label>
-                        <input 
-                            type="text" 
-                            id="nic_number" 
-                            name="nic_number" 
-                            style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" 
-                            required
-                        >
+                        <input type="text" id="nic_number" name="nic_number"
+                            style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" required>
                         @error('nic_number')
                             <span style="color: red; font-size: small; display: block; margin-top: 5px;">{{ $message }}</span>
                         @enderror
                     </div>
                     <div style="margin-bottom: 20px;">
-                        <label for="passcode" style="display: block; margin-bottom: 5px;">Passcode</label>
-                        <input 
-                            type="password" 
-                            id="passcode" 
-                            name="passcode" 
-                            style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" 
-                            required
-                        >
+                        <label for="passcode" style="display: block; margin-bottom: 5px;">Password</label>
+                        <input type="password" id="passcode" name="passcode"
+                            style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" required>
                         @error('passcode')
                             <span style="color: red; font-size: small; display: block; margin-top: 5px;">{{ $message }}</span>
                         @enderror
                     </div>
 
-                    <button 
-                        type="submit" 
-                        id="loginButton" 
-                        class="login-button" 
-                        style="width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;"
-                    >
+                    <button type="submit" id="loginButton" class="login-button"
+                        style="width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
                         Login
                     </button>
                 </form>
