@@ -58,6 +58,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // System Settings
     Route::get('/systemsetting', [App\Http\Controllers\SettingsController::class, 'index'])->name('systemsetting');
+    Route::get('/system-status', [App\Http\Controllers\SettingsController::class, 'systemStatus'])->name('system.status');
     Route::post('/settings/email/test', [App\Http\Controllers\SettingsController::class, 'testEmail'])->name('settings.email.test');
 
     Route::get('/modifyquarter', function () {

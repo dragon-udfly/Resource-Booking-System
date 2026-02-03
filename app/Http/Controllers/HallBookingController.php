@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -116,9 +116,11 @@ class HallBookingController extends Controller
 
         $booking = HallBooking::create($bookingData);
 
+        Log::info("[Hall Booking] Action: New Booking Submitted | ID: {$newBookingId} | Applicant: {$request->applicant_name}");
+
         AuditLog::create([
             'log_title' => 'New Hall Booking Application ' . $newBookingId . ' submitted',
-            'performed_by' => Auth::check() ? Auth::id() : null,
+            'performed_by' => Auth::id(),
             'details' => Auth::check() ? null : 'Booking by officer with NIC: ' . $request->filled_by_nic,
             'date_performed' => Carbon::now()->toDateString(),
             'time_performed' => Carbon::now()->toTimeString(),
@@ -277,7 +279,7 @@ class HallBookingController extends Controller
         }
 
         // 2. Check Event Date
-        $isPastEvent = \Carbon\Carbon::parse($hallBooking->event_date)->startOfDay()->lt(\Carbon\Carbon::today());
+        $isPastEvent = Carbon::parse($hallBooking->event_date)->startOfDay()->lt(Carbon::today());
 
         if ($isPastEvent) {
             // Rule: History Cleanup
@@ -331,8 +333,8 @@ class HallBookingController extends Controller
             AuditLog::create([
                 'log_title' => 'Hall Booking Application ' . $bookingId . ' deleted by ' . $user->name,
                 'performed_by' => Auth::id(),
-                'date_performed' => \Carbon\Carbon::now()->toDateString(),
-                'time_performed' => \Carbon\Carbon::now()->toTimeString(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
             ]);
 
             $successMessage = 'Booking deleted successfully.';
@@ -342,7 +344,7 @@ class HallBookingController extends Controller
             return redirect()->back()->with('success', $successMessage);
 
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Booking deletion failed: ' . $e->getMessage());
+            Log::error('Booking deletion failed: ' . $e->getMessage());
             return $this->sendError($request, 'An unexpected error occurred while deleting the booking.', 500);
         }
     }
@@ -378,7 +380,7 @@ class HallBookingController extends Controller
         if (!$isApprover && $user->hasPermissionTo('requester')) {
             // Check ownership using NIC number as user_id is not present in HallBooking
             if ($hallBooking->filled_by_nic != $user->nic_number) {
-                \Illuminate\Support\Facades\Log::info('Review Check Failed (NIC Mismatch)', [
+                Log::info('Review Check Failed (NIC Mismatch)', [
                     'user_nic' => $user->nic_number,
                     'booking_nic' => $hallBooking->filled_by_nic,
                 ]);
@@ -446,6 +448,8 @@ class HallBookingController extends Controller
                 'time_performed' => Carbon::now()->toTimeString(),
             ]);
 
+            Log::info("[Hall Booking] Action: {$role_action} | ID: {$hallBooking->booking_id} | User: {$user->id}");
+
             return response()->json(['success' => true, 'message' => 'Booking approved successfully.']);
         }
 
@@ -484,6 +488,8 @@ class HallBookingController extends Controller
                 'time_performed' => Carbon::now()->toTimeString(),
             ]);
 
+            Log::info("[Hall Booking] Action: {$role_action} | ID: {$hallBooking->booking_id} | User: {$user->id}");
+
             return response()->json(['success' => true, 'message' => 'Booking rejected successfully.']);
         }
 
@@ -519,6 +525,8 @@ class HallBookingController extends Controller
                     'date_performed' => Carbon::now()->toDateString(),
                     'time_performed' => Carbon::now()->toTimeString(),
                 ]);
+
+                Log::info("[Hall Booking] Action: Cancelled by GA | ID: {$hallBooking->booking_id} | User: {$user->id} | Reason: {$request->reason}");
 
                 return response()->json(['success' => true, 'message' => 'Booking cancelled successfully.']);
             }
@@ -625,6 +633,8 @@ class HallBookingController extends Controller
             'time_performed' => Carbon::now()->toTimeString(),
         ]);
 
+        Log::warning("[System Action] All Hall Bookings Cleared by User ID: " . Auth::id());
+
         return redirect()->route('systemsetting')->with('success', 'All hall booking records have been cleared successfully.');
     }
 
@@ -638,6 +648,8 @@ class HallBookingController extends Controller
             'date_performed' => Carbon::now()->toDateString(),
             'time_performed' => Carbon::now()->toTimeString(),
         ]);
+
+        Log::warning("[System Action] Rejected Hall Bookings Cleared by User ID: " . Auth::id());
 
         return redirect()->route('systemsetting')->with('success', 'All rejected hall booking records have been cleared successfully.');
     }
