@@ -1543,4 +1543,51 @@ class QuarterAllocationController extends Controller
             return response()->json(['success' => false, 'message' => 'An unexpected error occurred. Please check the logs.'], 500);
         }
     }
+    public function clearRejectedScheduledApplications()
+    {
+        $rejectedApplications = QuarterApplication::where('quarter_type', 'Scheduled')
+            ->whereHas('quarterAllocation', function ($query) {
+                $query->where('allocation_status', 'rejected');
+            })->get();
+
+        $count = $rejectedApplications->count();
+
+        foreach ($rejectedApplications as $app) {
+            $app->delete();
+        }
+
+        AuditLog::create([
+            'log_title' => 'All rejected scheduled quarter applications deleted',
+            'performed_by' => Auth::id(),
+            'details' => "Deleted $count records.",
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('systemsetting')->with('success', "All rejected scheduled quarter applications ($count) have been cleared successfully.");
+    }
+
+    public function clearRejectedFamilyApplications()
+    {
+        $rejectedApplications = QuarterApplication::where('quarter_type', 'Family')
+            ->whereHas('quarterAllocation', function ($query) {
+                $query->where('allocation_status', 'rejected');
+            })->get();
+
+        $count = $rejectedApplications->count();
+
+        foreach ($rejectedApplications as $app) {
+            $app->delete();
+        }
+
+        AuditLog::create([
+            'log_title' => 'All rejected family quarter applications deleted',
+            'performed_by' => Auth::id(),
+            'details' => "Deleted $count records.",
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('systemsetting')->with('success', "All rejected family quarter applications ($count) have been cleared successfully.");
+    }
 }

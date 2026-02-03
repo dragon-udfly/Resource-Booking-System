@@ -209,6 +209,30 @@
                             </form>
                         </td>
                     </tr>
+                    <tr>
+                        <td>Clear rejected scheduled quarter applications. (This action cannot be undone)</td>
+                        <td style="text-align: center;">
+                            <form id="clear-rejected-scheduled-form" action="{{ route('quarters.scheduled.clearRejected') }}"
+                                method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-danger"
+                                    data-confirm="Are you sure you want to clear all rejected scheduled quarter applications? This action cannot be undone.">Clear</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Clear rejected family quarter applications. (This action cannot be undone)</td>
+                        <td style="text-align: center;">
+                            <form id="clear-rejected-family-form" action="{{ route('quarters.family.clearRejected') }}"
+                                method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-danger"
+                                    data-confirm="Are you sure you want to clear all rejected family quarter applications? This action cannot be undone.">Clear</button>
+                            </form>
+                        </td>
+                    </tr>
 
                     <tr>
                         <td>Clear all user details records from the system. (This action cannot be undone and will not

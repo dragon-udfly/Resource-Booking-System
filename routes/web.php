@@ -70,6 +70,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/users/clear', [UserController::class, 'clearUsers'])->name('users.clear');
     Route::delete('/bookings/clear', [HallBookingController::class, 'clearBookings'])->name('bookings.clear');
     Route::delete('/bookings/clear-rejected', [HallBookingController::class, 'clearRejectedBookings'])->name('bookings.clearRejected');
+    Route::delete('/quarters/scheduled/clear-rejected', [QuarterAllocationController::class, 'clearRejectedScheduledApplications'])->name('quarters.scheduled.clearRejected');
+    Route::delete('/quarters/family/clear-rejected', [QuarterAllocationController::class, 'clearRejectedFamilyApplications'])->name('quarters.family.clearRejected');
 
     Route::get('/quarters', [QuarterController::class, 'index'])->name('quarters.index');
     Route::get('/quarters/{quarter}/edit', [QuarterController::class, 'edit'])->name('quarters.edit');
