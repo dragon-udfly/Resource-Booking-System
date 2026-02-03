@@ -18,15 +18,15 @@ class MemoController extends Controller
         // Inbox: Memos received by the current user
         $receivedMemos = Memo::with('sender')
             ->where('receiver_id', $userId)
-            ->where('receiver_status', 1)
-            ->orderBy('created_at', 'desc')
+            ->where('receiver_cleared', 0)
+            ->orderBy('date_created', 'desc')
             ->get();
 
         // Outbox: Memos sent by the current user
         $sentMemos = Memo::with('receiver')
             ->where('sender_id', $userId)
-            ->where('sender_status', 1)
-            ->orderBy('created_at', 'desc')
+            ->where('sender_cleared', 0)
+            ->orderBy('date_created', 'desc')
             ->get();
 
         // Get active users for the "To" dropdown (excluding self)
@@ -66,8 +66,7 @@ class MemoController extends Controller
                 'receiver_id' => $request->receiver_id,
                 'subject' => $request->subject, // Model handles encryption
                 'body' => $request->body,       // Model handles encryption
-                'status' => 0,                  // 0 = Pending
-                'is_read' => false,
+                'status' => 2,                  // 2 = Pending
             ]);
 
             return redirect()->route('memo.index')->with('success', 'Memo sent successfully!');
@@ -86,28 +85,22 @@ class MemoController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        // Mark as read if viewed by receiver
-        if ($memo->receiver_id === Auth::id() && !$memo->is_read) {
-            $memo->is_read = true;
-            $memo->save();
-        }
-
         return response()->json([
             'id' => $memo->id,
             'subject' => $memo->subject, // Accessor decrypts automatically
             'body' => $memo->body,       // Accessor decrypts automatically
             'sender' => $memo->sender->designation . ' - ' . $memo->sender->first_name . ' ' . $memo->sender->last_name,
-            'date' => $memo->created_at->format('Y-m-d H:i'),
+            'date' => Carbon::parse($memo->date_created)->format('Y-m-d'),
             'status' => $memo->status,
-            // Allow response only if current user is receiver AND status is Pending (0)
-            'can_respond' => ($memo->receiver_id === Auth::id() && $memo->status == 0)
+            // Allow response only if current user is receiver AND status is Pending (2)
+            'can_respond' => ($memo->receiver_id === Auth::id() && $memo->status == 2)
         ]);
     }
 
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:1,2', // 1=Yes, 2=No
+            'status' => 'required|in:1,0', // 1=Yes, 0=No
         ]);
 
         $memo = Memo::findOrFail($id);
@@ -128,15 +121,16 @@ class MemoController extends Controller
     {
         $userId = Auth::id();
 
+        // Renamed to Clear Inbox essentially, as is_read is removed.
+        // It clears ALL messages from inbox view.
         $count = Memo::where('receiver_id', $userId)
-            ->where('is_read', true)
-            ->where('receiver_status', 1)
-            ->update(['receiver_status' => 0]);
+            ->where('receiver_cleared', 0)
+            ->update(['receiver_cleared' => 1]);
 
         // Log the action (System Log)
-        \Log::info("User {$userId} cleared {$count} read memos from inbox.");
+        \Log::info("User {$userId} cleared {$count} memos from inbox.");
 
-        return response()->json(['success' => true, 'message' => "Cleared {$count} read memos."]);
+        return response()->json(['success' => true, 'message' => "Cleared {$count} memos."]);
     }
 
     public function clearSent()
@@ -144,8 +138,8 @@ class MemoController extends Controller
         $userId = Auth::id();
 
         $count = Memo::where('sender_id', $userId)
-            ->where('sender_status', 1)
-            ->update(['sender_status' => 0]);
+            ->where('sender_cleared', 0)
+            ->update(['sender_cleared' => 1]);
 
         // Log the action (System Log)
         \Log::info("User {$userId} cleared {$count} sent memos from outbox.");

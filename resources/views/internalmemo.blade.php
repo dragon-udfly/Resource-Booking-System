@@ -349,8 +349,8 @@
                         </thead>
                         <tbody>
                             @forelse($receivedMemos as $memo)
-                                <tr class="{{ $memo->is_read ? '' : 'row-unread' }}">
-                                    <td>{{ $memo->created_at->format('Y-m-d H:i') }}</td>
+                                <tr class="">
+                                    <td>{{ \Carbon\Carbon::parse($memo->date_created)->format('Y-m-d') }}</td>
                                     <td>
                                         @if($memo->sender)
                                             {{ $memo->sender->designation }} - {{ $memo->sender->first_name }}
@@ -360,11 +360,11 @@
                                     </td>
                                     <td>{{ Str::limit($memo->subject, 50) }}</td>
                                     <td>
-                                        @if($memo->status == 0)
+                                        @if($memo->status == 2)
                                             <span class="badge badge-warning">Pending</span>
                                         @elseif($memo->status == 1)
-                                            <span class="badge badge-success">Yes / Agreed</span>
-                                        @elseif($memo->status == 2)
+                                            <span class="badge badge-success">OK / Agreed</span>
+                                        @elseif($memo->status == 0)
                                             <span class="badge badge-danger">No / Disagreed</span>
                                         @endif
                                     </td>
@@ -443,7 +443,7 @@
                         <tbody>
                             @forelse($sentMemos as $memo)
                                 <tr>
-                                    <td>{{ $memo->created_at->format('Y-m-d H:i') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($memo->date_created)->format('Y-m-d') }}</td>
                                     <td>
                                         @if($memo->receiver)
                                             {{ $memo->receiver->designation }} - {{ $memo->receiver->first_name }}
@@ -453,11 +453,11 @@
                                     </td>
                                     <td>{{ Str::limit($memo->subject, 50) }}</td>
                                     <td>
-                                        @if($memo->status == 0)
+                                        @if($memo->status == 2)
                                             <span class="badge badge-warning">Pending</span>
                                         @elseif($memo->status == 1)
-                                            <span class="badge badge-success">Yes / Agreed</span>
-                                        @elseif($memo->status == 2)
+                                            <span class="badge badge-success">OK / Agreed</span>
+                                        @elseif($memo->status == 0)
                                             <span class="badge badge-danger">No / Disagreed</span>
                                         @endif
                                     </td>
@@ -499,7 +499,7 @@
                 <div id="responseSection" class="text-center d-none">
                     <p class="mb-3"><strong>Please provide your response:</strong></p>
                     <button class="btn btn-success me-2 response-btn" data-value="1">YES</button>
-                    <button class="btn btn-danger response-btn" data-value="2">NO</button>
+                    <button class="btn btn-danger response-btn" data-value="0">NO</button>
                 </div>
                 <div id="statusDisplay" class="text-center d-none">
                     <strong>Current Status: </strong> <span id="statusBadge"></span>
@@ -611,9 +611,9 @@
                                 let statusClass = 'badge badge-warning';
 
                                 if (data.status == 1) {
-                                    statusText = 'Yes / Agreed';
+                                    statusText = 'OK / Agreed';
                                     statusClass = 'badge badge-success';
-                                } else if (data.status == 2) {
+                                } else if (data.status == 0) {
                                     statusText = 'No / Disagreed';
                                     statusClass = 'badge badge-danger';
                                 }

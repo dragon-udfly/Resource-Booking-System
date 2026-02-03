@@ -10,16 +10,26 @@ class Memo extends Model
 {
     use HasFactory;
 
+    public $timestamps = false; // Disable default timestamps
+
     protected $fillable = [
         'sender_id',
         'receiver_id',
         'subject',
         'body',
         'status',
-        'is_read',
-        'sender_status',
-        'receiver_status',
+        'sender_cleared',
+        'receiver_cleared',
+        'date_created',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            $model->date_created = now();
+        });
+    }
 
     /**
      * Get the sender of the memo.
