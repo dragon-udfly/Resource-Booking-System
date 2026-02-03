@@ -155,13 +155,15 @@
             </div>
 
             @if(session('success'))
-                <div style="background-color: #d4edda; color: #155724; padding: 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
+                <div
+                    style="background-color: #d4edda; color: #155724; padding: 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
                     {{ session('success') }}
                 </div>
             @endif
 
             @if(session('error'))
-                <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+                <div
+                    style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
                     {{ session('error') }}
                 </div>
             @endif
@@ -262,6 +264,17 @@
                                 @method('DELETE')
                                 <button type="submit" class="btn-danger"
                                     data-confirm="Are you sure you want to clear all rejected family quarter applications? This action cannot be undone.">Clear</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Clear all resolved internal memos from the system history. (This action cannot be undone)</td>
+                        <td style="text-align: center;">
+                            <form id="clear-memos-form" action="{{ route('memos.clearResponded') }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-danger"
+                                    data-confirm="Are you sure you want to clear all resolved internal memos? This action cannot be undone.">Clear</button>
                             </form>
                         </td>
                     </tr>

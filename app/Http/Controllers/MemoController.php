@@ -177,4 +177,17 @@ class MemoController extends Controller
 
         return response()->json(['success' => true, 'message' => "Cleared {$count} resolved sent memos."]);
     }
+
+    public function clearRespondedMemos()
+    {
+        // Delete memos where BOTH parties have cleared them (status is effectively 'Archived' for both)
+        $count = Memo::where('sender_cleared', 1)
+            ->where('receiver_cleared', 1)
+            ->delete();
+
+        // Log the action
+        \Log::info("System Admin cleared {$count} fully resolved memos from history.");
+
+        return redirect()->back()->with('success', "Cleared {$count} resolved memos from history.");
+    }
 }
