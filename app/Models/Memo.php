@@ -17,6 +17,8 @@ class Memo extends Model
         'body',
         'status',
         'is_read',
+        'sender_status',
+        'receiver_status',
     ];
 
     /**

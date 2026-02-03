@@ -141,6 +141,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/internal-memo', [App\Http\Controllers\MemoController::class, 'index'])->name('memo.index');
     Route::post('/internal-memo/send', [App\Http\Controllers\MemoController::class, 'store'])->name('memo.send');
     Route::post('/internal-memo/{id}/respond', [App\Http\Controllers\MemoController::class, 'updateStatus'])->name('memo.respond');
+    Route::post('/internal-memo/clear-read', [App\Http\Controllers\MemoController::class, 'clearRead'])->name('memo.clear_read');
+    Route::post('/internal-memo/clear-sent', [App\Http\Controllers\MemoController::class, 'clearSent'])->name('memo.clear_sent');
     Route::get('/internal-memo/{id}', [App\Http\Controllers\MemoController::class, 'show'])->name('memo.show');
 });
 

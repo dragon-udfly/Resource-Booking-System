@@ -18,12 +18,14 @@ class MemoController extends Controller
         // Inbox: Memos received by the current user
         $receivedMemos = Memo::with('sender')
             ->where('receiver_id', $userId)
+            ->where('receiver_status', 1)
             ->orderBy('created_at', 'desc')
             ->get();
 
         // Outbox: Memos sent by the current user
         $sentMemos = Memo::with('receiver')
             ->where('sender_id', $userId)
+            ->where('sender_status', 1)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -120,5 +122,34 @@ class MemoController extends Controller
         $action = $request->status == 1 ? 'Approved/Agreed' : 'Rejected/Disagreed';
 
         return response()->json(['success' => true, 'message' => "Memo marked as {$action}."]);
+    }
+
+    public function clearRead()
+    {
+        $userId = Auth::id();
+
+        $count = Memo::where('receiver_id', $userId)
+            ->where('is_read', true)
+            ->where('receiver_status', 1)
+            ->update(['receiver_status' => 0]);
+
+        // Log the action (System Log)
+        \Log::info("User {$userId} cleared {$count} read memos from inbox.");
+
+        return response()->json(['success' => true, 'message' => "Cleared {$count} read memos."]);
+    }
+
+    public function clearSent()
+    {
+        $userId = Auth::id();
+
+        $count = Memo::where('sender_id', $userId)
+            ->where('sender_status', 1)
+            ->update(['sender_status' => 0]);
+
+        // Log the action (System Log)
+        \Log::info("User {$userId} cleared {$count} sent memos from outbox.");
+
+        return response()->json(['success' => true, 'message' => "Cleared {$count} sent memos."]);
     }
 }

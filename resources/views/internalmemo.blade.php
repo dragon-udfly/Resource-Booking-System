@@ -329,7 +329,11 @@
         <div class="card">
             <div class="card-header primary">
                 <span>Received Memos (Inbox)</span>
-                <span class="badge badge-light">{{ $receivedMemos->count() }} Messages</span>
+                <div>
+                    <span class="badge badge-light me-2">{{ $receivedMemos->count() }} Messages</span>
+                    <button class="btn btn-danger btn-sm" onclick="confirmClearRead()"
+                        style="padding: 2px 8px; font-size: 0.8em;">Clear Read</button>
+                </div>
             </div>
             <div class="card-body" style="padding: 0;">
                 <div class="table-container">
@@ -422,6 +426,8 @@
         <div class="card">
             <div class="card-header secondary">
                 <span>Sent Memos</span>
+                <button class="btn btn-danger btn-sm" onclick="confirmClearSent()"
+                    style="padding: 2px 8px; font-size: 0.8em;">Clear Sent</button>
             </div>
             <div class="card-body" style="padding: 0;">
                 <div class="table-container">
@@ -660,6 +666,56 @@
                     }
                 });
             });
+            // --- Clear Memos Logic ---
+            window.confirmClearRead = function () {
+                if (confirm('Are you sure you want to clear all READ memos from your inbox? This cannot be undone.')) {
+                    fetch('{{ route("memo.clear_read") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message);
+                                location.reload();
+                            } else {
+                                alert('Error: ' + data.message);
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('An unexpected error occurred.');
+                        });
+                }
+            };
+
+            window.confirmClearSent = function () {
+                if (confirm('Are you sure you want to clear all SENT memos from your outbox? This cannot be undone.')) {
+                    fetch('{{ route("memo.clear_sent") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message);
+                                location.reload();
+                            } else {
+                                alert('Error: ' + data.message);
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('An unexpected error occurred.');
+                        });
+                }
+            };
         });
     </script>
 @endsection
