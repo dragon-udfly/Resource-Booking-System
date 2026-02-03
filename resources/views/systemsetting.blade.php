@@ -342,10 +342,20 @@
                             Grade Salary Setting: Save a SQL dump of grade salary settings.
                         </td>
                         <td style="text-align: center;">
-                            <form action="{{ route('settings.backup.gradesalary') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
-                            </form>
+                            <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+                                <form action="{{ route('settings.backup.gradesalary') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                                </form>
+                                <form action="{{ route('settings.restore.gradesalary') }}" method="POST" enctype="multipart/form-data" 
+                                      onsubmit="return confirm('WARNING: This will replace all Grade Salary settings and cannot be undone. Are you sure?');">
+                                    @csrf
+                                    <label for="restore_gradesalary" class="btn-save" style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
+                                        Restore
+                                    </label>
+                                    <input type="file" name="backup_file" id="restore_gradesalary" accept=".sql,.csv" style="display: none;" onchange="this.form.submit()">
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     <tr>
@@ -353,10 +363,20 @@
                             Marking Scheme: Save a SQL dump of the marking scheme.
                         </td>
                         <td style="text-align: center;">
-                            <form action="{{ route('settings.backup.markingscheme') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
-                            </form>
+                            <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+                                <form action="{{ route('settings.backup.markingscheme') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                                </form>
+                                <form action="{{ route('settings.restore.markingscheme') }}" method="POST" enctype="multipart/form-data" 
+                                      onsubmit="return confirm('WARNING: This will replace all Marking Scheme data and cannot be undone. Are you sure?');">
+                                    @csrf
+                                    <label for="restore_markingscheme" class="btn-save" style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
+                                        Restore
+                                    </label>
+                                    <input type="file" name="backup_file" id="restore_markingscheme" accept=".sql,.csv" style="display: none;" onchange="this.form.submit()">
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     <tr>

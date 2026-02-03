@@ -344,6 +344,16 @@ class SettingsController extends Controller
         return $this->handleSpecificRestore($request, 'user', \App\Models\User::class);
     }
 
+    public function restoreGradeSalary(Request $request)
+    {
+        return $this->handleSpecificRestore($request, 'grade_salary_settings', \App\Models\GradeSalarySetting::class);
+    }
+
+    public function restoreMarkingScheme(Request $request)
+    {
+        return $this->handleSpecificRestore($request, 'marking_scheme', \App\Models\MarkingScheme::class);
+    }
+
     private function handleSpecificRestore(Request $request, $tableName, $modelClass)
     {
         $request->validate([
