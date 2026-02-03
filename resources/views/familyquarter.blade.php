@@ -267,7 +267,7 @@
                         <label for="f_children_details_description">1. Enter Description of Children (for readability: Name
                             at age of Age, studying in Grade, School): </label>
                         <textarea id="f_children_details_description" name="f_children_details_description"
-                            placeholder="Name: John Deo Age: 12 Grade: 5A School: National Colledge, Vavuniya"
+                            placeholder="John Deo at age of 12, studying in grade: 6-C, school: National Colledge, Vavuniya"
                             maxlength="2000" cols="50" , rows="15"></textarea>
                     </div>
                 </div>
