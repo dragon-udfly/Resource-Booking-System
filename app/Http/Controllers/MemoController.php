@@ -150,28 +150,31 @@ class MemoController extends Controller
         $userId = Auth::id();
 
         // Renamed to Clear Inbox essentially, as is_read is removed.
-        // It clears ALL messages from inbox view.
+        // It clears ALL messages from inbox view EXCEPT Pending (2).
         $count = Memo::where('receiver_id', $userId)
             ->where('receiver_cleared', 0)
+            ->where('status', '!=', 2) // Protect Pending Memos
             ->update(['receiver_cleared' => 1]);
 
         // Log the action (System Log)
         \Log::info("User {$userId} cleared {$count} memos from inbox.");
 
-        return response()->json(['success' => true, 'message' => "Cleared {$count} memos."]);
+        return response()->json(['success' => true, 'message' => "Cleared {$count} resolved memos."]);
     }
 
     public function clearSent()
     {
         $userId = Auth::id();
 
+        // Clear Sent Memos EXCEPT Pending (2)
         $count = Memo::where('sender_id', $userId)
             ->where('sender_cleared', 0)
+            ->where('status', '!=', 2) // Protect Pending Memos
             ->update(['sender_cleared' => 1]);
 
         // Log the action (System Log)
         \Log::info("User {$userId} cleared {$count} sent memos from outbox.");
 
-        return response()->json(['success' => true, 'message' => "Cleared {$count} sent memos."]);
+        return response()->json(['success' => true, 'message' => "Cleared {$count} resolved sent memos."]);
     }
 }
