@@ -108,13 +108,35 @@ class SettingsController extends Controller
 
     public function backupDatabase()
     {
+        return $this->backupTable(null, 'Database Backup');
+    }
+
+    public function backupHalls()
+    {
+        return $this->backupTable('hall', 'Hall Details Record Backup');
+    }
+
+    public function backupQuarters()
+    {
+        return $this->backupTable('quarters', 'Quarter Details Record Backup');
+    }
+
+    public function backupOfficers()
+    {
+        return $this->backupTable('user', 'Officers Details Record Backup');
+    }
+
+    private function backupTable($tableName = null, $logAction = 'Database Backup')
+    {
         $mysqldumpPath = env('MYSQLDUMP_PATH');
 
         if (!$mysqldumpPath) {
             return redirect()->back()->with('error_modal', 'MYSQLDUMP_PATH is not configured in the .env file.');
         }
 
-        $filename = 'backup_' . date('Y-m-d_H-i-s') . '.sql';
+        // Determine filename
+        $prefix = $tableName ? $tableName : 'backup';
+        $filename = "{$prefix}_" . date('Y-m-d_H-i-s') . '.sql';
         $directory = database_path('backups');
         $path = $directory . '/' . $filename;
 
@@ -128,11 +150,10 @@ class SettingsController extends Controller
         $dbName = env('DB_DATABASE');
         $dbHost = env('DB_HOST');
 
-        // Handle password with special characters by quoting, but this depends on OS shell.
-        // For Windows (Powershell/CMD), we might need careful escaping, but standard " should work for simple cases.
-        // It's safer to use a config file for mysqldump credentials, but user asked for simple check.
-
-        $command = "\"{$mysqldumpPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" \"{$dbName}\" > \"{$path}\"";
+        // Construct command
+        // If tableName is provided, append it to the command to dump only that table
+        $tableArg = $tableName ? " \"{$tableName}\"" : "";
+        $command = "\"{$mysqldumpPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" \"{$dbName}\"{$tableArg} > \"{$path}\"";
 
         try {
             // Using exec to run the command
@@ -141,26 +162,26 @@ class SettingsController extends Controller
             if ($returnVar === 0 && file_exists($path) && filesize($path) > 0) {
 
                 // Log to System Log
-                Log::info("Database backup created successfully: {$filename} by User ID: " . auth()->id());
+                Log::info("{$logAction} created successfully: {$filename} by User ID: " . auth()->id());
 
                 // Log to Audit Log
                 \App\Models\AuditLog::create([
-                    'log_title' => 'Database Backup',
-                    'details' => "Created database backup: {$filename}",
+                    'log_title' => $logAction,
+                    'details' => "Created backup: {$filename}",
                     'performed_by' => auth()->id(),
                     'date_performed' => date('Y-m-d'),
                     'time_performed' => date('H:i:s'),
                 ]);
 
-                return redirect()->back()->with('success_modal', "Database backup created successfully. File: {$filename}");
+                return redirect()->back()->with('success_modal', "{$logAction} created successfully. File: {$filename}");
             } else {
-                Log::error("Database backup failed. Return Var: {$returnVar}");
-                return redirect()->back()->with('error_modal', 'Database backup failed. Check system logs for details.');
+                Log::error("{$logAction} failed. Return Var: {$returnVar}");
+                return redirect()->back()->with('error_modal', "{$logAction} failed. Check system logs for details.");
             }
 
         } catch (\Exception $e) {
-            Log::error("Database backup exception: " . $e->getMessage());
-            return redirect()->back()->with('error_modal', 'An unexpected error occurred during backup: ' . $e->getMessage());
+            Log::error("{$logAction} exception: " . $e->getMessage());
+            return redirect()->back()->with('error_modal', "An unexpected error occurred during backup: " . $e->getMessage());
         }
     }
 }

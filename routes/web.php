@@ -61,6 +61,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/system-status', [App\Http\Controllers\SettingsController::class, 'systemStatus'])->name('system.status');
     Route::post('/settings/email/test', [App\Http\Controllers\SettingsController::class, 'testEmail'])->name('settings.email.test');
     Route::post('/settings/backup/db', [App\Http\Controllers\SettingsController::class, 'backupDatabase'])->name('settings.backup.db');
+    Route::post('/settings/backup/halls', [App\Http\Controllers\SettingsController::class, 'backupHalls'])->name('settings.backup.halls');
+    Route::post('/settings/backup/quarters', [App\Http\Controllers\SettingsController::class, 'backupQuarters'])->name('settings.backup.quarters');
+    Route::post('/settings/backup/officers', [App\Http\Controllers\SettingsController::class, 'backupOfficers'])->name('settings.backup.officers');
 
     Route::get('/modifyquarter', function () {
         return view('modifyquarter');

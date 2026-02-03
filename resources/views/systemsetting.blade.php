@@ -223,6 +223,39 @@
                             </form>
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            Hall Details Record: Save a SQL dump of all hall records.
+                        </td>
+                        <td style="text-align: center;">
+                            <form action="{{ route('settings.backup.halls') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Quarter Details Record: Save a SQL dump of all quarter records.
+                        </td>
+                        <td style="text-align: center;">
+                            <form action="{{ route('settings.backup.quarters') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Officers Details Record: Save a SQL dump of all registered officer records.
+                        </td>
+                        <td style="text-align: center;">
+                            <form action="{{ route('settings.backup.officers') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                            </form>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
 
