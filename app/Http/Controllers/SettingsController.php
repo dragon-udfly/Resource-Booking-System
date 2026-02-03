@@ -105,4 +105,62 @@ class SettingsController extends Controller
 
         return view('systemstatus', ['logs' => $logs, 'currentFilter' => $filter]);
     }
+
+    public function backupDatabase()
+    {
+        $mysqldumpPath = env('MYSQLDUMP_PATH');
+
+        if (!$mysqldumpPath) {
+            return redirect()->back()->with('error_modal', 'MYSQLDUMP_PATH is not configured in the .env file.');
+        }
+
+        $filename = 'backup_' . date('Y-m-d_H-i-s') . '.sql';
+        $directory = database_path('backups');
+        $path = $directory . '/' . $filename;
+
+        // Ensure directory exists
+        if (!file_exists($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
+        $dbUser = env('DB_USERNAME');
+        $dbPass = env('DB_PASSWORD');
+        $dbName = env('DB_DATABASE');
+        $dbHost = env('DB_HOST');
+
+        // Handle password with special characters by quoting, but this depends on OS shell.
+        // For Windows (Powershell/CMD), we might need careful escaping, but standard " should work for simple cases.
+        // It's safer to use a config file for mysqldump credentials, but user asked for simple check.
+
+        $command = "\"{$mysqldumpPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" \"{$dbName}\" > \"{$path}\"";
+
+        try {
+            // Using exec to run the command
+            exec($command, $output, $returnVar);
+
+            if ($returnVar === 0 && file_exists($path) && filesize($path) > 0) {
+
+                // Log to System Log
+                Log::info("Database backup created successfully: {$filename} by User ID: " . auth()->id());
+
+                // Log to Audit Log
+                \App\Models\AuditLog::create([
+                    'log_title' => 'Database Backup',
+                    'details' => "Created database backup: {$filename}",
+                    'performed_by' => auth()->id(),
+                    'date_performed' => date('Y-m-d'),
+                    'time_performed' => date('H:i:s'),
+                ]);
+
+                return redirect()->back()->with('success_modal', "Database backup created successfully. File: {$filename}");
+            } else {
+                Log::error("Database backup failed. Return Var: {$returnVar}");
+                return redirect()->back()->with('error_modal', 'Database backup failed. Check system logs for details.');
+            }
+
+        } catch (\Exception $e) {
+            Log::error("Database backup exception: " . $e->getMessage());
+            return redirect()->back()->with('error_modal', 'An unexpected error occurred during backup: ' . $e->getMessage());
+        }
+    }
 }

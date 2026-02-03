@@ -199,6 +199,34 @@
                 </form>
             </div>
             <br><br><br>
+
+            <!-- Backup Section -->
+            <br><br>
+            <h3 style="text-align: center; color: #28a745;">Backup & Restore</h3>
+
+            <table class="advanced-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th style="text-align: center;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            Database Backup: Save a SQL dump of the current database state to prevent data loss.
+                        </td>
+                        <td style="text-align: center;">
+                            <form action="{{ route('settings.backup.db') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <br><br>
             <h3 style="text-align: center; color:rgb(255, 136, 0)">Danger Zone</h3>
 
             <table class="advanced-table">
@@ -317,7 +345,27 @@
                 const message = document.getElementById('confirmation-message');
                 const confirmBtn = document.getElementById('confirm-btn');
                 const cancelBtn = document.getElementById('cancel-btn');
+                const modalTitle = document.querySelector('#confirmation-overlay h3');
                 let currentForm = null;
+
+                // Check for Server-Side Modal Messages (Success/Error)
+                @if(session('success_modal'))
+                    modalTitle.innerText = 'Success';
+                    modalTitle.style.color = '#28a745';
+                    message.innerText = "{{ session('success_modal') }}";
+                    confirmBtn.style.display = 'none'; // Hide action button
+                    cancelBtn.innerText = 'Close';
+                    overlay.style.display = 'flex';
+                @endif
+
+                @if(session('error_modal'))
+                    modalTitle.innerText = 'Error';
+                    modalTitle.style.color = '#dc3545';
+                    message.innerText = "{{ session('error_modal') }}";
+                    confirmBtn.style.display = 'none'; // Hide action button
+                    cancelBtn.innerText = 'Close';
+                    overlay.style.display = 'flex';
+                @endif
 
                 document.querySelectorAll('form button[type="submit"]').forEach(button => {
                     button.addEventListener('click', function (e) {

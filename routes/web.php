@@ -60,6 +60,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/systemsetting', [App\Http\Controllers\SettingsController::class, 'index'])->name('systemsetting');
     Route::get('/system-status', [App\Http\Controllers\SettingsController::class, 'systemStatus'])->name('system.status');
     Route::post('/settings/email/test', [App\Http\Controllers\SettingsController::class, 'testEmail'])->name('settings.email.test');
+    Route::post('/settings/backup/db', [App\Http\Controllers\SettingsController::class, 'backupDatabase'])->name('settings.backup.db');
 
     Route::get('/modifyquarter', function () {
         return view('modifyquarter');
