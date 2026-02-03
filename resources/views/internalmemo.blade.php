@@ -528,6 +528,40 @@
         </div>
     </div>
 
+    <!-- Custom Modal: Confirm Clear Sent -->
+    <div id="confirmClearSentModal" class="custom-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Clear</h5>
+                <button class="close-btn" onclick="closeModal('confirmClearSentModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to clear all SENT memos from your outbox? This cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('confirmClearSentModal')">Cancel</button>
+                <button class="btn btn-danger" id="finalClearSentBtn">Yes, Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal: Confirm Clear Read -->
+    <div id="confirmClearReadModal" class="custom-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Clear</h5>
+                <button class="close-btn" onclick="closeModal('confirmClearReadModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to clear all READ memos from your inbox? This cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('confirmClearReadModal')">Cancel</button>
+                <button class="btn btn-danger" id="finalClearReadBtn">Yes, Clear</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- Modal Utilities ---
         function openModal(modalId) {
@@ -667,55 +701,59 @@
                 });
             });
             // --- Clear Memos Logic ---
-            window.confirmClearRead = function () {
-                if (confirm('Are you sure you want to clear all READ memos from your inbox? This cannot be undone.')) {
-                    fetch('{{ route("memo.clear_read") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert(data.message);
-                                location.reload();
-                            } else {
-                                alert('Error: ' + data.message);
-                            }
-                        })
-                        .catch(err => {
-                            console.error(err);
-                            alert('An unexpected error occurred.');
-                        });
-                }
+            window.confirmClearRead = function() {
+                openModal('confirmClearReadModal');
             };
 
+            document.getElementById('finalClearReadBtn').addEventListener('click', function() {
+                fetch('{{ route("memo.clear_read") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('An unexpected error occurred.');
+                });
+            });
+
             window.confirmClearSent = function () {
-                if (confirm('Are you sure you want to clear all SENT memos from your outbox? This cannot be undone.')) {
-                    fetch('{{ route("memo.clear_sent") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                openModal('confirmClearSentModal');
+            };
+
+            document.getElementById('finalClearSentBtn').addEventListener('click', function () {
+                fetch('{{ route("memo.clear_sent") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            location.reload();
+                        } else {
+                            alert('Error: ' + data.message);
                         }
                     })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert(data.message);
-                                location.reload();
-                            } else {
-                                alert('Error: ' + data.message);
-                            }
-                        })
-                        .catch(err => {
-                            console.error(err);
-                            alert('An unexpected error occurred.');
-                        });
-                }
-            };
+                    .catch(err => {
+                        console.error(err);
+                        alert('An unexpected error occurred.');
+                    });
+            });
         });
     </script>
 @endsection
