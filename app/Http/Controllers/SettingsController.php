@@ -329,6 +329,194 @@ class SettingsController extends Controller
         }
     }
 
+    public function restoreMemos(Request $request)
+    {
+        $request->validate([
+            'backup_file' => 'required|file|mimes:sql,csv,txt|max:51200',
+        ]);
+
+        $file = $request->file('backup_file');
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        if ($extension === 'sql') {
+            return $this->importMemoSql($file);
+        } elseif ($extension === 'csv' || $extension === 'txt') {
+            return $this->importMemoCsv($file);
+        } else {
+            return redirect()->back()->with('error_modal', 'Invalid file type. Only .sql and .csv are supported.');
+        }
+    }
+
+    private function importMemoSql($file)
+    {
+        $content = file_get_contents($file->getRealPath());
+
+        // Basic check for table name
+        if (stripos($content, 'memos') === false) {
+            return redirect()->back()->with('error_modal', "Invalid SQL file. Table 'memos' not found.");
+        }
+
+        DB::beginTransaction();
+        try {
+            // Truncate first to replace
+            DB::table('memos')->truncate();
+
+            // Execute SQL (Assumes file content is safe/trusted admin input)
+            // Note: DB::unprepared supports multiple statements.
+            DB::unprepared($content);
+
+            // --- INTEGRITY CHECKS ---
+
+            // 1. Check for Invalid Users (Sender/Receiver)
+            // We use whereNotExists for performance.
+            $invalidUsers = DB::table('memos')
+                ->whereNotExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('user')
+                        ->whereRaw('memos.sender_id = user.user_id');
+                })
+                ->orWhereNotExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('user')
+                        ->whereRaw('memos.receiver_id = user.user_id');
+                })
+                ->count();
+
+            if ($invalidUsers > 0) {
+                throw new \Exception("Integrity Violation: Found {$invalidUsers} memos with invalid Sender or Receiver IDs that do not exist in the Users table.");
+            }
+
+            // 2. Check for "Twice in a row" / Duplicates
+            // Strict interpretation: No exact duplicates allowed? 
+            // Or literally "Sender X -> Receiver Y" cannot happen twice in a row?
+            // "same user id can not be twic in a row (sender and receiver can be same user)"
+            // This phrasing is tricky. "Sender and Receiver can be same" means Self-Message is allowed.
+            // "Same user id can not be twice in a row" usually means "Don't repeat the same user in a list".
+            // But memos are distinct records.
+            // I will interpret "Twice in a row" as: A user cannot send the SAME message to the SAME receiver twice consecutively?
+            // Actually, for a Restore operation, we are restoring HISTORY. We shouldn't reject history unless it's corrupt.
+            // But if the user insists: I will check for EXACT DUPLICATES.
+            // Finding exact duplicates in DB:
+            $duplicates = DB::select('
+                SELECT sender_id, receiver_id, subject, body, date_created, COUNT(*) as c 
+                FROM memos 
+                GROUP BY sender_id, receiver_id, subject, body, date_created 
+                HAVING c > 1
+            ');
+
+            if (count($duplicates) > 0) {
+                throw new \Exception("Integrity Violation: Found duplicate memo records.");
+            }
+
+            DB::commit();
+
+            \App\Models\AuditLog::create([
+                'log_title' => "Restored Memos",
+                'details' => "Restored from SQL: " . $file->getClientOriginalName(),
+                'performed_by' => auth()->id(),
+                'date_performed' => date('Y-m-d'),
+                'time_performed' => date('H:i:s'),
+            ]);
+
+            return redirect()->back()->with('success_modal', "Memos restored successfully from SQL with integrity checks.");
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error_modal', "Restore Failed: " . $e->getMessage());
+        }
+    }
+
+    private function importMemoCsv($file)
+    {
+        $path = $file->getRealPath();
+        $data = array_map('str_getcsv', file($path));
+
+        if (count($data) < 1) {
+            return redirect()->back()->with('error_modal', 'CSV file is empty.');
+        }
+
+        $headers = array_map('trim', $data[0]);
+        $rows = array_slice($data, 1);
+
+        // Validation: Required columns
+        $requiredCols = ['sender_id', 'receiver_id', 'subject', 'body'];
+        $columnMap = [];
+        foreach ($requiredCols as $req) {
+            $index = array_search($req, $headers);
+            if ($index === false) {
+                return redirect()->back()->with('error_modal', "Missing required CSV column: {$req}");
+            }
+            $columnMap[$req] = $index;
+        }
+
+        // Cache User IDs for validation
+        $validUserIds = \App\Models\User::pluck('user_id')->flip()->toArray();
+
+        DB::beginTransaction();
+        try {
+            DB::table('memos')->truncate();
+
+            $previousRow = null;
+
+            foreach ($rows as $i => $row) {
+                if (count($row) !== count($headers))
+                    continue;
+
+                $rowData = array_combine($headers, $row);
+
+                $senderId = $rowData['sender_id'];
+                $receiverId = $rowData['receiver_id'];
+
+                // 1. User Integrity Check
+                if (!isset($validUserIds[$senderId])) {
+                    throw new \Exception("Row " . ($i + 2) . ": Sender ID '{$senderId}' does not exist.");
+                }
+                if (!isset($validUserIds[$receiverId])) {
+                    throw new \Exception("Row " . ($i + 2) . ": Receiver ID '{$receiverId}' does not exist.");
+                }
+
+                // 2. Twice in a row Check (Consecutive duplicates)
+                // Normalize for comparison
+                $currentRowSignature = "{$senderId}|{$receiverId}|" . $rowData['subject'] . "|" . $rowData['body'];
+
+                if ($previousRow === $currentRowSignature) {
+                    // Skip specific logic or Throw? User said "can not be twice".
+                    // We will throw to enforce integrity.
+                    throw new \Exception("Row " . ($i + 2) . ": Duplicate memo detected immediately following the previous one.");
+                }
+                $previousRow = $currentRowSignature;
+
+                // Create using Model to trigger Encryption Mutators
+                \App\Models\Memo::create([
+                    'sender_id' => $senderId,
+                    'receiver_id' => $receiverId,
+                    'subject' => $rowData['subject'], // Mutator encrypts this
+                    'body' => $rowData['body'],       // Mutator encrypts this
+                    'status' => $rowData['status'] ?? 'pending', // Default
+                    'sender_cleared' => $rowData['sender_cleared'] ?? 0,
+                    'receiver_cleared' => $rowData['receiver_cleared'] ?? 0,
+                    'date_created' => $rowData['date_created'] ?? now(),
+                ]);
+            }
+
+            DB::commit();
+
+            \App\Models\AuditLog::create([
+                'log_title' => "Restored Memos",
+                'details' => "Restored from CSV: " . $file->getClientOriginalName(),
+                'performed_by' => auth()->id(),
+                'date_performed' => date('Y-m-d'),
+                'time_performed' => date('H:i:s'),
+            ]);
+
+            return redirect()->back()->with('success_modal', "Memos restored successfully from CSV.");
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error_modal', "Restore Failed: " . $e->getMessage());
+        }
+    }
+
     public function restoreHalls(Request $request)
     {
         return $this->handleSpecificRestore($request, 'hall', \App\Models\Hall::class);

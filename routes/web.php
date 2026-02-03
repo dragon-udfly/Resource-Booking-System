@@ -67,6 +67,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/settings/restore/officers', [App\Http\Controllers\SettingsController::class, 'restoreOfficers'])->name('settings.restore.officers');
     Route::post('/settings/restore/grade-salary', [App\Http\Controllers\SettingsController::class, 'restoreGradeSalary'])->name('settings.restore.gradesalary');
     Route::post('/settings/restore/marking-scheme', [App\Http\Controllers\SettingsController::class, 'restoreMarkingScheme'])->name('settings.restore.markingscheme');
+    Route::post('/settings/restore/memos', [App\Http\Controllers\SettingsController::class, 'restoreMemos'])->name('settings.restore.memos');
     Route::post('/settings/backup/halls', [App\Http\Controllers\SettingsController::class, 'backupHalls'])->name('settings.backup.halls');
     Route::post('/settings/backup/quarters', [App\Http\Controllers\SettingsController::class, 'backupQuarters'])->name('settings.backup.quarters');
     Route::post('/settings/backup/officers', [App\Http\Controllers\SettingsController::class, 'backupOfficers'])->name('settings.backup.officers');

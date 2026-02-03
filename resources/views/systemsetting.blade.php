@@ -384,10 +384,20 @@
                             Memo Tables: Save a SQL dump of internal memos.
                         </td>
                         <td style="text-align: center;">
-                            <form action="{{ route('settings.backup.memos') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
-                            </form>
+                            <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+                                <form action="{{ route('settings.backup.memos') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                                </form>
+                                <form action="{{ route('settings.restore.memos') }}" method="POST" enctype="multipart/form-data" 
+                                      onsubmit="return confirm('WARNING: This will replace all Memos and cannot be undone. Are you sure?');">
+                                    @csrf
+                                    <label for="restore_memos" class="btn-save" style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
+                                        Restore
+                                    </label>
+                                    <input type="file" name="backup_file" id="restore_memos" accept=".sql,.csv" style="display: none;" onchange="this.form.submit()">
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
