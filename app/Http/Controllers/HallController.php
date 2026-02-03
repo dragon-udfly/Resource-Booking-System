@@ -199,7 +199,7 @@ class HallController extends Controller
                 'date_performed' => Carbon::now()->toDateString(),
                 'time_performed' => Carbon::now()->toTimeString(),
             ]);
-            
+
             $successMessage = 'Hall ' . $hallId . ' deleted successfully!';
             if ($request->wantsJson()) {
                 return response()->json(['status' => 'success', 'message' => $successMessage]);
@@ -238,17 +238,5 @@ class HallController extends Controller
         return response()->json($halls);
     }
 
-    public function clearHalls()
-    {
-        Hall::truncate();
 
-        AuditLog::create([
-            'log_title' => 'All hall records deleted',
-            'performed_by' => Auth::id(),
-            'date_performed' => Carbon::now()->toDateString(),
-            'time_performed' => Carbon::now()->toTimeString(),
-        ]);
-
-        return redirect()->route('systemsetting')->with('success', 'All hall records have been cleared successfully.');
-    }
 }

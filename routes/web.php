@@ -66,9 +66,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/auditlog', [UserController::class, 'showAuditLog'])->name('auditlog');
     Route::delete('/auditlog/clear', [UserController::class, 'clearAuditLog'])->name('auditlog.clear');
-    Route::delete('/halls/clear', [HallController::class, 'clearHalls'])->name('halls.clear');
-    Route::delete('/bookings/clear', [HallBookingController::class, 'clearBookings'])->name('bookings.clear');
-    Route::delete('/bookings/clear-rejected', [HallBookingController::class, 'clearRejectedBookings'])->name('bookings.clearRejected');
+
     Route::delete('/users/clear', [UserController::class, 'clearUsers'])->name('users.clear');
 
     Route::get('/quarters', [QuarterController::class, 'index'])->name('quarters.index');
