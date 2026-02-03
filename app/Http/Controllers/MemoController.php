@@ -42,7 +42,35 @@ class MemoController extends Controller
                 ];
             });
 
-        return view('internalmemo', compact('receivedMemos', 'sentMemos', 'users'));
+        // Determine Layout based on role
+        // Assuming 'admin' role uses the admin layout, others use user layout
+        $layout = (Auth::user()->role === 'admin') ? 'layouts.admin_body_layout' : 'layouts.user_body_layout';
+
+        return view('internalmemo', compact('receivedMemos', 'sentMemos', 'users', 'layout'));
+    }
+
+    public function fetchInbox()
+    {
+        $userId = Auth::id();
+        $receivedMemos = Memo::with('sender')
+            ->where('receiver_id', $userId)
+            ->where('receiver_cleared', 0)
+            ->orderBy('date_created', 'desc')
+            ->get();
+
+        return view('partials.memo_inbox_rows', compact('receivedMemos'))->render();
+    }
+
+    public function fetchOutbox()
+    {
+        $userId = Auth::id();
+        $sentMemos = Memo::with('receiver')
+            ->where('sender_id', $userId)
+            ->where('sender_cleared', 0)
+            ->orderBy('date_created', 'desc')
+            ->get();
+
+        return view('partials.memo_sent_rows', compact('sentMemos'))->render();
     }
 
     public function store(Request $request)

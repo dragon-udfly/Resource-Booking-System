@@ -1,4 +1,4 @@
-@extends('layouts.admin_body_layout')
+@extends($layout ?? 'layouts.admin_body_layout')
 
 @section('page_styles')
     <style>
@@ -347,39 +347,8 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @forelse($receivedMemos as $memo)
-                                <tr class="">
-                                    <td>{{ \Carbon\Carbon::parse($memo->date_created)->format('Y-m-d') }}</td>
-                                    <td>
-                                        @if($memo->sender)
-                                            {{ $memo->sender->designation }} - {{ $memo->sender->first_name }}
-                                        @else
-                                            <span class="text-muted">Unknown Sender</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ Str::limit($memo->subject, 50) }}</td>
-                                    <td>
-                                        @if($memo->status == 2)
-                                            <span class="badge badge-warning">Pending</span>
-                                        @elseif($memo->status == 1)
-                                            <span class="badge badge-success">OK / Agreed</span>
-                                        @elseif($memo->status == 0)
-                                            <span class="badge badge-danger">No / Disagreed</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-outline-primary view-memo-btn"
-                                            data-id="{{ $memo->id }}">Open</button>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center" style="padding: 30px; color: #777;">
-                                        No received memos found.
-                                    </td>
-                                </tr>
-                            @endforelse
+                        <tbody id="inboxTableBody">
+                            @include('partials.memo_inbox_rows')
                         </tbody>
                     </table>
                 </div>
@@ -440,33 +409,8 @@
                                 <th>Status (Their Response)</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @forelse($sentMemos as $memo)
-                                <tr>
-                                    <td>{{ \Carbon\Carbon::parse($memo->date_created)->format('Y-m-d') }}</td>
-                                    <td>
-                                        @if($memo->receiver)
-                                            {{ $memo->receiver->designation }} - {{ $memo->receiver->first_name }}
-                                        @else
-                                            <span class="text-muted">Unknown</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ Str::limit($memo->subject, 50) }}</td>
-                                    <td>
-                                        @if($memo->status == 2)
-                                            <span class="badge badge-warning">Pending</span>
-                                        @elseif($memo->status == 1)
-                                            <span class="badge badge-success">OK / Agreed</span>
-                                        @elseif($memo->status == 0)
-                                            <span class="badge badge-danger">No / Disagreed</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center" style="padding: 30px; color: #777;">No sent memos.</td>
-                                </tr>
-                            @endforelse
+                        <tbody id="sentTableBody">
+                            @include('partials.memo_sent_rows')
                         </tbody>
                     </table>
                 </div>
@@ -609,38 +553,42 @@
             const statusDisplay = document.getElementById('statusDisplay');
             const statusBadge = document.getElementById('statusBadge');
 
-            let currentMemoId = null;
+            // --- Event Delegation for Dynamic "Open" Buttons ---
+            document.addEventListener('click', function (e) {
+                if (e.target && e.target.classList.contains('view-memo-btn')) {
+                    const btn = e.target;
+                    const memoId = btn.getAttribute('data-id');
+                    currentMemoId = memoId; // Store for valid response
 
-            viewButtons.forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const memoId = this.getAttribute('data-id');
-                    currentMemoId = memoId;
-
-                    // Reset UI
-                    modalSender.textContent = 'Loading...';
-                    modalSubject.textContent = '';
-                    modalBody.textContent = '';
-                    responseSection.classList.add('d-none');
-                    statusDisplay.classList.add('d-none');
+                    // Clear previous
+                    document.getElementById('modalSubject').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                    document.getElementById('modalSender').innerText = '';
+                    document.getElementById('modalDate').innerText = '';
+                    document.getElementById('modalBody').innerText = '';
+                    document.getElementById('responseSection').classList.add('d-none');
+                    document.getElementById('statusDisplay').classList.add('d-none');
 
                     openModal('viewMemoModal');
 
                     fetch(`/internal-memo/${memoId}`)
-                        .then(response => response.json())
+                        .then(res => res.json())
                         .then(data => {
-                            modalSender.textContent = data.sender;
-                            modalDate.textContent = data.date;
-                            modalSubject.textContent = data.subject;
-                            modalBody.textContent = data.body;
+                            if (data.error) {
+                                alert(data.error);
+                                closeModal('viewMemoModal');
+                                return;
+                            }
 
-                            // Check Response Capability
+                            // Auto-decrypt done by accessor
+                            document.getElementById('modalSubject').innerText = data.subject;
+                            document.getElementById('modalSender').innerText = data.sender;
+                            document.getElementById('modalDate').innerText = data.date;
+                            document.getElementById('modalBody').innerText = data.body;
+
+                            // Show Response Buttons or Status
                             if (data.can_respond) {
-                                responseSection.classList.remove('d-none');
-                                statusDisplay.classList.add('d-none');
+                                document.getElementById('responseSection').classList.remove('d-none');
                             } else {
-                                responseSection.classList.add('d-none');
-                                statusDisplay.classList.remove('d-none');
-
                                 let statusText = 'Pending';
                                 let statusClass = 'badge badge-warning';
 
@@ -652,21 +600,39 @@
                                     statusClass = 'badge badge-danger';
                                 }
 
-                                statusBadge.className = statusClass;
-                                statusBadge.textContent = statusText;
+                                const statusBadge = document.getElementById('statusBadge');
+                                statusBadge.className = `badge ${statusClass}`;
+                                statusBadge.innerText = statusText;
+                                document.getElementById('statusDisplay').classList.remove('d-none');
                             }
-
-                            // Mark row read locally
-                            const row = btn.closest('tr');
-                            row.classList.remove('row-unread');
                         })
                         .catch(err => {
                             console.error(err);
                             alert('Failed to load memo details.');
                             closeModal('viewMemoModal');
                         });
-                });
+                }
             });
+
+            // --- Real-time Polling for Inbox ---
+            setInterval(function () {
+                fetch('{{ route("memo.fetch_inbox") }}')
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('inboxTableBody').innerHTML = html;
+                    })
+                    .catch(err => console.error('Failed to fetch new memos', err));
+            }, 5000); // Poll every 5 seconds
+
+            // --- Real-time Polling for Outbox (Status Updates) ---
+            setInterval(function() {
+                fetch('{{ route("memo.fetch_outbox") }}')
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('sentTableBody').innerHTML = html;
+                    })
+                    .catch(err => console.error('Failed to fetch sent memos', err));
+            }, 5000); // Poll every 5 seconds
 
             // --- Respond Logic ---
             const responseBtns = document.querySelectorAll('.response-btn');
@@ -701,11 +667,11 @@
                 });
             });
             // --- Clear Memos Logic ---
-            window.confirmClearRead = function() {
+            window.confirmClearRead = function () {
                 openModal('confirmClearReadModal');
             };
 
-            document.getElementById('finalClearReadBtn').addEventListener('click', function() {
+            document.getElementById('finalClearReadBtn').addEventListener('click', function () {
                 fetch('{{ route("memo.clear_read") }}', {
                     method: 'POST',
                     headers: {
@@ -713,19 +679,19 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     }
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert('An unexpected error occurred.');
-                });
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            location.reload();
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('An unexpected error occurred.');
+                    });
             });
 
             window.confirmClearSent = function () {
