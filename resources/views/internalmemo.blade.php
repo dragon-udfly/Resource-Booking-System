@@ -653,7 +653,7 @@
                             .then(res => res.json())
                             .then(data => {
                                 if (data.success) {
-                                    alert(data.message);
+                                    // alert(data.message); // Removed as per request
                                     location.reload();
                                 } else {
                                     alert('Error: ' + data.message);
