@@ -56,9 +56,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
         return view('modifyhall');
     });
 
-    Route::get('/systemsetting', function () {
-        return view('systemsetting');
-    })->name('systemsetting');
+    // System Settings
+    Route::get('/systemsetting', [App\Http\Controllers\SettingsController::class, 'index'])->name('systemsetting');
+    Route::post('/settings/email/test', [App\Http\Controllers\SettingsController::class, 'testEmail'])->name('settings.email.test');
 
     Route::get('/modifyquarter', function () {
         return view('modifyquarter');

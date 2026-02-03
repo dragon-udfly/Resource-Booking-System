@@ -154,16 +154,48 @@
                 <p>Configure general system parameters and preferences.</p>
             </div>
 
-            {{-- <form action="#" method="POST">
-                @csrf
-                <div class="settings-group">
-
+            @if(session('success'))
+                <div style="background-color: #d4edda; color: #155724; padding: 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
+                    {{ session('success') }}
                 </div>
+            @endif
 
-                <div style="text-align: right; margin-top: 20px;">
-                    <button type="submit" class="btn-save">Save Changes</button>
+            @if(session('error'))
+                <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+                    {{ session('error') }}
                 </div>
-            </form> --}}
+            @endif
+
+            <div class="settings-group">
+                <h3>Email Configuration Test</h3>
+                <p style="margin-bottom: 20px; color: #666;">Use this form to test if your email settings (.env
+                    configuration) are working correctly.</p>
+
+                <form action="{{ route('settings.email.test') }}" method="POST">
+                    @csrf
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="test_email">Recipient Email</label>
+                            <input type="email" id="test_email" name="test_email" required
+                                placeholder="Enter recipient email">
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" required placeholder="Test Email Subject">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email-body">Message Body</label>
+                            <textarea id="email-body" name="email-body" rows="4" required
+                                style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; resize: vertical;">This is a test email from the Resource Booking System.</textarea>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <button type="submit" class="btn-save">Send Test Email</button>
+                    </div>
+                </form>
+            </div>
             <br><br><br>
             <h3 style="text-align: center; color:rgb(255, 136, 0)">Danger Zone</h3>
 
@@ -212,8 +244,8 @@
                     <tr>
                         <td>Clear rejected scheduled quarter applications. (This action cannot be undone)</td>
                         <td style="text-align: center;">
-                            <form id="clear-rejected-scheduled-form" action="{{ route('quarters.scheduled.clearRejected') }}"
-                                method="POST">
+                            <form id="clear-rejected-scheduled-form"
+                                action="{{ route('quarters.scheduled.clearRejected') }}" method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-danger"
