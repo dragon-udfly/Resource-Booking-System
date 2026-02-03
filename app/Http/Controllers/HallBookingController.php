@@ -13,8 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\HallBookingSubmitted;
+
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class HallBookingController extends Controller
@@ -124,12 +123,6 @@ class HallBookingController extends Controller
             'date_performed' => Carbon::now()->toDateString(),
             'time_performed' => Carbon::now()->toTimeString(),
         ]);
-
-        try {
-            Mail::to($request->applicant_email)->send(new HallBookingSubmitted($request->applicant_name, $request->programme));
-        } catch (\Exception $e) {
-            // Log the error or handle it silently so the booking process isn't interrupted
-        }
 
         return redirect()->route('halls.schedule')->with('success', 'Hall booking request submitted successfully!');
     }
