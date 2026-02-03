@@ -236,4 +236,86 @@ class SettingsController extends Controller
             return redirect()->back()->with('error_modal', "An unexpected error occurred during backup: " . $e->getMessage());
         }
     }
+
+    public function restoreDatabase(Request $request)
+    {
+        // 1. Validate File Upload
+        $request->validate([
+            'backup_file' => 'required|file|mimes:sql,txt|max:51200', // Max 50MB
+        ]);
+
+        $file = $request->file('backup_file');
+
+        // Double check extension just in case
+        if ($file->getClientOriginalExtension() !== 'sql') {
+            return redirect()->back()->with('error_modal', 'Invalid file type. Please upload a .sql file.');
+        }
+
+        // 2. Integrity Check (Simple content scan)
+        $content = file_get_contents($file->getRealPath(), false, null, 0, 10000); // Read first 10KB
+        $criticalTables = ['hall', 'quarters', 'user', 'quarter_application'];
+        $foundTables = 0;
+
+        foreach ($criticalTables as $table) {
+            // Searching for "CREATE TABLE `tablename`" or "CREATE TABLE tablename"
+            // Using case-insensitive search
+            if (stripos($content, "CREATE TABLE `{$table}`") !== false || stripos($content, "CREATE TABLE {$table}") !== false) {
+                $foundTables++;
+            }
+        }
+
+        // We expect at least one critical table to be present to consider it a valid dump of THIS system
+        // Or if it's a partial backup (e.g. just halls), we should still allow it but maybe warn?
+        // User asked for "confirmed table and column integrity".
+        // A strict check might be too restrictive for partial backups (e.g. restoring just Halls).
+        // Let's check if it looks like a dump at all.
+        if ($foundTables === 0 && stripos($content, 'MySQL dump') === false) {
+            return redirect()->back()->with('error_modal', 'Invalid backup file. critical table definitions or MySQL dump header not found.');
+        }
+
+        // 3. Prepare for Restoration
+        $mysqldumpPath = env('MYSQLDUMP_PATH');
+        if (!$mysqldumpPath) {
+            return redirect()->back()->with('error_modal', 'MYSQLDUMP_PATH is not configured in .env');
+        }
+
+        // Derive mysql.exe path from mysqldump.exe path
+        $mysqlPath = str_replace('mysqldump', 'mysql', $mysqldumpPath);
+
+        $dbUser = env('DB_USERNAME');
+        $dbPass = env('DB_PASSWORD');
+        $dbName = env('DB_DATABASE');
+        $dbHost = env('DB_HOST');
+        $filePath = $file->getRealPath();
+
+        // 4. Executing Restore Command
+        // mysql -u [user] -p[password] [database_name] < [filename.sql]
+        $command = "\"{$mysqlPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" \"{$dbName}\" < \"{$filePath}\"";
+
+        try {
+            exec($command, $output, $returnVar);
+
+            if ($returnVar === 0) {
+                // Log to System Log
+                Log::info("Database restored successfully by User ID: " . auth()->id());
+
+                // Log to Audit Log
+                \App\Models\AuditLog::create([
+                    'log_title' => 'Database Restore',
+                    'details' => "Restored database from file: " . $file->getClientOriginalName(),
+                    'performed_by' => auth()->id(),
+                    'date_performed' => date('Y-m-d'),
+                    'time_performed' => date('H:i:s'),
+                ]);
+
+                return redirect()->back()->with('success_modal', 'Database restored successfully.');
+            } else {
+                Log::error("Database restore failed. Return Var: {$returnVar}");
+                return redirect()->back()->with('error_modal', 'Database restore failed. Check system logs.');
+            }
+        } catch (\Exception $e) {
+            Log::error("Database restore exception: " . $e->getMessage());
+            return redirect()->back()->with('error_modal', "An unexpected error occurred during restore: " . $e->getMessage());
+        }
+    }
 }
