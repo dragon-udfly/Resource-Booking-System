@@ -46,28 +46,22 @@ class SettingsController extends Controller
 
     /**
      * Display the system status log page with filters.
-     * Restricted to Admin users.
      */
     public function systemStatus(Request $request)
     {
-        // Authorization check
         if (!auth()->check() || (!auth()->user()->hasPermissionTo('admin') && !auth()->user()->hasPermissionTo('government_agent_approval'))) {
-            // Basic protection, though middleware should handle this.
+            // Basic protection
         }
 
-        $filter = $request->input('filter', 'all'); // Default to 'all' or 'today' as preferred.
+        $filter = $request->input('filter', 'all');
         $logPath = storage_path('logs/laravel.log');
         $logs = [];
 
         if (file_exists($logPath)) {
-            // Read file into array
-            // For very large files, this should be optimized (e.g. read chunk from end), 
-            // but for 1-5MB, file() is acceptable and simplest for "All" filter.
             $file = file($logPath);
-            $file = array_reverse($file); // Newest first
+            $file = array_reverse($file);
 
             foreach ($file as $line) {
-                // Regex to extract structure: [YYYY-MM-DD HH:MM:SS] Env.Level: Message
                 if (preg_match('/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (\w+)\.(\w+): (.*)/', $line, $matches)) {
                     $logDate = \Carbon\Carbon::parse($matches[1]);
                     $shouldInclude = false;
@@ -106,27 +100,69 @@ class SettingsController extends Controller
         return view('systemstatus', ['logs' => $logs, 'currentFilter' => $filter]);
     }
 
+    // --- Backup Methods ---
+
     public function backupDatabase()
     {
-        return $this->backupTable(null, 'Database Backup');
+        return $this->executeBackup([], 'backup', 'Database Backup');
     }
 
     public function backupHalls()
     {
-        return $this->backupTable('hall', 'Hall Details Record Backup');
+        return $this->executeBackup(['hall'], 'hall', 'Hall Details Record Backup');
     }
 
     public function backupQuarters()
     {
-        return $this->backupTable('quarters', 'Quarter Details Record Backup');
+        return $this->executeBackup(['quarters'], 'quarters', 'Quarter Details Record Backup');
     }
 
     public function backupOfficers()
     {
-        return $this->backupTable('user', 'Officers Details Record Backup');
+        return $this->executeBackup(['user'], 'user', 'Officers Details Record Backup');
     }
 
-    private function backupTable($tableName = null, $logAction = 'Database Backup')
+    public function backupScheduledApplications()
+    {
+        $commands = [
+            'quarter_application --where="quarter_type=\'Scheduled\'"',
+            'scheduled_quarter_application'
+        ];
+        return $this->executeBackup($commands, 'scheduled_applications', 'Scheduled Quarter Applications Backup');
+    }
+
+    public function backupFamilyApplications()
+    {
+        $commands = [
+            'quarter_application --where="quarter_type=\'Family\'"',
+            'family_quarter_application',
+            'marking_family_quarter'
+        ];
+        return $this->executeBackup($commands, 'family_applications', 'Family Quarter Applications Backup');
+    }
+
+    public function backupGradeSalary()
+    {
+        return $this->executeBackup(['grade_salary_settings'], 'grade_salary', 'Grade Salary Settings Backup');
+    }
+
+    public function backupMarkingScheme()
+    {
+        return $this->executeBackup(['marking_scheme'], 'marking_scheme', 'Marking Scheme Backup');
+    }
+
+    public function backupMemos()
+    {
+        return $this->executeBackup(['memos'], 'memos', 'Memos Backup');
+    }
+
+    /**
+     * Generic backup executor.
+     * @param array $tableCommands Array of strings. e.g. ['table1', 'table2 --where="id>1"']. If empty, dumps entire DB.
+     * @param string $filePrefix Prefix for the filename.
+     * @param string $logAction Action title for logging.
+     */
+    private function executeBackup(array $tableCommands = [], $filePrefix = 'backup', $logAction = 'Database Backup')
     {
         $mysqldumpPath = env('MYSQLDUMP_PATH');
 
@@ -134,9 +170,7 @@ class SettingsController extends Controller
             return redirect()->back()->with('error_modal', 'MYSQLDUMP_PATH is not configured in the .env file.');
         }
 
-        // Determine filename
-        $prefix = $tableName ? $tableName : 'backup';
-        $filename = "{$prefix}_" . date('Y-m-d_H-i-s') . '.sql';
+        $filename = "{$filePrefix}_" . date('Y-m-d_H-i-s') . '.sql';
         $directory = database_path('backups');
         $path = $directory . '/' . $filename;
 
@@ -150,17 +184,36 @@ class SettingsController extends Controller
         $dbName = env('DB_DATABASE');
         $dbHost = env('DB_HOST');
 
-        // Construct command
-        // If tableName is provided, append it to the command to dump only that table
-        $tableArg = $tableName ? " \"{$tableName}\"" : "";
-        $command = "\"{$mysqldumpPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" \"{$dbName}\"{$tableArg} > \"{$path}\"";
+        // Base command structure
+        $baseCommand = "\"{$mysqldumpPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" \"{$dbName}\"";
 
         try {
-            // Using exec to run the command
-            exec($command, $output, $returnVar);
+            // If no specific tables requested, dump the whole database
+            if (empty($tableCommands)) {
+                $command = "$baseCommand > \"{$path}\"";
+                exec($command, $output, $returnVar);
+                if ($returnVar !== 0) {
+                    throw new \Exception("Full backup failed with return code $returnVar");
+                }
+            } else {
+                // Execute sequentially appending to the file
+                foreach ($tableCommands as $index => $tblCmd) {
+                    // First command overwrites (>), subsequent append (>>)
+                    $operator = ($index === 0) ? '>' : '>>';
 
-            if ($returnVar === 0 && file_exists($path) && filesize($path) > 0) {
+                    // $tblCmd might contain spaces for arguments like --where, so we append it directly
+                    // e.g. "quarter_application --where=..."
+                    $command = "$baseCommand $tblCmd $operator \"{$path}\"";
 
+                    exec($command, $output, $returnVar);
+
+                    if ($returnVar !== 0) {
+                        throw new \Exception("Backup failed for command part: $tblCmd with return code $returnVar");
+                    }
+                }
+            }
+
+            if (file_exists($path) && filesize($path) > 0) {
                 // Log to System Log
                 Log::info("{$logAction} created successfully: {$filename} by User ID: " . auth()->id());
 
@@ -175,8 +228,7 @@ class SettingsController extends Controller
 
                 return redirect()->back()->with('success_modal', "{$logAction} created successfully. File: {$filename}");
             } else {
-                Log::error("{$logAction} failed. Return Var: {$returnVar}");
-                return redirect()->back()->with('error_modal', "{$logAction} failed. Check system logs for details.");
+                return redirect()->back()->with('error_modal', "{$logAction} failed. File not created or empty.");
             }
 
         } catch (\Exception $e) {

@@ -64,6 +64,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/settings/backup/halls', [App\Http\Controllers\SettingsController::class, 'backupHalls'])->name('settings.backup.halls');
     Route::post('/settings/backup/quarters', [App\Http\Controllers\SettingsController::class, 'backupQuarters'])->name('settings.backup.quarters');
     Route::post('/settings/backup/officers', [App\Http\Controllers\SettingsController::class, 'backupOfficers'])->name('settings.backup.officers');
+    Route::post('/settings/backup/scheduled-applications', [App\Http\Controllers\SettingsController::class, 'backupScheduledApplications'])->name('settings.backup.scheduled');
+    Route::post('/settings/backup/family-applications', [App\Http\Controllers\SettingsController::class, 'backupFamilyApplications'])->name('settings.backup.family');
+    Route::post('/settings/backup/grade-salary', [App\Http\Controllers\SettingsController::class, 'backupGradeSalary'])->name('settings.backup.gradesalary');
+    Route::post('/settings/backup/marking-scheme', [App\Http\Controllers\SettingsController::class, 'backupMarkingScheme'])->name('settings.backup.markingscheme');
+    Route::post('/settings/backup/memos', [App\Http\Controllers\SettingsController::class, 'backupMemos'])->name('settings.backup.memos');
 
     Route::get('/modifyquarter', function () {
         return view('modifyquarter');

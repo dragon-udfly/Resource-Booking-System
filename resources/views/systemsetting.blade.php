@@ -256,6 +256,62 @@
                             </form>
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            Scheduled Quarter Applications: Save a SQL dump of all scheduled quarter applications.
+                        </td>
+                        <td style="text-align: center;">
+                            <form action="{{ route('settings.backup.scheduled') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Family Quarter Applications: Save a SQL dump of all family quarter applications (including
+                            marking).
+                        </td>
+                        <td style="text-align: center;">
+                            <form action="{{ route('settings.backup.family') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Grade Salary Setting: Save a SQL dump of grade salary settings.
+                        </td>
+                        <td style="text-align: center;">
+                            <form action="{{ route('settings.backup.gradesalary') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Marking Scheme: Save a SQL dump of the marking scheme.
+                        </td>
+                        <td style="text-align: center;">
+                            <form action="{{ route('settings.backup.markingscheme') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Memo Tables: Save a SQL dump of internal memos.
+                        </td>
+                        <td style="text-align: center;">
+                            <form action="{{ route('settings.backup.memos') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                            </form>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
 
