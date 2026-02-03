@@ -13,7 +13,8 @@
         align-items: center;
         justify-content: space-between;
         width: 100%;
-        padding: 10px 20px; /* Added padding to main header area */
+        padding: 10px 20px;
+        /* Added padding to main header area */
     }
 
     .logo-left {
@@ -54,7 +55,8 @@
         align-items: center;
         width: 100%;
         padding: 10px 20px;
-        background-color: #e9ecef; /* Light grey background for navbar */
+        background-color: #e9ecef;
+        /* Light grey background for navbar */
         border-top: 1px solid #dee2e6;
     }
 
@@ -84,7 +86,8 @@
     }
 
     .navbar-right {
-        margin-left: auto; /* Pushes right items to the right */
+        margin-left: auto;
+        /* Pushes right items to the right */
     }
 </style>
 
@@ -100,11 +103,12 @@
     </div>
     <nav class="navbar">
         <ul class="navbar-left">
-           @auth
-               @if(Auth::user()->hasPermissionTo('account_setting'))
+            @auth
+                @if(Auth::user()->hasPermissionTo('account_setting'))
                     <li id="nav-preference"><a href="{{ route('preference') }}">Preference</a></li>
-               @endif
-               <li id="nav-dashboard"><a href="/dashboard">Dashboard</a></li>
+                @endif
+                <li id="nav-dashboard"><a href="/dashboard">Dashboard</a></li>
+                <li id="nav-memo"><a href="{{ route('memo.index') }}">Internal Memo</a></li>
                 @if(Auth::user()->hasPermissionTo('view_officers'))
                     <li id="nav-officers"><a href="{{ route('seeofficers') }}">Officers</a></li>
                 @endif
@@ -126,20 +130,22 @@
         <ul class="navbar-right">
             <li id="loggedin_user" style="color: rgb(6, 4, 60); font-weight: bold">
                 @auth
-                <span id="designation">{{ Auth::user()->designation }}</span>, 
-                <span id="first_name">{{ Auth::user()->first_name }}</span>
+                    <span id="designation">{{ Auth::user()->designation }}</span>,
+                    <span id="first_name">{{ Auth::user()->first_name }}</span>
                 @else
-                Guest
+                    Guest
                 @endauth
             </li>
             <li>
                 @auth
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: inline;">
-                    @csrf
-                    <button type="submit" id="logout-btn" style="background: none; border: none; color: #007bff; font-weight: bold; cursor: pointer; font-size: 1em; padding: 0;">Log Out</button>
-                </form>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" id="logout-btn"
+                            style="background: none; border: none; color: #007bff; font-weight: bold; cursor: pointer; font-size: 1em; padding: 0;">Log
+                            Out</button>
+                    </form>
                 @else
-                <a href="/login" style="color: #007bff; font-weight: bold; text-decoration: none;">Log In</a>
+                    <a href="/login" style="color: #007bff; font-weight: bold; text-decoration: none;">Log In</a>
                 @endauth
             </li>
         </ul>
