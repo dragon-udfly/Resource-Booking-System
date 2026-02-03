@@ -619,4 +619,33 @@ class HallBookingController extends Controller
             'canManageBookings' => $canManageBookings,
         ]);
     }
+
+
+    public function clearBookings()
+    {
+        HallBooking::truncate();
+
+        AuditLog::create([
+            'log_title' => 'All hall booking records deleted',
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('systemsetting')->with('success', 'All hall booking records have been cleared successfully.');
+    }
+
+    public function clearRejectedBookings()
+    {
+        HallBooking::where('final_approval', 'rejected')->delete();
+
+        AuditLog::create([
+            'log_title' => 'All rejected hall booking records deleted',
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('systemsetting')->with('success', 'All rejected hall booking records have been cleared successfully.');
+    }
 }
