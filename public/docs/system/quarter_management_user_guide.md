@@ -1,4 +1,4 @@
-# Quarter Management User Guide
+# Quarter Management User Guide (Admin)
 
 This guide details the procedures for Administrators to manage Government Quarters (Housing) within the system.
 

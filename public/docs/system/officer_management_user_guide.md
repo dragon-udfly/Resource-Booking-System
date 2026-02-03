@@ -1,4 +1,4 @@
-# Officer Management User Guide
+# Officer Management User Guide (Admin)
 
 This guide provides step-by-step instructions for Administrators to manage officer accounts within the District Secretariat Resource Booking System.
 
