@@ -136,6 +136,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/history', [HallBookingController::class, 'showHistory'])->name('history');
     Route::get('/history/quarters', [QuarterAllocationController::class, 'showQuarterHistory'])->name('history.quarters');
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+
+    // Internal Memo Routes
+    Route::get('/internal-memo', [App\Http\Controllers\MemoController::class, 'index'])->name('memo.index');
+    Route::post('/internal-memo/send', [App\Http\Controllers\MemoController::class, 'store'])->name('memo.send');
+    Route::post('/internal-memo/{id}/respond', [App\Http\Controllers\MemoController::class, 'updateStatus'])->name('memo.respond');
+    Route::get('/internal-memo/{id}', [App\Http\Controllers\MemoController::class, 'show'])->name('memo.show');
 });
 
 // Quarter
