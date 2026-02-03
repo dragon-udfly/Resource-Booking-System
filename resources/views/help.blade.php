@@ -60,6 +60,18 @@
             opacity: 0.9;
         }
 
+        .lang-btn {
+            background-color: #f8f9fa;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .lang-btn.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
         .help-container {
             width: 100%;
             max-width: 1000px;
@@ -160,6 +172,14 @@
 
         <div class="page-header">
             <h2>How to Use</h2>
+            <div class="button-bar" style="justify-content: center; margin-top: 10px; gap: 10px;">
+                <a href="{{ route('help', ['lang' => 'en']) }}"
+                    class="btn lang-btn {{ $currentLang === 'en' ? 'active' : '' }}">English</a>
+                <a href="{{ route('help', ['lang' => 'ta']) }}"
+                    class="btn lang-btn {{ $currentLang === 'ta' ? 'active' : '' }}">தமிழ்</a>
+                <a href="{{ route('help', ['lang' => 'si']) }}"
+                    class="btn lang-btn {{ $currentLang === 'si' ? 'active' : '' }}">සිංහල</a>
+            </div>
         </div>
 
         <div class="help-container">
