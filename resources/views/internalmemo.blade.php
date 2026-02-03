@@ -480,7 +480,7 @@
                 <button class="close-btn" onclick="closeModal('confirmClearSentModal')">&times;</button>
             </div>
             <div class="modal-body">
-                Are you sure you want to clear all SENT memos from your outbox? This cannot be undone.
+                Are you sure you want to clear all <strong>RESOLVED</strong> memos from your outbox? Pending memos will not be cleared.
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('confirmClearSentModal')">Cancel</button>
@@ -497,7 +497,7 @@
                 <button class="close-btn" onclick="closeModal('confirmClearReadModal')">&times;</button>
             </div>
             <div class="modal-body">
-                Are you sure you want to clear all READ memos from your inbox? This cannot be undone.
+                Are you sure you want to clear all <strong>RESOLVED</strong> memos from your inbox? Pending memos will not be cleared.
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('confirmClearReadModal')">Cancel</button>
@@ -682,7 +682,6 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            alert(data.message);
                             location.reload();
                         } else {
                             alert('Error: ' + data.message);
@@ -709,7 +708,6 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            alert(data.message);
                             location.reload();
                         } else {
                             alert('Error: ' + data.message);
