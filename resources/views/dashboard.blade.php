@@ -13,7 +13,64 @@
                 <h2 style="color: rgb(6, 4, 60); font-weight: bold">Pending Booking Approvals</h2>
                 <p>Review the pending applications.</p>
             </div>
-            <h2 style="text-align: center; color:rgb(34, 60, 4)">Hall Booking Applications</h2>
+
+            {{-- Fixed Navigation Menu --}}
+            <div id="fixed-nav-menu">
+                <a href="#hall-bookings-section" class="nav-btn">Hall <span class="badge">{{ $bookings->count() }}</span></a>
+                <a href="#family-bookings-section" class="nav-btn">Family <span
+                        class="badge">{{ $familyQuarterApplications->count() }}</span></a>
+                <a href="#scheduled-bookings-section" class="nav-btn">Scheduled <span
+                        class="badge">{{ $scheduledQuarterApplications->count() }}</span></a>
+            </div>
+
+            <style>
+                #fixed-nav-menu {
+                    position: fixed;
+                    right: 20px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    z-index: 1000;
+                }
+
+                .nav-btn {
+                    display: block;
+                    padding: 10px 15px;
+                    background-color: rgb(34, 60, 4);
+                    /* Matches header color */
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    text-align: center;
+                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                    transition: background-color 0.3s, transform 0.2s;
+                    font-weight: bold;
+                }
+
+                .nav-btn:hover {
+                    background-color: rgb(54, 90, 6);
+                    /* Lighter green for hover */
+                    transform: scale(1.05);
+                    color: white;
+                }
+
+                .nav-btn .badge {
+                    background-color: white;
+                    color: rgb(34, 60, 4);
+                    border-radius: 12px;
+                    padding: 2px 6px;
+                    font-size: 0.8em;
+                    margin-left: 5px;
+                }
+
+                html {
+                    scroll-behavior: smooth;
+                }
+            </style>
+
+            <h2 id="hall-bookings-section" style="text-align: center; color:rgb(34, 60, 4)">Hall Booking Applications</h2>
             <table id="approval-details">
                 <thead>
                     <tr>
@@ -52,7 +109,7 @@
             <br />
 
             {{-- Family Quarter Applications Section --}}
-            <h2 style="text-align: center; color:rgb(34, 60, 4)">Family Quarter Applications</h2>
+            <h2 id="family-bookings-section" style="text-align: center; color:rgb(34, 60, 4)">Family Quarter Applications</h2>
             <div style="overflow-x: auto;">
                 <table id="family-quarter-approval-details">
                     <thead>
@@ -125,7 +182,8 @@
             <br />
 
             {{-- Scheduled Quarter Applications Section --}}
-            <h2 style="text-align: center; color:rgb(34, 60, 4)">Scheduled Quarter Applications</h2>
+            <h2 id="scheduled-bookings-section" style="text-align: center; color:rgb(34, 60, 4)">Scheduled Quarter Applications
+            </h2>
             <div style="overflow-x: auto;">
                 <table id="scheduled-quarter-approval-details">
                     <thead>
@@ -267,13 +325,18 @@
                 #family-quarter-approval-details,
                 #scheduled-quarter-approval-details {
                     width: 100%;
-                    border-collapse: collapse; /* Optional but good for tables */
+                    border-collapse: collapse;
+                    /* Optional but good for tables */
                 }
-                
-                #approval-details th, #approval-details td,
-                #family-quarter-approval-details th, #family-quarter-approval-details td,
-                #scheduled-quarter-approval-details th, #scheduled-quarter-approval-details td {
-                    padding: 12px 15px; /* Add some padding for better readability */
+
+                #approval-details th,
+                #approval-details td,
+                #family-quarter-approval-details th,
+                #family-quarter-approval-details td,
+                #scheduled-quarter-approval-details th,
+                #scheduled-quarter-approval-details td {
+                    padding: 12px 15px;
+                    /* Add some padding for better readability */
                     text-align: left;
                     border-bottom: 1px solid #ddd;
                 }
