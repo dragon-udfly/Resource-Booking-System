@@ -224,14 +224,30 @@
             </div>
         </div>
 
-        {{-- Success/Info Modal --}}
-        <div id="success-modal"
+        {{-- Generic Confirmation Modal --}}
+        <div id="confirm-modal"
             style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
             <div
                 style="background: white; padding: 25px; border-radius: 8px; max-width: 400px; width: 90%; text-align: center;">
-                <h3 id="success-modal-title" style="color: #28a745; margin-bottom: 15px;">Success</h3>
-                <p id="success-modal-message" style="margin-bottom: 20px; color: #333;">Operation successful.</p>
-                <button id="success-modal-btn" class="btn btn-primary"
+                <h3 id="confirm-modal-title" style="margin-bottom: 15px;">Confirm Action</h3>
+                <p id="confirm-modal-message" style="margin-bottom: 20px; color: #333;"></p>
+                <div style="margin-top: 20px;">
+                    <button id="confirm-modal-yes-btn" class="btn btn-primary"
+                        style="background-color: #007bff; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">Yes</button>
+                    <button onclick="closeConfirmModal()" class="btn btn-secondary"
+                        style="background-color: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">No</button>
+                </div>
+            </div>
+        </div>
+
+        {{-- Generic Info/Success/Error Modal --}}
+        <div id="info-modal"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+            <div
+                style="background: white; padding: 25px; border-radius: 8px; max-width: 400px; width: 90%; text-align: center;">
+                <h3 id="info-modal-title" style="margin-bottom: 15px;">Info</h3>
+                <p id="info-modal-message" style="margin-bottom: 20px; color: #333;"></p>
+                <button id="info-modal-btn" class="btn btn-primary"
                     style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">OK</button>
             </div>
         </div>
@@ -239,18 +255,54 @@
     </section>
 
     <script>
-        function showSuccessModal(message, redirectUrl) {
-            document.getElementById('success-modal-message').textContent = message;
-            document.getElementById('success-modal').style.display = 'flex';
+        function showInfoModal(message, title = 'Info', redirectUrl = null, type = 'info') {
+            document.getElementById('info-modal-title').textContent = title;
+            document.getElementById('info-modal-message').textContent = message;
             
-            document.getElementById('success-modal-btn').onclick = function() {
-                document.getElementById('success-modal').style.display = 'none';
+            const titleElem = document.getElementById('info-modal-title');
+            const btnElem = document.getElementById('info-modal-btn');
+
+            if (type === 'error') {
+                titleElem.style.color = '#dc3545';
+                btnElem.style.backgroundColor = '#dc3545';
+            } else if (type === 'success') {
+                titleElem.style.color = '#28a745';
+                btnElem.style.backgroundColor = '#28a745';
+            } else {
+                titleElem.style.color = '#007bff';
+                btnElem.style.backgroundColor = '#007bff';
+            }
+
+            document.getElementById('info-modal').style.display = 'flex';
+            
+            document.getElementById('info-modal-btn').onclick = function() {
+                document.getElementById('info-modal').style.display = 'none';
                 if (redirectUrl) {
                     window.location.href = redirectUrl;
-                } else {
+                } else if (type === 'success') {
                     window.location.reload();
                 }
             };
+        }
+
+        function showConfirmModal(message, onConfirm) {
+            document.getElementById('confirm-modal-message').textContent = message;
+            document.getElementById('confirm-modal').style.display = 'flex';
+            
+            // Set up the Yes button
+            const yesBtn = document.getElementById('confirm-modal-yes-btn');
+            // Clone to remove previous event listeners
+            const newYesBtn = yesBtn.cloneNode(true);
+            yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+            
+            newYesBtn.addEventListener('click', function() {
+                closeConfirmModal();
+                if (onConfirm) onConfirm();
+            });
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').style.display = 'none';
         }
 
         // --- Delete Logic ---
@@ -275,14 +327,14 @@
             .then(response => response.json())
             .then(data => {
                 if(data.success || data.message) { 
-                    showSuccessModal(data.message || 'Record deleted successfully.', "{{ route('history') }}");
+                    showInfoModal(data.message || 'Record deleted successfully.', 'Deleted', "{{ route('history') }}", 'success');
                 } else {
-                     showSuccessModal('Error deleting record.');
+                     showInfoModal('Error deleting record.', 'Error', null, 'error');
                 }
             })
             .catch(err => {
                  console.error(err);
-                 alert('Error occurred.');
+                 showInfoModal('An error occurred during deletion.', 'System Error', null, 'error');
             });
         }
 
@@ -297,7 +349,7 @@
         function performCancel() {
              const reason = document.getElementById('cancel_reason').value;
              if(!reason.trim()) {
-                 alert('Reason is required.');
+                 showInfoModal('Reason is required for cancellation.', 'Validation Error', null, 'error');
                  return;
              }
 
@@ -317,34 +369,41 @@
              .then(data => {
                  if(data.success) {
                      closeCancelModal();
-                     showSuccessModal('Booking cancelled successfully.');
+                     showInfoModal('Booking cancelled successfully.', 'Cancelled', null, 'success');
                  } else {
-                     alert('Error: ' + data.message);
+                     showInfoModal('Error: ' + data.message, 'Error', null, 'error');
                  }
+             })
+             .catch(err => {
+                 console.error(err);
+                 showInfoModal('An error occurred during cancellation.', 'System Error', null, 'error');
              });
         }
 
         // --- Re-approve Logic (GA) ---
         function confirmReApprove() {
-            if(!confirm('Are you sure you want to re-approve this cancelled booking?')) return;
-
-             fetch("{{ route('hall_bookings.reApprove', $hallBooking->booking_id) }}", {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-             })
-             .then(response => response.json())
-             .then(data => {
-                 if(data.success) {
-                     showSuccessModal('Booking re-approved successfully.');
-                 } else {
-                     alert('Error: ' + data.message);
-                 }
-             });
+            showConfirmModal('Are you sure you want to re-approve this cancelled booking?', function() {
+                fetch("{{ route('hall_bookings.reApprove', $hallBooking->booking_id) }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        showInfoModal('Booking re-approved successfully.', 'Success', null, 'success');
+                    } else {
+                        showInfoModal('Error: ' + data.message, 'Error', null, 'error');
+                    }
+                })
+                .catch(err => {
+                     console.error(err);
+                     showInfoModal('An error occurred during re-approval.', 'System Error', null, 'error');
+                });
+            });
         }
-
     </script>
 @endsection
