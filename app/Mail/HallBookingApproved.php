@@ -41,7 +41,7 @@ class HallBookingApproved extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Hall Booking Approved - Booking ID: ' . $this->booking->booking_id,
+            subject: 'Hall Booking Approved - Hall: ' . $this->booking->requested_hall_type,
         );
     }
 

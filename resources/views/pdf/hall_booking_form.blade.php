@@ -235,8 +235,7 @@
         </div>
 
         <div class="footer">
-            <p>Generated on: {{ \Carbon\Carbon::now()->format('Y-m-d H:i:s') }} | Page <span
-                    class="pageNumber"></span>/<span class="totalPages"></span><br>Resource Booking System - Vavuniya
+            <p>Generated on: {{ \Carbon\Carbon::now()->format('Y-m-d H:i:s') }} <br>Resource Booking System - Vavuniya
             </p>
         </div>
     </div>

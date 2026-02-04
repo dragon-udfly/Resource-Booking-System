@@ -50,7 +50,7 @@
 <body>
     <div class="header">
         <h2>District Secretariat, Vavuniya</h2>
-        <p>Resource Management Division</p>
+        <p>Resource Booking System</p>
     </div>
 
     <div class="content">
@@ -58,7 +58,9 @@
         <p><strong>Date:</strong> {{ $date }}</p>
 
         <p>Dear {{ $booking->applicant_name }},</p>
-        <p>We are pleased to inform you that your request for reserving the hall has been <strong>APPROVED</strong>.</p>
+        <p>We are pleased to inform you that your request (Programme/Event: <strong>{{ $booking->programme }}</strong>)
+            for
+            reserving the hall has been <strong>APPROVED</strong>.</p>
 
         <table class="table">
             <tr>
@@ -84,7 +86,9 @@
         </table>
 
         <p>Please ensure that all payments (if applicable) are settled before the event date. Please bring this letter
-            as a proof of booking.</p>
+            as a proof of booking. <br><br>
+            Generated on: {{ \Carbon\Carbon::now()->format('Y-m-d H:i:s') }}<br>Resource Booking System - Vavuniya
+        </p>
     </div>
 
 </body>
