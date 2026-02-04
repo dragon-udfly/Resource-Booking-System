@@ -4,9 +4,12 @@
 
 @section('content')
     <section class="banner">
-        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
-            <a href="{{ route('dashboard') }}" class="btn btn-secondary"
-                style="background-color: #6c757d; color: white;">Back to Dashboard</a>
+        <div style="width: 90%; max-width: 900px; margin: 0 auto; text-align: left; margin-bottom: 20px;">
+            <a href="{{ route('dashboard') }}" class="btn"
+                style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; transition: background 0.3s;"
+                onmouseover="this.style.backgroundColor='#5a6268'" onmouseout="this.style.backgroundColor='#6c757d'">
+                &larr; Back to Dashboard
+            </a>
         </div>
 
         <div class="page-header">
@@ -24,12 +27,14 @@
                     <div class="form-group" style="flex: 1;">
                         <label style="font-weight: bold; color: #555;">Applicant Name</label>
                         <p style="padding: 10px; background-color: #f8f9fa; border: 1px solid #ced4da; border-radius: 4px;">
-                            {{ $hallBooking->applicant_name }}</p>
+                            {{ $hallBooking->applicant_name }}
+                        </p>
                     </div>
                     <div class="form-group" style="flex: 1;">
                         <label style="font-weight: bold; color: #555;">Applicant Type</label>
                         <p style="padding: 10px; background-color: #f8f9fa; border: 1px solid #ced4da; border-radius: 4px;">
-                            {{ $hallBooking->applicant_type }}</p>
+                            {{ $hallBooking->applicant_type }}
+                        </p>
                     </div>
                 </div>
 
@@ -38,12 +43,14 @@
                     <div class="form-group" style="flex: 1;">
                         <label style="font-weight: bold; color: #555;">Hall Type</label>
                         <p style="padding: 10px; background-color: #f8f9fa; border: 1px solid #ced4da; border-radius: 4px;">
-                            {{ $hallBooking->requested_hall_type ?? 'N/A' }}</p>
+                            {{ $hallBooking->requested_hall_type ?? 'N/A' }}
+                        </p>
                     </div>
                     <div class="form-group" style="flex: 1;">
                         <label style="font-weight: bold; color: #555;">Programme/Event</label>
                         <p style="padding: 10px; background-color: #f8f9fa; border: 1px solid #ced4da; border-radius: 4px;">
-                            {{ $hallBooking->programme }}</p>
+                            {{ $hallBooking->programme }}
+                        </p>
                     </div>
                 </div>
 
@@ -52,17 +59,20 @@
                     <div class="form-group" style="flex: 1;">
                         <label style="font-weight: bold; color: #555;">Event Date</label>
                         <p style="padding: 10px; background-color: #f8f9fa; border: 1px solid #ced4da; border-radius: 4px;">
-                            {{ $hallBooking->event_date }}</p>
+                            {{ $hallBooking->event_date }}
+                        </p>
                     </div>
                     <div class="form-group" style="flex: 1;">
                         <label style="font-weight: bold; color: #555;">Event Time</label>
                         <p style="padding: 10px; background-color: #f8f9fa; border: 1px solid #ced4da; border-radius: 4px;">
-                            {{ $hallBooking->event_time }}</p>
+                            {{ $hallBooking->event_time }}
+                        </p>
                     </div>
                     <div class="form-group" style="flex: 1;">
                         <label style="font-weight: bold; color: #555;">Participants</label>
                         <p style="padding: 10px; background-color: #f8f9fa; border: 1px solid #ced4da; border-radius: 4px;">
-                            {{ $hallBooking->participants }}</p>
+                            {{ $hallBooking->participants }}
+                        </p>
                     </div>
                 </div>
 
@@ -71,12 +81,14 @@
                     <div class="form-group" style="flex: 1;">
                         <label style="font-weight: bold; color: #555;">Duration (hours)</label>
                         <p style="padding: 10px; background-color: #f8f9fa; border: 1px solid #ced4da; border-radius: 4px;">
-                            {{ $hallBooking->event_duration }}</p>
+                            {{ $hallBooking->event_duration }}
+                        </p>
                     </div>
                     <div class="form-group" style="flex: 1;">
                         <label style="font-weight: bold; color: #555;">Paid Status</label>
                         <p style="padding: 10px; background-color: #f8f9fa; border: 1px solid #ced4da; border-radius: 4px;">
-                            {{ $hallBooking->paid_status }}</p>
+                            {{ $hallBooking->paid_status }}
+                        </p>
                     </div>
                 </div>
 
@@ -85,12 +97,14 @@
                     <div class="form-group" style="flex: 1;">
                         <label style="font-weight: bold; color: #555;">Emergency Booking</label>
                         <p style="padding: 10px; background-color: #f8f9fa; border: 1px solid #ced4da; border-radius: 4px;">
-                            {{ $hallBooking->is_emergency_booking ? 'Yes' : 'No' }}</p>
+                            {{ $hallBooking->is_emergency_booking ? 'Yes' : 'No' }}
+                        </p>
                     </div>
                     <div class="form-group" style="flex: 1;">
                         <label style="font-weight: bold; color: #555;">Requester NIC</label>
                         <p style="padding: 10px; background-color: #f8f9fa; border: 1px solid #ced4da; border-radius: 4px;">
-                            {{ $hallBooking->filled_by_nic }}</p>
+                            {{ $hallBooking->filled_by_nic }}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -244,8 +258,8 @@
         function showSuccessModal(message, redirectUrl) {
             document.getElementById('success-modal-message').textContent = message;
             document.getElementById('success-modal').style.display = 'flex';
-            
-            document.getElementById('success-modal-btn').onclick = function() {
+
+            document.getElementById('success-modal-btn').onclick = function () {
                 document.getElementById('success-modal').style.display = 'none';
                 if (redirectUrl) {
                     window.location.href = redirectUrl;
