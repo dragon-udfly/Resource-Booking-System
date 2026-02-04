@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Hall;
 use App\Models\HallBooking;
 use App\Models\AuditLog;
+use App\Mail\HallBookingApproved;
+use App\Mail\HallBookingCancelled;
+use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -556,6 +559,9 @@ class HallBookingController extends Controller
                     'date_performed' => Carbon::now()->toDateString(),
                     'time_performed' => Carbon::now()->toTimeString(),
                 ]);
+
+                // Send Cancellation Email
+                Mail::to($hallBooking->applicant_email)->send(new HallBookingCancelled($hallBooking, $request->reason));
 
                 Log::info("[Hall Booking] Action: Cancelled by GA | ID: {$hallBooking->booking_id} | User: {$user->id} | Reason: {$request->reason}");
 
