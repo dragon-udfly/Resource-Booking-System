@@ -147,7 +147,7 @@
                                     Decision</button>
 
                                 {{-- AO Cancel Button --}}
-                                @if($hallBooking->final_approval !== 'approved')
+                                @if($hallBooking->final_approval === 'pending')
                                     <button type="button" onclick="showCancelModal()" class="btn btn-danger"
                                         style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-left: 10px;">Cancel
                                         Booking</button>
@@ -215,10 +215,14 @@
 
                 {{-- Requester (PA) Logic --}}
                 @if(Auth::user()->hasPermissionTo('requester'))
-                    @if($hallBooking->administrative_officer_approved !== 'approved' || $hallBooking->additional_government_agent_approved !== 'approved')
-                        <button type="button" onclick="showCancelModal()" class="btn btn-danger"
-                            style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-left: 10px;">Cancel
-                            Booking</button>
+                    @if($hallBooking->administrative_officer_approved === 'pending' && $hallBooking->additional_government_agent_approved === 'pending' && $hallBooking->final_approval === 'pending')
+                        {{-- Additional check: must be owner (usually handled by auth middleware/view access, but good to be safe if
+                        passed) --}}
+                        @if($hallBooking->filled_by_nic === Auth::user()->nic_number)
+                            <button type="button" onclick="showCancelModal()" class="btn btn-danger"
+                                style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-left: 10px;">Cancel
+                                Booking</button>
+                        @endif
                     @endif
                 @endif
 
