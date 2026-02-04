@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\GradeSalarySetting;
+use App\Services\MarkingCalculatorService;
 
 class UserController extends Controller
 {
@@ -91,16 +92,43 @@ class UserController extends Controller
                 ->orderBy('date_created', 'desc')
                 ->get();
 
-            $quarterApplications = QuarterApplication::with('quarterAllocation')
+            // Fetch Scheduled Quarter Applications
+            $scheduledQuarterApplications = QuarterApplication::with('quarterAllocation')
                 ->whereHas('quarterAllocation', function ($query) {
                     $query->where('allocation_status', 'pending');
                 })
+                ->where('quarter_type', 'Scheduled')
                 ->orderBy('date_created', 'desc')
                 ->get();
+
+            // Fetch Family Quarter Applications
+            $familyQuarterApplications = QuarterApplication::with(['quarterAllocation', 'familyQuarterApplication.markingFamilyQuarter'])
+                ->whereHas('quarterAllocation', function ($query) {
+                    $query->where('allocation_status', 'pending');
+                })
+                ->where('quarter_type', 'Family')
+                ->get();
+
+            // Calculate marks and sort Family Applications
+            $markingCalculator = new MarkingCalculatorService();
+            foreach ($familyQuarterApplications as $app) {
+                if ($app->familyQuarterApplication) {
+                    $breakdown = $markingCalculator->calculateDynamicScore($app->familyQuarterApplication);
+                    $app->total_mark = $breakdown['total'];
+                } else {
+                    $app->total_mark = 0;
+                }
+            }
+
+            // Sort by total_mark descending
+            $familyQuarterApplications = $familyQuarterApplications->sortByDesc('total_mark');
+
             return view('dashboard', [
                 'user' => $user,
                 'bookings' => $bookings,
-                'quarterApplications' => $quarterApplications
+                'familyQuarterApplications' => $familyQuarterApplications,
+                'scheduledQuarterApplications' => $scheduledQuarterApplications,
+                'quarterApplications' => collect(),
             ]);
         }
     }

@@ -48,75 +48,147 @@
             </table>
             <br />
             <br />
-            <h2 style="text-align: center; color:rgb(34, 60, 4)">Quarters Reservation Applications</h2>
-            <table id="quarter-approval-details">
-                <thead>
-                    <tr>
-                        <th>Applicant Name</th>
-                        <th>Designation</th>
-                        <th>Submitted Date</th>
-                        <th>Type</th>
-                        <th>AO Verification</th>
-                        <th>AGA Verification</th>
-                        <th>GA Approval</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($quarterApplications as $application)
-                        <tr data-quarter-type="{{ $application->quarter_type }}">
-                            <td>{{ $application->officer_name }}</td>
-                            <td>{{ $application->designation }}</td>
-                            <td>{{ \Carbon\Carbon::parse($application->date_created)->format('Y-m-d h:i A') }}</td>
-                            <td>{{ $application->quarter_type }}</td>
-                            <td>
-                                @if($application->quarterAllocation)
-                                    @if($application->quarterAllocation->is_ao_verified === 1)
-                                        <span style="color: green; font-weight: bold;">Yes</span>
-                                    @elseif($application->quarterAllocation->is_ao_verified === 0)
-                                        <span style="color: red; font-weight: bold;">No</span>
+            <br />
+            <br />
+
+            {{-- Family Quarter Applications Section --}}
+            <h2 style="text-align: center; color:rgb(34, 60, 4)">Family Quarter Applications</h2>
+            <div style="overflow-x: auto;">
+                <table id="family-quarter-approval-details">
+                    <thead>
+                        <tr>
+                            <th>Applicant Name</th>
+                            <th>Designation</th>
+                            <th>Applicant Grade</th>
+                            <th>Submitted Date</th>
+                            <th>Total Mark</th>
+                            <th>AO Verification</th>
+                            <th>AGA Verification</th>
+                            <th>GA Approval</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($familyQuarterApplications as $application)
+                            <tr>
+                                <td>{{ $application->officer_name }}</td>
+                                <td>{{ $application->designation }}</td>
+                                <td>{{ $application->service_grade }}</td>
+                                <td>{{ \Carbon\Carbon::parse($application->date_created)->format('Y-m-d h:i A') }}</td>
+                                <td>{{ $application->total_mark }}</td>
+                                <td>
+                                    @if($application->quarterAllocation)
+                                        @if($application->quarterAllocation->is_ao_verified === 1)
+                                            <span style="color: green; font-weight: bold;">Yes</span>
+                                        @elseif($application->quarterAllocation->is_ao_verified === 0)
+                                            <span style="color: red; font-weight: bold;">No</span>
+                                        @else
+                                            <span style="color: gray;">Pending</span>
+                                        @endif
                                     @else
-                                        <span style="color: gray;">Pending</span>
+                                        N/A
                                     @endif
-                                @else
-                                    N/A
-                                @endif
-                            </td>
-                            <td>
-                                @if($application->quarterAllocation)
-                                    @if($application->quarterAllocation->is_aga_verified === 1)
-                                        <span style="color: green; font-weight: bold;">Yes</span>
-                                    @elseif($application->quarterAllocation->is_aga_verified === 0)
-                                        <span style="color: red; font-weight: bold;">No</span>
+                                </td>
+                                <td>
+                                    @if($application->quarterAllocation)
+                                        @if($application->quarterAllocation->is_aga_verified === 1)
+                                            <span style="color: green; font-weight: bold;">Yes</span>
+                                        @elseif($application->quarterAllocation->is_aga_verified === 0)
+                                            <span style="color: red; font-weight: bold;">No</span>
+                                        @else
+                                            <span style="color: gray;">Pending</span>
+                                        @endif
                                     @else
-                                        <span style="color: gray;">Pending</span>
+                                        N/A
                                     @endif
-                                @else
-                                    N/A
-                                @endif
-                            </td>
-                            <td>{{ $application->quarterAllocation ? ucfirst($application->quarterAllocation->allocation_status) : 'N/A' }}
-                            </td>
-                            <td>
-                                @if(strtolower($application->quarter_type) === 'scheduled')
-                                    <a href="{{ route('scheduled-quarter.review', $application->application_id) }}"
-                                        class="action-btn review-quarter-btn"
-                                        style="text-decoration: none; text-align: center;">Review</a>
-                                @elseif(strtolower($application->quarter_type) === 'family')
+                                </td>
+                                <td>{{ $application->quarterAllocation ? ucfirst($application->quarterAllocation->allocation_status) : 'N/A' }}
+                                </td>
+                                <td>
                                     <a href="{{ route('family-quarter.review', $application->application_id) }}"
                                         class="action-btn review-quarter-btn"
                                         style="text-decoration: none; text-align: center;">Review</a>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" style="text-align: center; padding: 12px 15px;">No pending family quarter
+                                    applications found.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <br />
+            <br />
+
+            {{-- Scheduled Quarter Applications Section --}}
+            <h2 style="text-align: center; color:rgb(34, 60, 4)">Scheduled Quarter Applications</h2>
+            <div style="overflow-x: auto;">
+                <table id="scheduled-quarter-approval-details">
+                    <thead>
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 12px 15px;">No pending quarter applications found.
-                            </td>
+                            <th>Applicant Name</th>
+                            <th>Designation</th>
+                            <th>Submitted Date</th>
+                            <th>AO Verification</th>
+                            <th>AGA Verification</th>
+                            <th>GA Approval</th>
+                            <th>Actions</th>
                         </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @forelse ($scheduledQuarterApplications as $application)
+                            <tr>
+                                <td>{{ $application->officer_name }}</td>
+                                <td>{{ $application->designation }}</td>
+                                <td>{{ \Carbon\Carbon::parse($application->date_created)->format('Y-m-d h:i A') }}</td>
+                                <td>
+                                    @if($application->quarterAllocation)
+                                        @if($application->quarterAllocation->is_ao_verified === 1)
+                                            <span style="color: green; font-weight: bold;">Yes</span>
+                                        @elseif($application->quarterAllocation->is_ao_verified === 0)
+                                            <span style="color: red; font-weight: bold;">No</span>
+                                        @else
+                                            <span style="color: gray;">Pending</span>
+                                        @endif
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($application->quarterAllocation)
+                                        @if($application->quarterAllocation->is_aga_verified === 1)
+                                            <span style="color: green; font-weight: bold;">Yes</span>
+                                        @elseif($application->quarterAllocation->is_aga_verified === 0)
+                                            <span style="color: red; font-weight: bold;">No</span>
+                                        @else
+                                            <span style="color: gray;">Pending</span>
+                                        @endif
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
+                                <td>{{ $application->quarterAllocation ? ucfirst($application->quarterAllocation->allocation_status) : 'N/A' }}
+                                </td>
+                                <td>
+                                    <a href="{{ route('scheduled-quarter.review', $application->application_id) }}"
+                                        class="action-btn review-quarter-btn"
+                                        style="text-decoration: none; text-align: center;">Review</a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 12px 15px;">No pending scheduled quarter
+                                    applications found.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
             {{-- Approver Review Overlay Removed --}}
 
@@ -188,6 +260,22 @@
                 .action-btn.review-quarter-btn:hover {
                     background-color: #0056b3;
                     /* Example hover color */
+                }
+
+                /* Ensure tables take full width */
+                #approval-details,
+                #family-quarter-approval-details,
+                #scheduled-quarter-approval-details {
+                    width: 100%;
+                    border-collapse: collapse; /* Optional but good for tables */
+                }
+                
+                #approval-details th, #approval-details td,
+                #family-quarter-approval-details th, #family-quarter-approval-details td,
+                #scheduled-quarter-approval-details th, #scheduled-quarter-approval-details td {
+                    padding: 12px 15px; /* Add some padding for better readability */
+                    text-align: left;
+                    border-bottom: 1px solid #ddd;
                 }
             </style>
 
