@@ -418,7 +418,8 @@
         // --- Re-approve Logic (GA) ---
         function confirmReApprove() {
             showConfirmModal('Are you sure you want to re-approve this cancelled booking?', function() {
-                fetch("{{ route('hall_bookings.reApprove', $hallBooking->booking_id) }}", {
+                 showProcessingOverlay();
+                 fetch("{{ route('hall_bookings.reApprove', $hallBooking->booking_id) }}", {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -428,6 +429,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    hideProcessingOverlay();
                     if(data.success) {
                         showInfoModal('Booking re-approved successfully.', 'Success', null, 'success');
                     } else {
@@ -435,6 +437,7 @@
                     }
                 })
                 .catch(err => {
+                     hideProcessingOverlay();
                      console.error(err);
                      showInfoModal('An error occurred during re-approval.', 'System Error', null, 'error');
                 });

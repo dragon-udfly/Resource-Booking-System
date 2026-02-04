@@ -658,6 +658,9 @@ class HallBookingController extends Controller
                     'time_performed' => Carbon::now()->toTimeString(),
                 ]);
 
+                // Send Re-Approval Email (Same as Approval)
+                Mail::to($hallBooking->applicant_email)->send(new HallBookingApproved($hallBooking));
+
                 return response()->json(['success' => true, 'message' => 'Booking re-approved successfully.']);
             }
             return response()->json(['success' => false, 'message' => 'This booking is not currently cancelled.'], 422);
