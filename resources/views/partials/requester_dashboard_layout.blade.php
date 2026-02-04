@@ -251,13 +251,6 @@
             });
 
             globalCancelBtn.addEventListener('click', hideGlobalConfirmation);
-
-
-
-
-
-
-
         });
     </script>
 @endpush
