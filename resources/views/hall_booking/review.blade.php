@@ -147,7 +147,7 @@
                                     Decision</button>
 
                                 {{-- AO Cancel Button --}}
-                                @if($hallBooking->final_approval !== 'approved')
+                                @if($hallBooking->final_approval === 'pending')
                                     <button type="button" onclick="showCancelModal()" class="btn btn-danger"
                                         style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-left: 10px;">Cancel
                                         Booking</button>
@@ -215,10 +215,14 @@
 
                 {{-- Requester (PA) Logic --}}
                 @if(Auth::user()->hasPermissionTo('requester'))
-                    @if($hallBooking->administrative_officer_approved !== 'approved' || $hallBooking->additional_government_agent_approved !== 'approved')
-                        <button type="button" onclick="showCancelModal()" class="btn btn-danger"
-                            style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-left: 10px;">Cancel
-                            Booking</button>
+                    @if($hallBooking->administrative_officer_approved === 'pending' && $hallBooking->additional_government_agent_approved === 'pending' && $hallBooking->final_approval === 'pending')
+                        {{-- Additional check: must be owner (usually handled by auth middleware/view access, but good to be safe if
+                        passed) --}}
+                        @if($hallBooking->filled_by_nic === Auth::user()->nic_number)
+                            <button type="button" onclick="showCancelModal()" class="btn btn-danger"
+                                style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-left: 10px;">Cancel
+                                Booking</button>
+                        @endif
                     @endif
                 @endif
 
@@ -274,13 +278,44 @@
                     style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">OK</button>
             </div>
         </div>
+        {{-- Processing Overlay --}}
+        <div id="processing-overlay"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; flex-direction: column;">
+            <div style="background: white; padding: 30px; border-radius: 8px; text-align: center;">
+                <div class="spinner"
+                    style="border: 4px solid #f3f3f3; border-top: 4px solid #007bff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px;">
+                </div>
+                <h3 style="margin: 0;">Processing...</h3>
+                <p style="margin-top: 10px; color: #666;">Please wait while we update the booking status.</p>
+            </div>
+        </div>
+
+        <style>
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
     </section>
 
     <script>
-        // Modal State Variables
-        let pendingAction = null;
+        // ... (Previous modal variables)
+
+        function showProcessingOverlay() {
+            document.getElementById('processing-overlay').style.display = 'flex';
+        }
+
+        function hideProcessingOverlay() {
+            document.getElementById('processing-overlay').style.display = 'none';
+        }
 
         function showInfoModal(message, title = 'Info', redirectUrl = null, type = 'info') {
+            // ... (Existing implementation)
             document.getElementById('info-modal-title').textContent = title;
             document.getElementById('info-modal-message').textContent = message;
 
@@ -308,27 +343,10 @@
             };
         }
 
-        function showConfirmModal(message, onConfirm) {
-            document.getElementById('confirm-modal-message').textContent = message;
-            document.getElementById('confirm-modal').style.display = 'flex';
-
-            // Set up the Yes button
-            const yesBtn = document.getElementById('confirm-modal-yes-btn');
-            // Clone to remove previous event listeners
-            const newYesBtn = yesBtn.cloneNode(true);
-            yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
-
-            newYesBtn.addEventListener('click', function () {
-                closeConfirmModal();
-                if (onConfirm) onConfirm();
-            });
-        }
-
-        function closeConfirmModal() {
-            document.getElementById('confirm-modal').style.display = 'none';
-        }
+        // ... showConfirmModal, closeConfirmModal ...
 
         function toggleRejectionReason() {
+            // ... existing ...
             const decision = document.getElementById('ga_decision').value;
             const reasonContainer = document.getElementById('rejection-reason-container');
             if (decision === 'reject') {
@@ -339,6 +357,7 @@
         }
 
         function submitDecision(role) {
+            // ... existing ...
             let decision = '';
             let url = '';
             let reason = '';
@@ -369,7 +388,7 @@
         }
 
         function performSubmission(url, reason) {
-            // Create form data
+            // ... existing ...
             const formData = new FormData();
             formData.append('_token', '{{ csrf_token() }}');
             if (reason) formData.append('rejection_reason', reason);
@@ -404,6 +423,9 @@
         }
 
         function confirmCancel() {
+            closeCancelModal(); // Identify change: Close modal immediately before processing starts
+            showProcessingOverlay(); // Show spinner
+
             const reason = document.getElementById('cancel_reason') ? document.getElementById('cancel_reason').value : '';
 
             const formData = new FormData();
@@ -420,18 +442,17 @@
             })
                 .then(response => response.json())
                 .then(data => {
+                    hideProcessingOverlay(); // Hide spinner
+
                     if (data.success) {
-                        closeCancelModal();
                         showInfoModal('Booking cancelled successfully.', 'Cancelled', "{{ route('dashboard') }}", 'success');
                     } else {
-                        // Reuse info modal for error
-                        closeCancelModal(); // Optionally close or keep open? Usually better to show error on top or close first
                         showInfoModal('Error: ' + data.message, 'Cancellation Failed', null, 'error');
                     }
                 })
                 .catch(error => {
+                    hideProcessingOverlay(); // Hide spinner
                     console.error('Error:', error);
-                    closeCancelModal();
                     showInfoModal('An error occurred. Please try again.', 'Error', null, 'error');
                 });
         }

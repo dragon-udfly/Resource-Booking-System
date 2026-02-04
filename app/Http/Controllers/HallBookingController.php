@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Hall;
 use App\Models\HallBooking;
 use App\Models\AuditLog;
+use App\Mail\HallBookingApproved;
+use App\Mail\HallBookingCancelled;
+use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -532,18 +535,18 @@ class HallBookingController extends Controller
         $user = Auth::user();
         $isRequester = $user->hasPermissionTo('requester');
 
-        // Reason is required for GA (if not requester), but optional for requester
+        // Reason validation
         $rules = [
             'reason' => ($isRequester) ? 'nullable|string|max:500' : 'required|string|max:500',
         ];
-
-        // Also allow AO to cancel if needed (from blade: AO has cancel button too)
+        // AO Reason is optional
         if ($user->hasPermissionTo('administrative_officer_approval')) {
             $rules['reason'] = 'nullable|string|max:500';
         }
-
         $request->validate($rules);
 
+        // 1. Government Agent (GA) Logic
+        // Can ONLY cancel if currently 'approved' (Revoke)
         if ($user->hasPermissionTo('government_agent_approval')) {
             if ($hallBooking->final_approval === 'approved') {
                 $hallBooking->final_approval = 'cancelled';
@@ -557,31 +560,38 @@ class HallBookingController extends Controller
                     'time_performed' => Carbon::now()->toTimeString(),
                 ]);
 
+                // Send Cancellation Email
+                Mail::to($hallBooking->applicant_email)->send(new HallBookingCancelled($hallBooking, $request->reason));
+
                 Log::info("[Hall Booking] Action: Cancelled by GA | ID: {$hallBooking->booking_id} | User: {$user->id} | Reason: {$request->reason}");
 
                 return response()->json(['success' => true, 'message' => 'Booking cancelled successfully.']);
             }
-            return response()->json(['success' => false, 'message' => 'This booking is not currently approved.'], 422);
+            // Logic moved from blade: If not approved, GA cannot cancel (use Reject instead)
+            return response()->json(['success' => false, 'message' => 'GA can only cancel finalized bookings. Use Reject for pending ones.'], 422);
         }
 
-        // Requester Logic
+        // 2. Requester Logic
+        // Can ONLY cancel if ALL approvals are pending (Total Pending)
         if ($isRequester) {
             // Verify ownership
             if ($hallBooking->filled_by_nic !== $user->nic_number) {
-                // If not owner, check if they have approver permissions to proceed to subsequent blocks?
-                // But subsequent blocks are separate if statements.
-                // If they are Requester AND Approver, they might fall through?
-                // But here we are inside "if ($isRequester)".
-                // If they are primarily acting as requester (but canceling someone else's), deny.
-                // Unless they are also AO?
                 if (!$user->hasPermissionTo('administrative_officer_approval') && !$user->hasPermissionTo('government_agent_approval')) {
                     abort(403, 'Unauthorized access: You can only cancel your own bookings.');
                 }
-                // If they are AO/GA, let them pass this block (don't execute requester cancel) to reach AO/GA block?
-                // Or just execute cancel here if they are AO? AO block is below.
             } else {
-                // Owner cancelling
+                // Strict Check: Must be totally pending
+                if (
+                    $hallBooking->administrative_officer_approved !== 'pending' ||
+                    $hallBooking->additional_government_agent_approved !== 'pending' ||
+                    $hallBooking->final_approval !== 'pending'
+                ) {
+
+                    return response()->json(['success' => false, 'message' => 'You cannot cancel this booking as it is already being processed.'], 403);
+                }
+
                 $hallBooking->final_approval = 'cancelled';
+                $hallBooking->reason_of_rejection = 'Cancelled by Requester';
                 $hallBooking->save();
 
                 AuditLog::create([
@@ -595,10 +605,15 @@ class HallBookingController extends Controller
             }
         }
 
-        // AO Logic (if AO uses this endpoint, blade line 131 calls cancelApproved too likely?)
-        // Blade line 131 calls showCancelModal -> confirmCancel -> cancelApproved route.
+        // 3. Administrative Officer (AO) Logic
+        // Can ONLY cancel if final_approval is pending
         if ($user->hasPermissionTo('administrative_officer_approval')) {
+            if ($hallBooking->final_approval !== 'pending') {
+                return response()->json(['success' => false, 'message' => 'You cannot cancel a booking that has already been finalized.'], 403);
+            }
+
             $hallBooking->final_approval = 'cancelled';
+            $hallBooking->reason_of_rejection = $request->reason ?? 'Cancelled by AO';
             $hallBooking->save();
 
             AuditLog::create([
@@ -642,6 +657,9 @@ class HallBookingController extends Controller
                     'date_performed' => Carbon::now()->toDateString(),
                     'time_performed' => Carbon::now()->toTimeString(),
                 ]);
+
+                // Send Re-Approval Email (Same as Approval)
+                Mail::to($hallBooking->applicant_email)->send(new HallBookingApproved($hallBooking));
 
                 return response()->json(['success' => true, 'message' => 'Booking re-approved successfully.']);
             }
