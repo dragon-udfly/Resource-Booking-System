@@ -20,7 +20,13 @@ The system's primary goal is to ensure the transparent and efficient allocation 
 | **Backend Framework** | **Laravel (PHP)** | Provides the robust MVC structure, routing, and business logic. |
 | **Database** | **MariaDB (MySQL)** | Securely stores all user, resource, and transactional data. |
 | **Frontend** | **HTML5, CSS3, JavaScript** | Delivers a responsive and interactive user interface. |
-| **Libraries** | **Carbon, DomPDF** | Handles date manipulation and PDF document generation. |
+| **Key Libraries** | **DomPDF** | `barryvdh/laravel-dompdf` for generating official PDF letters. |
+| | **Carbon** | `nesbot/carbon` for advanced date and time manipulation. |
+| | **Laravel Mailer** | Native `Illuminate\Mail` facade for handling email notifications. |
+| **Web Server** | **Nginx / XAMPP** | Production and local development server environments. |
+| **Database Tools** | **MySQL Workbench** | GUI for database design, management, and administration. |
+| **API Testing** | **Postman** | Testing and validating API endpoints and routes. |
+| **Design & Planning** | **Draw.io** | Creating system architecture diagrams and flowcharts. |
 
 ---
 
@@ -70,3 +76,7 @@ The system is packed with features designed to handle every aspect of resource m
 *   **Unified Dashboard**: Centralized view for Approvers to manage Hall, Family, and Scheduled applications side-by-side.
 *   **Smart Navigation**: Fixed side-menu for quick access to different approval sections.
 *   **Data Insights**: Row counters, applicant summaries, and status indicators for quick decision-making.
+
+### 📚 Help & Documentation
+*   **Multilingual User Manuals**: Comprehensive guides available in **Sinhala, Tamil, and English** to ensure accessibility for all staff members.
+*   **System Documentation**: Technical documentation specifically designed for **System Administrators** to assist with maintenance and troubleshooting.
