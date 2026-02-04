@@ -31,6 +31,12 @@
                         </p>
                     </div>
                     <div class="form-group" style="flex: 1;">
+                        <label style="font-weight: bold; color: #555;">Applicant Email</label>
+                        <p style="padding: 10px; background-color: #f8f9fa; border: 1px solid #ced4da; border-radius: 4px;">
+                            {{ $hallBooking->applicant_email ?? 'N/A' }}
+                        </p>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
                         <label style="font-weight: bold; color: #555;">Applicant Type</label>
                         <p style="padding: 10px; background-color: #f8f9fa; border: 1px solid #ced4da; border-radius: 4px;">
                             {{ $hallBooking->applicant_type }}
