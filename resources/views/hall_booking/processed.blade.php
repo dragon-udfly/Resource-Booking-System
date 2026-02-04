@@ -2,11 +2,43 @@
 
 @section('title', 'Processed Hall Booking Application - District Secretariat Vavuniya')
 
+@section('page_styles')
+    <style>
+        .button-bar {
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 90%;
+            max-width: 900px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-btn {
+            background-color: #6c757d;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+@endsection
+
 @section('content')
     <section class="banner">
-        <div style="width: 90%; max-width: 900px; text-align: left; margin-bottom: 20px;">
-            <a href="{{ route('history') }}" class="btn btn-secondary"
-                style="background-color: #6c757d; color: white;">Back to History</a>
+        <div class="button-bar">
+            <a href="{{ route('history') }}" class="btn back-btn">Back to History</a>
         </div>
 
         <div class="page-header">
