@@ -616,9 +616,24 @@ class HallBookingController extends Controller
     public function reApprove(Request $request, HallBooking $hallBooking)
     {
         if (Auth::user()->hasPermissionTo('government_agent_approval')) {
-            if ($hallBooking->final_approval === 'cancelled') {
+            if (in_array($hallBooking->final_approval, ['cancelled', 'rejected'])) {
+                // Conflict Check: Prevent re-approval if another active booking exists for the same slot
+                $existingBooking = HallBooking::where('hall_id', $hallBooking->hall_id)
+                    ->where('event_date', $hallBooking->event_date)
+                    ->whereNotIn('final_approval', ['rejected', 'cancelled'])
+                    ->where('booking_id', '!=', $hallBooking->booking_id) // Exclude self
+                    ->exists();
+
+                if ($existingBooking) {
+                    return response()->json(['success' => false, 'message' => 'Cannot re-approve: The hall has already been booked by another application for this date.'], 422);
+                }
+
                 $hallBooking->final_approval = 'approved';
+                // Reset rejection reason on re-approval
                 $hallBooking->reason_of_rejection = null;
+                // Ensure specific GA approval column is also set to approved (if it was rejected)
+                $hallBooking->government_agent_approved = 'approved';
+
                 $hallBooking->save();
 
                 AuditLog::create([

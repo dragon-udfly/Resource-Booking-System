@@ -181,7 +181,7 @@
                     @if($hallBooking->final_approval === 'approved')
                         <button onclick="showCancelModal()" class="btn btn-warning"
                              style="background-color: #ffc107; color: black; padding: 10px 20px; border: none; cursor: pointer; margin-left: 10px;">Cancel Booking</button>
-                    @elseif($hallBooking->final_approval === 'cancelled')
+                    @elseif(in_array($hallBooking->final_approval, ['cancelled', 'rejected']))
                         <button onclick="confirmReApprove()" class="btn btn-success"
                              style="background-color: #28a745; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-left: 10px;">Re-approve Booking</button>
                     @endif
