@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This is a **Web-Based Resource Management System** designed for the **District Secretariat, Vavuniya**, to modernize and streamline the process of booking official resources. Developed using the **Laravel** framework, this application replaces manual, paper-based forms with a secure, digital platform to enhance efficiency, enforce administrative policies, and eliminate double-booking conflicts.
+This is a **Web-Based Resource Management System (Hall and Quarters Booking System)** designed for the **District Secretariat, Vavuniya**, to modernize and streamline the process of booking official resources. Developed using the **Laravel** framework, this application replaces manual, paper-based forms with a secure, digital platform to enhance efficiency, enforce administrative policies, and eliminate double-booking conflicts.
 
 ---
 
@@ -11,22 +11,7 @@ This is a **Web-Based Resource Management System** designed for the **District S
 The system's primary goal is to ensure the transparent and efficient allocation of two critical resources:
 
 1.  **Hall Bookings:** Manages the reservation of various halls (Auditorium, Conference, Training) via a **three-step approval workflow** (PA → AO/AGA/GA).
-2.  **Quarters Allocation:** Facilitates applications for government quarters with an **automated eligibility check** that verifies staff **grade, salary, and service-based constraints** before final allocation by the Admin.
-
----
-
-## ✨ Key System Features
-
-The core functionality is built around security, control, and automation:
-
-| Feature | Description |
-| :--- | :--- |
-| **Role-Based Access Control (RBAC)** | Granular permissions are managed by the Admin IT, allowing for customized access (e.g., Staff, PA, Branch Head, District Secretary, Admin). |
-| **Approval Dashboard** | Provides approvers (PA, Branch Head, GA) with a centralized view of pending forms, enabling **digital approval/rejection** with timestamped records and PDF download functionality. |
-| **Resource Management** | Allows the Admin to set up and modify resource details for all **Halls** and **Quarters**, defining their physical characteristics and eligibility rules. |
-| **Audit Logging** | A dedicated feature for the Admin to view and clear detailed records of all user actions for transparency and accountability. |
-
----
+2.  **Quarters Allocation:** Facilitates applications for government quarters with an **automated eligibility check** that verifies staff **grade, salary, and service-based constraints** before final allocation by the Governement Agent.
 
 ## ⚙️ Technology Stack
 
@@ -34,4 +19,54 @@ The core functionality is built around security, control, and automation:
 | :--- | :--- | :--- |
 | **Backend Framework** | **Laravel (PHP)** | Provides the robust MVC structure, routing, and business logic. |
 | **Database** | **MariaDB (MySQL)** | Securely stores all user, resource, and transactional data. |
-| **Frontend** | **HTML, CSS, JavaScript** | Delivers the user interface and presentation layer. |
+| **Frontend** | **HTML5, CSS3, JavaScript** | Delivers a responsive and interactive user interface. |
+| **Libraries** | **Carbon, DomPDF** | Handles date manipulation and PDF document generation. |
+
+---
+
+## ✨ Comprehensive System Features
+
+The system is packed with features designed to handle every aspect of resource management, from initial request to final approval and auditing.
+
+### 🏢 Hall Booking Management
+*   **Public Booking Portal**:
+    *   **Availability Checker**: Interactive "Hall Overview" to verify open dates and view hall details.
+    *   **Schedule Calendar**: Visual calendar to view upcoming events and bookings (`/hallschedule`).
+    *   **Digital Application**: Streamlined form for ensuring all necessary applicant details are captured.
+*   **Approval Workflow**:
+    *   **Three-Tier Verification**: Mandatory review by **Administrative Officer (AO)**, **Additional Government Agent (AGA)**, and final approval by the **Government Agent (GA)**.
+    *   **Conflict Resolution**: Automated checks to prevent double-booking.
+*   **Post-Approval**:
+    *   **Automated Email Notifications**: Applicants receive instant confirmation upon approval.
+    *   **PDF Generation**: Auto-generated **Approval Letters** and **Booking Forms** for official record-keeping.
+
+### 🏠 Government Quarters Management
+*   **Family Quarters**:
+    *   **Merit-Based Allocation**: Automated scoring system based on Applicant Grade, Salary Key, and Service Duration.
+    *   **Eligibility Validation**: Strict checks against defined criteria before application acceptance.
+    *   **Ranking System**: Applications are automatically sorted by "Total Marks" to prioritize the most deserving candidates.
+*   **Scheduled Quarters**: Dedicated workflow for allocating quarters reserved for specific government posts.
+*   **Occupancy Management**: Tracking of current occupants and vacancy status.
+
+### � Internal Communication (Memo System)
+*   **Internal Messaging**: Secure interface for staff to send and receive official memos within the system.
+*   **Inbox/Outbox Management**: Organized views for received and sent communications.
+*   **Action Tracking**: Status updates for memos (Pending, Approved/Agreed, Rejected/Disagreed).
+*   **History Management**: Ability to clear read/resolved memos while protecting pending items.
+
+### 🛡️ System Administration
+*   **User Management**:
+    *   **RBAC**: Granular role assignments (Approvers, Subject Clerks, System Admin).
+    *   **Officer Management**: Add, edit, or deactive staff accounts.
+*   **Resource Configuration**: Complete control to add or modify details for Halls and Quarters (Capacity, Type, Location).
+*   **System Settings**:
+    *   **Backup & Restore**: comprehensive tools to backup/restore the entire database or specific tables (Officers, Halls, Memos, etc.).
+    *   **Email Configuration**: Tools to test and verify email integration settings.
+*   **Audit Logging**:
+    *   **Activity Tracking**: Detailed logs of every critical action taken within the system (Logins, Approvals, Edits).
+    *   **Transparency**: Viewable by Admins to ensure accountability.
+
+### 📊 Dashboard & Reporting
+*   **Unified Dashboard**: Centralized view for Approvers to manage Hall, Family, and Scheduled applications side-by-side.
+*   **Smart Navigation**: Fixed side-menu for quick access to different approval sections.
+*   **Data Insights**: Row counters, applicant summaries, and status indicators for quick decision-making.
