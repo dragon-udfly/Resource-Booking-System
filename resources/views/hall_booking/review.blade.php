@@ -219,6 +219,22 @@
             </div>
         </div>
 
+        {{-- Generic Confirmation Modal --}}
+        <div id="confirm-modal"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+            <div
+                style="background: white; padding: 25px; border-radius: 8px; max-width: 400px; width: 90%; text-align: center;">
+                <h3 id="confirm-modal-title" style="margin-bottom: 15px;">Confirm Action</h3>
+                <p id="confirm-modal-message" style="margin-bottom: 20px; color: #333;"></p>
+                <div style="margin-top: 20px;">
+                    <button id="confirm-modal-yes-btn" class="btn btn-primary"
+                        style="background-color: #007bff; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">Yes</button>
+                    <button onclick="closeConfirmModal()" class="btn btn-secondary"
+                        style="background-color: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">No</button>
+                </div>
+            </div>
+        </div>
+
         {{-- Cancel Confirmation Modal --}}
         <div id="cancel-modal"
             style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
@@ -241,30 +257,69 @@
             </div>
         </div>
 
-        {{-- Success/Info Modal --}}
-        <div id="success-modal"
+        {{-- Generic Info/Success/Error Modal --}}
+        <div id="info-modal"
             style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
             <div
                 style="background: white; padding: 25px; border-radius: 8px; max-width: 400px; width: 90%; text-align: center;">
-                <h3 id="success-modal-title" style="color: #28a745; margin-bottom: 15px;">Success</h3>
-                <p id="success-modal-message" style="margin-bottom: 20px; color: #333;">Operation successful.</p>
-                <button id="success-modal-btn" class="btn btn-primary"
+                <h3 id="info-modal-title" style="margin-bottom: 15px;">Info</h3>
+                <p id="info-modal-message" style="margin-bottom: 20px; color: #333;"></p>
+                <button id="info-modal-btn" class="btn btn-primary"
                     style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">OK</button>
             </div>
         </div>
     </section>
 
     <script>
-        function showSuccessModal(message, redirectUrl) {
-            document.getElementById('success-modal-message').textContent = message;
-            document.getElementById('success-modal').style.display = 'flex';
+        // Modal State Variables
+        let pendingAction = null;
 
-            document.getElementById('success-modal-btn').onclick = function () {
-                document.getElementById('success-modal').style.display = 'none';
+        function showInfoModal(message, title = 'Info', redirectUrl = null, type = 'info') {
+            document.getElementById('info-modal-title').textContent = title;
+            document.getElementById('info-modal-message').textContent = message;
+
+            const titleElem = document.getElementById('info-modal-title');
+            const btnElem = document.getElementById('info-modal-btn');
+
+            if (type === 'error') {
+                titleElem.style.color = '#dc3545';
+                btnElem.style.backgroundColor = '#dc3545';
+            } else if (type === 'success') {
+                titleElem.style.color = '#28a745';
+                btnElem.style.backgroundColor = '#28a745';
+            } else {
+                titleElem.style.color = '#007bff';
+                btnElem.style.backgroundColor = '#007bff';
+            }
+
+            document.getElementById('info-modal').style.display = 'flex';
+
+            document.getElementById('info-modal-btn').onclick = function () {
+                document.getElementById('info-modal').style.display = 'none';
                 if (redirectUrl) {
                     window.location.href = redirectUrl;
                 }
             };
+        }
+
+        function showConfirmModal(message, onConfirm) {
+            document.getElementById('confirm-modal-message').textContent = message;
+            document.getElementById('confirm-modal').style.display = 'flex';
+
+            // Set up the Yes button
+            const yesBtn = document.getElementById('confirm-modal-yes-btn');
+            // Clone to remove previous event listeners
+            const newYesBtn = yesBtn.cloneNode(true);
+            yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+
+            newYesBtn.addEventListener('click', function () {
+                closeConfirmModal();
+                if (onConfirm) onConfirm();
+            });
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').style.display = 'none';
         }
 
         function toggleRejectionReason() {
@@ -294,14 +349,20 @@
                 if (decision === 'reject') {
                     reason = document.getElementById('rejection_reason').value;
                     if (!reason.trim()) {
-                        alert('Please provide a rejection reason.');
+                        showInfoModal('Please provide a rejection reason.', 'Validation Error', null, 'error');
                         return;
                     }
                 }
             }
 
-            if (!confirm('Are you sure you want to ' + decision + ' this booking?')) return;
+            // Show Custom Confirmation Modal
+            const confirmMsg = 'Are you sure you want to ' + decision + ' this booking?';
+            showConfirmModal(confirmMsg, function () {
+                performSubmission(url, reason);
+            });
+        }
 
+        function performSubmission(url, reason) {
             // Create form data
             const formData = new FormData();
             formData.append('_token', '{{ csrf_token() }}');
@@ -317,14 +378,14 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showSuccessModal(data.message || 'Action completed successfully.', "{{ route('dashboard') }}");
+                        showInfoModal(data.message || 'Action completed successfully.', 'Success', "{{ route('dashboard') }}", 'success');
                     } else {
-                        alert('Error: ' + data.message);
+                        showInfoModal('Error: ' + data.message, 'Error', null, 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('An error occurred during the request.');
+                    showInfoModal('An error occurred during the request.', 'System Error', null, 'error');
                 });
         }
 
@@ -355,14 +416,17 @@
                 .then(data => {
                     if (data.success) {
                         closeCancelModal();
-                        showSuccessModal('Booking cancelled successfully.', "{{ route('dashboard') }}");
+                        showInfoModal('Booking cancelled successfully.', 'Cancelled', "{{ route('dashboard') }}", 'success');
                     } else {
-                        alert('Error: ' + data.message);
+                        // Reuse info modal for error
+                        closeCancelModal(); // Optionally close or keep open? Usually better to show error on top or close first
+                        showInfoModal('Error: ' + data.message, 'Cancellation Failed', null, 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('An error occurred. Please try again.');
+                    closeCancelModal();
+                    showInfoModal('An error occurred. Please try again.', 'Error', null, 'error');
                 });
         }
     </script>
