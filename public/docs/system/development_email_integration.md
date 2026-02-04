@@ -25,7 +25,7 @@ Create/Update Blade views for the PDF content in `resources/views/pdf`:
 -   `quarter_cancellation_letter.blade.php`: Notice of revocation/cancellation.
 
 ### 3. Centralized Email Logic
-#### [NEW] [EmailController.php](file:///c:/Users/User/Desktop/Desktop_User/WORKLOAD/Resource-Booking-System/app/Http/Controllers/EmailController.php)
+#### [NEW] [EmailController.php](Resource-Booking-System/app/Http/Controllers/EmailController.php)
 -   **Method**: `public static function sendEmail($recipientEmail, $type, $data)`
 -   **Responsibility**:
     1.  Accept email parameters.
