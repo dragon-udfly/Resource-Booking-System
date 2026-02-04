@@ -250,7 +250,7 @@
                 <p>Are you sure you want to cancel this booking?</p>
                 @if(Auth::user()->hasPermissionTo('government_agent_approval') || Auth::user()->hasPermissionTo('administrative_officer_approval'))
                     <textarea id="cancel_reason" placeholder="Reason for cancellation (optional)"
-                        style="width: 100%; margin: 10px 0; padding: 8px;"></textarea>
+                        style="width: 100%; margin: 10px 0; padding: 8px; resize: vertical;"></textarea>
                 @endif
                 <div style="margin-top: 20px;">
                     <button onclick="confirmCancel()" class="btn btn-danger"

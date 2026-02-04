@@ -214,7 +214,7 @@
                 <h3>Confirm Cancellation</h3>
                 <p>Are you sure you want to cancel this booking?</p>
                 <textarea id="cancel_reason" placeholder="Reason for cancellation (required)"
-                        style="width: 100%; margin: 10px 0; padding: 8px;"></textarea>
+                        style="width: 100%; margin: 10px 0; padding: 8px; resize: vertical;"></textarea>
                 <div style="margin-top: 20px;">
                     <button onclick="performCancel()" class="btn btn-danger"
                         style="background-color: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">Yes, Cancel</button>
