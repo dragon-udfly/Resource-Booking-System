@@ -55,7 +55,6 @@
 
     <div class="content">
         <p class="title">Hall Booking Confirmation</p>
-        <p><strong>Booking ID:</strong> {{ $booking->booking_id }}</p>
         <p><strong>Date:</strong> {{ $date }}</p>
 
         <p>Dear {{ $booking->applicant_name }},</p>
@@ -88,9 +87,6 @@
             as a proof of booking.</p>
     </div>
 
-    <div class="footer">
-        <p>__________________________<br>Government Agent / District Secretary<br>District Secretariat, Vavuniya</p>
-    </div>
 </body>
 
 </html>
