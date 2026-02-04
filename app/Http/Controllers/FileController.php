@@ -31,7 +31,7 @@ class FileController extends Controller
                 $user->hasPermissionTo('additional_government_agent_approval') ||
                 $user->hasPermissionTo('government_agent_approval');
 
-            if ($user->role === 'admin' || $hasApprovalAccess) {
+            if ($user->role === 'admin') {
                 $this->loadDocumentsFrom(public_path('docs/system'), $documents);
             }
         }
