@@ -185,7 +185,7 @@
     <div class="container">
         <div class="header">
             <h1>District Secretariat - Vavuniya</h1>
-            <h2>Resource Management System</h2>
+            <h2>Resource Booking System</h2>
         </div>
 
         <div class="section-title">Hall Booking Application Form</div>
@@ -235,7 +235,7 @@
         </div>
 
         <div class="footer">
-            <p>Generated on: {{ \Carbon\Carbon::now()->format('Y-m-d H:i:s') }} <br>Resource Booking System - Vavuniya
+            <p>Generated on: {{ \Carbon\Carbon::now()->format('Y-m-d H:i:s') }}
             </p>
         </div>
     </div>
