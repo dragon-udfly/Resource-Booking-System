@@ -12,9 +12,8 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\HallBookingSubmitted;
+use Illuminate\Support\Facades\Log;
+
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class HallBookingController extends Controller
@@ -117,19 +116,15 @@ class HallBookingController extends Controller
 
         $booking = HallBooking::create($bookingData);
 
+        Log::info("[Hall Booking] Action: New Booking Submitted | ID: {$newBookingId} | Applicant: {$request->applicant_name}");
+
         AuditLog::create([
             'log_title' => 'New Hall Booking Application ' . $newBookingId . ' submitted',
-            'performed_by' => Auth::check() ? Auth::id() : null,
+            'performed_by' => Auth::id(),
             'details' => Auth::check() ? null : 'Booking by officer with NIC: ' . $request->filled_by_nic,
             'date_performed' => Carbon::now()->toDateString(),
             'time_performed' => Carbon::now()->toTimeString(),
         ]);
-
-        try {
-            Mail::to($request->applicant_email)->send(new HallBookingSubmitted($request->applicant_name, $request->programme));
-        } catch (\Exception $e) {
-            // Log the error or handle it silently so the booking process isn't interrupted
-        }
 
         return redirect()->route('halls.schedule')->with('success', 'Hall booking request submitted successfully!');
     }
@@ -284,7 +279,7 @@ class HallBookingController extends Controller
         }
 
         // 2. Check Event Date
-        $isPastEvent = \Carbon\Carbon::parse($hallBooking->event_date)->startOfDay()->lt(\Carbon\Carbon::today());
+        $isPastEvent = Carbon::parse($hallBooking->event_date)->startOfDay()->lt(Carbon::today());
 
         if ($isPastEvent) {
             // Rule: History Cleanup
@@ -338,8 +333,8 @@ class HallBookingController extends Controller
             AuditLog::create([
                 'log_title' => 'Hall Booking Application ' . $bookingId . ' deleted by ' . $user->name,
                 'performed_by' => Auth::id(),
-                'date_performed' => \Carbon\Carbon::now()->toDateString(),
-                'time_performed' => \Carbon\Carbon::now()->toTimeString(),
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
             ]);
 
             $successMessage = 'Booking deleted successfully.';
@@ -349,7 +344,7 @@ class HallBookingController extends Controller
             return redirect()->back()->with('success', $successMessage);
 
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Booking deletion failed: ' . $e->getMessage());
+            Log::error('Booking deletion failed: ' . $e->getMessage());
             return $this->sendError($request, 'An unexpected error occurred while deleting the booking.', 500);
         }
     }
@@ -385,7 +380,7 @@ class HallBookingController extends Controller
         if (!$isApprover && $user->hasPermissionTo('requester')) {
             // Check ownership using NIC number as user_id is not present in HallBooking
             if ($hallBooking->filled_by_nic != $user->nic_number) {
-                \Illuminate\Support\Facades\Log::info('Review Check Failed (NIC Mismatch)', [
+                Log::info('Review Check Failed (NIC Mismatch)', [
                     'user_nic' => $user->nic_number,
                     'booking_nic' => $hallBooking->filled_by_nic,
                 ]);
@@ -453,6 +448,39 @@ class HallBookingController extends Controller
                 'time_performed' => Carbon::now()->toTimeString(),
             ]);
 
+            Log::info("[Hall Booking] Action: {$role_action} | ID: {$hallBooking->booking_id} | User: {$user->id}");
+
+            // Send Email Notification if Approved by GA
+            if ($hallBooking->final_approval === 'approved') {
+                try {
+                    // Safe Config Check
+                    if (config('mail.mailers.smtp.host') && config('mail.mailers.smtp.username')) {
+                        \Illuminate\Support\Facades\Notification::route('mail', $hallBooking->applicant_email)
+                            ->notify(new \App\Notifications\HallBookingApprovedNotification($hallBooking));
+                        Log::info("[Hall Booking] Email Sent | ID: {$hallBooking->booking_id}");
+                    } else {
+                        Log::warning("[Hall Booking] Email Skipped: Missing SMTP Configuration | ID: {$hallBooking->booking_id}");
+                        AuditLog::create([
+                            'log_title' => 'Email Notification Failed (Missing Config) for Booking ' . $hallBooking->booking_id,
+                            'performed_by' => $user->user_id,
+                            'date_performed' => Carbon::now()->toDateString(),
+                            'time_performed' => Carbon::now()->toTimeString(),
+                        ]);
+                        // Flash warning but don't stop the process
+                        session()->flash('warning', 'Booking approved, but email notification could not be sent due to missing configuration.');
+                    }
+                } catch (\Exception $e) {
+                    Log::error("[Hall Booking] Email Failed | ID: {$hallBooking->booking_id} | Error: {$e->getMessage()}");
+                    AuditLog::create([
+                        'log_title' => 'Email Notification Failed for Booking ' . $hallBooking->booking_id,
+                        'performed_by' => $user->user_id,
+                        'date_performed' => Carbon::now()->toDateString(),
+                        'time_performed' => Carbon::now()->toTimeString(),
+                    ]);
+                    session()->flash('warning', 'Booking approved, but email notification failed. Check system logs.');
+                }
+            }
+
             return response()->json(['success' => true, 'message' => 'Booking approved successfully.']);
         }
 
@@ -491,6 +519,8 @@ class HallBookingController extends Controller
                 'time_performed' => Carbon::now()->toTimeString(),
             ]);
 
+            Log::info("[Hall Booking] Action: {$role_action} | ID: {$hallBooking->booking_id} | User: {$user->id}");
+
             return response()->json(['success' => true, 'message' => 'Booking rejected successfully.']);
         }
 
@@ -526,6 +556,8 @@ class HallBookingController extends Controller
                     'date_performed' => Carbon::now()->toDateString(),
                     'time_performed' => Carbon::now()->toTimeString(),
                 ]);
+
+                Log::info("[Hall Booking] Action: Cancelled by GA | ID: {$hallBooking->booking_id} | User: {$user->id} | Reason: {$request->reason}");
 
                 return response()->json(['success' => true, 'message' => 'Booking cancelled successfully.']);
             }
@@ -584,9 +616,24 @@ class HallBookingController extends Controller
     public function reApprove(Request $request, HallBooking $hallBooking)
     {
         if (Auth::user()->hasPermissionTo('government_agent_approval')) {
-            if ($hallBooking->final_approval === 'cancelled') {
+            if (in_array($hallBooking->final_approval, ['cancelled', 'rejected'])) {
+                // Conflict Check: Prevent re-approval if another active booking exists for the same slot
+                $existingBooking = HallBooking::where('hall_id', $hallBooking->hall_id)
+                    ->where('event_date', $hallBooking->event_date)
+                    ->whereNotIn('final_approval', ['rejected', 'cancelled'])
+                    ->where('booking_id', '!=', $hallBooking->booking_id) // Exclude self
+                    ->exists();
+
+                if ($existingBooking) {
+                    return response()->json(['success' => false, 'message' => 'Cannot re-approve: The hall has already been booked by another application for this date.'], 422);
+                }
+
                 $hallBooking->final_approval = 'approved';
+                // Reset rejection reason on re-approval
                 $hallBooking->reason_of_rejection = null;
+                // Ensure specific GA approval column is also set to approved (if it was rejected)
+                $hallBooking->government_agent_approved = 'approved';
+
                 $hallBooking->save();
 
                 AuditLog::create([
@@ -618,5 +665,38 @@ class HallBookingController extends Controller
             'bookings' => $bookings,
             'canManageBookings' => $canManageBookings,
         ]);
+    }
+
+
+    public function clearBookings()
+    {
+        HallBooking::truncate();
+
+        AuditLog::create([
+            'log_title' => 'All hall booking records deleted',
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        Log::warning("[System Action] All Hall Bookings Cleared by User ID: " . Auth::id());
+
+        return redirect()->route('systemsetting')->with('success', 'All hall booking records have been cleared successfully.');
+    }
+
+    public function clearRejectedBookings()
+    {
+        HallBooking::where('final_approval', 'rejected')->delete();
+
+        AuditLog::create([
+            'log_title' => 'All rejected hall booking records deleted',
+            'performed_by' => Auth::id(),
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        Log::warning("[System Action] Rejected Hall Bookings Cleared by User ID: " . Auth::id());
+
+        return redirect()->route('systemsetting')->with('success', 'All rejected hall booking records have been cleared successfully.');
     }
 }

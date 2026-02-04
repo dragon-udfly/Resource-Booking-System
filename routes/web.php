@@ -56,9 +56,27 @@ Route::middleware(['auth', 'admin'])->group(function () {
         return view('modifyhall');
     });
 
-    Route::get('/systemsetting', function () {
-        return view('systemsetting');
-    })->name('systemsetting');
+    // System Settings
+    Route::get('/systemsetting', [App\Http\Controllers\SettingsController::class, 'index'])->name('systemsetting');
+    Route::get('/system-status', [App\Http\Controllers\SettingsController::class, 'systemStatus'])->name('system.status');
+    Route::post('/settings/email/test', [App\Http\Controllers\SettingsController::class, 'testEmail'])->name('settings.email.test');
+    Route::post('/settings/backup/db', [App\Http\Controllers\SettingsController::class, 'backupDatabase'])->name('settings.backup.db');
+    Route::post('/settings/restore/db', [App\Http\Controllers\SettingsController::class, 'restoreDatabase'])->name('settings.restore.db');
+    Route::post('/settings/restore/halls', [App\Http\Controllers\SettingsController::class, 'restoreHalls'])->name('settings.restore.halls');
+    Route::post('/settings/restore/quarters', [App\Http\Controllers\SettingsController::class, 'restoreQuarters'])->name('settings.restore.quarters');
+    Route::post('/settings/restore/officers', [App\Http\Controllers\SettingsController::class, 'restoreOfficers'])->name('settings.restore.officers');
+    Route::post('/settings/restore/grade-salary', [App\Http\Controllers\SettingsController::class, 'restoreGradeSalary'])->name('settings.restore.gradesalary');
+    Route::post('/settings/restore/marking-scheme', [App\Http\Controllers\SettingsController::class, 'restoreMarkingScheme'])->name('settings.restore.markingscheme');
+    Route::post('/settings/restore/memos', [App\Http\Controllers\SettingsController::class, 'restoreMemos'])->name('settings.restore.memos');
+    Route::post('/settings/backup/halls', [App\Http\Controllers\SettingsController::class, 'backupHalls'])->name('settings.backup.halls');
+    Route::post('/settings/backup/quarters', [App\Http\Controllers\SettingsController::class, 'backupQuarters'])->name('settings.backup.quarters');
+    Route::post('/settings/backup/officers', [App\Http\Controllers\SettingsController::class, 'backupOfficers'])->name('settings.backup.officers');
+    Route::post('/settings/backup/hall-bookings', [App\Http\Controllers\SettingsController::class, 'backupHallBookings'])->name('settings.backup.hallbookings');
+    Route::post('/settings/backup/scheduled-applications', [App\Http\Controllers\SettingsController::class, 'backupScheduledApplications'])->name('settings.backup.scheduled');
+    Route::post('/settings/backup/family-applications', [App\Http\Controllers\SettingsController::class, 'backupFamilyApplications'])->name('settings.backup.family');
+    Route::post('/settings/backup/grade-salary', [App\Http\Controllers\SettingsController::class, 'backupGradeSalary'])->name('settings.backup.gradesalary');
+    Route::post('/settings/backup/marking-scheme', [App\Http\Controllers\SettingsController::class, 'backupMarkingScheme'])->name('settings.backup.markingscheme');
+    Route::post('/settings/backup/memos', [App\Http\Controllers\SettingsController::class, 'backupMemos'])->name('settings.backup.memos');
 
     Route::get('/modifyquarter', function () {
         return view('modifyquarter');
@@ -66,10 +84,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/auditlog', [UserController::class, 'showAuditLog'])->name('auditlog');
     Route::delete('/auditlog/clear', [UserController::class, 'clearAuditLog'])->name('auditlog.clear');
-    Route::delete('/halls/clear', [HallController::class, 'clearHalls'])->name('halls.clear');
+
+    Route::delete('/users/clear', [UserController::class, 'clearUsers'])->name('users.clear');
     Route::delete('/bookings/clear', [HallBookingController::class, 'clearBookings'])->name('bookings.clear');
     Route::delete('/bookings/clear-rejected', [HallBookingController::class, 'clearRejectedBookings'])->name('bookings.clearRejected');
-    Route::delete('/users/clear', [UserController::class, 'clearUsers'])->name('users.clear');
+    Route::delete('/quarters/scheduled/clear-rejected', [QuarterAllocationController::class, 'clearRejectedScheduledApplications'])->name('quarters.scheduled.clearRejected');
+    Route::delete('/quarters/family/clear-rejected', [QuarterAllocationController::class, 'clearRejectedFamilyApplications'])->name('quarters.family.clearRejected');
+    Route::delete('/memos/clear-history', [App\Http\Controllers\MemoController::class, 'clearRespondedMemos'])->name('memos.clearResponded');
 
     Route::get('/quarters', [QuarterController::class, 'index'])->name('quarters.index');
     Route::get('/quarters/{quarter}/edit', [QuarterController::class, 'edit'])->name('quarters.edit');
@@ -133,6 +154,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/history', [HallBookingController::class, 'showHistory'])->name('history');
     Route::get('/history/quarters', [QuarterAllocationController::class, 'showQuarterHistory'])->name('history.quarters');
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+
+    // Internal Memo Routes
+    Route::get('/internal-memo', [App\Http\Controllers\MemoController::class, 'index'])->name('memo.index');
+    Route::get('/internal-memo/fetch-inbox', [App\Http\Controllers\MemoController::class, 'fetchInbox'])->name('memo.fetch_inbox');
+    Route::get('/internal-memo/fetch-outbox', [App\Http\Controllers\MemoController::class, 'fetchOutbox'])->name('memo.fetch_outbox');
+    Route::post('/internal-memo/send', [App\Http\Controllers\MemoController::class, 'store'])->name('memo.send');
+    Route::post('/internal-memo/{id}/respond', [App\Http\Controllers\MemoController::class, 'updateStatus'])->name('memo.respond');
+    Route::post('/internal-memo/clear-read', [App\Http\Controllers\MemoController::class, 'clearRead'])->name('memo.clear_read');
+    Route::post('/internal-memo/clear-sent', [App\Http\Controllers\MemoController::class, 'clearSent'])->name('memo.clear_sent');
+    Route::get('/internal-memo/{id}', [App\Http\Controllers\MemoController::class, 'show'])->name('memo.show');
 });
 
 // Quarter

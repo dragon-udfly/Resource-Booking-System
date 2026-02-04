@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Scheduled Quarter Application - {{ $application->application_id }}</title>
+    <title>Scheduled Quarter Application</title>
     <style>
         body {
             font-family: 'DejaVu Sans', sans-serif;
@@ -40,13 +40,6 @@
             font-size: 14px;
             color: #555;
             font-weight: normal;
-        }
-
-        .application-id {
-            text-align: right;
-            font-size: 10px;
-            color: #666;
-            margin-bottom: 10px;
         }
 
         .section-title {
@@ -181,10 +174,6 @@
         <div class="header">
             <h1>District Secretariat, Vavuniya</h1>
             <h2>Scheduled Quarter Application</h2>
-        </div>
-
-        <div class="application-id">
-            Application ID: {{ $application->application_id }}
         </div>
 
         <div class="section-title">A) Officer Details</div>

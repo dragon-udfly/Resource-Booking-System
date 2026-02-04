@@ -1,4 +1,4 @@
-# Hall Management User Guide
+# Hall Management User Guide (Admin)
 
 This guide details the procedures for Administrators to manage Hall resources within the system.
 

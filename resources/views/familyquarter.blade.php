@@ -264,15 +264,10 @@
                 <h3 class="form-section-title">C) Children Details</h3>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="f_children_details_description">1. Enter Description of Children (Write a clear
-                            description or use following format with new line pressing Enter): </label>
-                        <label>Name: child one name Age: child one age Grade: child one grade School: child one school
-                            <br />
-                            Name: child two name Age: child two age Grade: child two grade School: child two school <br />
-                            Name: child three name Age: child three age Grade: child three grade School: child three school
-                        </label>
+                        <label for="f_children_details_description">1. Enter Description of Children (for readability: Name
+                            at age of Age, studying in Grade, School): </label>
                         <textarea id="f_children_details_description" name="f_children_details_description"
-                            placeholder="Name: John Deo Age: 12 Grade: 5A School: National Colledge, Vavuniya"
+                            placeholder="John Deo at age of 12, studying in grade: 6-C, school: National Colledge, Vavuniya"
                             maxlength="2000" cols="50" , rows="15"></textarea>
                     </div>
                 </div>

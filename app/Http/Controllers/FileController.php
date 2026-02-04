@@ -9,12 +9,20 @@ use Illuminate\Support\Facades\Auth;
 
 class FileController extends Controller
 {
-    public function showHelp()
+    public function showHelp(Request $request)
     {
         $documents = [];
+        $lang = $request->query('lang', 'en');
+
+        $directory = public_path('docs/help');
+        if ($lang === 'ta') {
+            $directory = public_path('docs/help/tamil');
+        } elseif ($lang === 'si') {
+            $directory = public_path('docs/help/sinhala');
+        }
 
         // Load public help documents
-        $this->loadDocumentsFrom(public_path('docs/help'), $documents);
+        $this->loadDocumentsFrom($directory, $documents);
 
         // Load system documents for Admin or Approval Officers
         if (Auth::check()) {
@@ -28,7 +36,7 @@ class FileController extends Controller
             }
         }
 
-        return view('help', ['documents' => $documents]);
+        return view('help', ['documents' => $documents, 'currentLang' => $lang]);
     }
 
     public function showAbout()

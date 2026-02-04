@@ -37,7 +37,7 @@ class QuarterAllocationController extends Controller
         ])->where('application_id', $id)->firstOrFail();
 
         // 1. Fetch all GradeSalarySetting records
-        $gradeSalarySettings = \App\Models\GradeSalarySetting::all();
+        $gradeSalarySettings = GradeSalarySetting::all();
         $calculatedGrade = 'N/A';
 
         // 2. Implement logic to determine the calculatedGrade
@@ -170,6 +170,8 @@ class QuarterAllocationController extends Controller
 
             DB::commit();
 
+            \Illuminate\Support\Facades\Log::info("[Quarter Allocation] Action: Allocated Family Quarter | ID: {$id} | Quarter: {$quarter->quarter_id} | User: {$user->id}");
+
             $successMessage = 'Family quarter allocated successfully to ' . $quarter->quarter_id;
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -256,6 +258,8 @@ class QuarterAllocationController extends Controller
             ]);
 
             DB::commit();
+
+            \Illuminate\Support\Facades\Log::info("[Quarter Allocation] Action: Rejected Family Application | ID: {$id} | User: {$user->id}");
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -438,7 +442,7 @@ class QuarterAllocationController extends Controller
 
             AuditLog::create([
                 'log_title' => 'New Family Quarter Application Submitted: ' . $quarterApplication->application_id,
-                'performed_by' => Auth::check() ? Auth::id() : null,
+                'performed_by' => Auth::id(),
                 'details' => 'Requester NIC: ' . $request->filled_by_nic,
                 'date_performed' => Carbon::now()->toDateString(),
                 'time_performed' => Carbon::now()->toTimeString(),
@@ -574,13 +578,14 @@ class QuarterAllocationController extends Controller
 
             AuditLog::create([
                 'log_title' => 'New Scheduled Quarter Application Submitted: ' . $quarterApplication->application_id,
-                'performed_by' => Auth::check() ? Auth::id() : null,
+                'performed_by' => Auth::id(),
                 'details' => 'Requester NIC: ' . $request->filled_by_nic,
                 'date_performed' => Carbon::now()->toDateString(),
                 'time_performed' => Carbon::now()->toTimeString(),
             ]);
 
             DB::commit();
+            \Illuminate\Support\Facades\Log::info("[Quarter Allocation] Action: Scheduled Quarter Application Submitted | ID: {$quarterApplication->application_id}");
             return redirect()->route('bookquarter')->with('success', 'Scheduled quarter application submitted successfully!');
 
         } catch (\Exception $e) {
@@ -824,6 +829,8 @@ class QuarterAllocationController extends Controller
 
                 DB::commit();
 
+                Log::info("[Quarter Allocation] Action: Allocated Scheduled Quarter | ID: {$id} | Quarter: {$quarter->quarter_id} | User: " . Auth::id());
+
                 return response()->json(['status' => 'success', 'message' => 'Scheduled quarter allocated successfully!', 'redirect_url' => route('dashboard')]);
 
             } catch (\Exception $e) {
@@ -993,9 +1000,14 @@ class QuarterAllocationController extends Controller
                 'time_performed' => Carbon::now()->toTimeString(),
             ]);
 
+            Log::info("[Quarter Allocation] Action: Rejected Scheduled Application | ID: {$id} | User: " . Auth::id());
+
             DB::commit();
 
-            return response()->json(['status' => 'success', 'message' => 'Application rejected successfully!', 'redirect_url' => route('dashboard')]);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => 'Application rejected successfully.', 'redirect_url' => route('dashboard')]);
+            }
+            return redirect()->route('dashboard')->with('success', 'Application rejected successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -1095,7 +1107,7 @@ class QuarterAllocationController extends Controller
 
     public function showQuarterHistory()
     {
-        $processedApplications = \App\Models\QuarterAllocation::with(['quarterApplication', 'quarter'])
+        $processedApplications = QuarterAllocation::with(['quarterApplication', 'quarter'])
             ->where('allocation_status', '!=', 'pending')
             ->orderBy('updated_at', 'desc')
             ->get();
@@ -1222,6 +1234,8 @@ class QuarterAllocationController extends Controller
 
             DB::commit();
 
+            \Illuminate\Support\Facades\Log::info("[Quarter Allocation] Action: Restored Application | ID: {$id} | User: " . Auth::id());
+
             return redirect()->back()->with('success', 'Application successfully restored to pending status!');
 
         } catch (\Exception $e) {
@@ -1304,6 +1318,8 @@ class QuarterAllocationController extends Controller
 
             DB::commit();
 
+            Log::info("[Quarter Allocation] Action: Cancelled Scheduled Allocation | ID: {$id} | User: " . Auth::id());
+
             return redirect()->back()->with('success', 'Scheduled Quarter allocation cancelled successfully!');
 
         } catch (\Exception $e) {
@@ -1376,6 +1392,8 @@ class QuarterAllocationController extends Controller
             ]);
 
             DB::commit();
+
+            Log::info("[Quarter Allocation] Action: Cancelled Family Allocation | ID: {$id} | User: " . Auth::id());
 
             return redirect()->back()->with('success', 'Family Quarter allocation cancelled successfully!');
 
@@ -1542,5 +1560,52 @@ class QuarterAllocationController extends Controller
             ]);
             return response()->json(['success' => false, 'message' => 'An unexpected error occurred. Please check the logs.'], 500);
         }
+    }
+    public function clearRejectedScheduledApplications()
+    {
+        $rejectedApplications = QuarterApplication::where('quarter_type', 'Scheduled')
+            ->whereHas('quarterAllocation', function ($query) {
+                $query->where('allocation_status', 'rejected');
+            })->get();
+
+        $count = $rejectedApplications->count();
+
+        foreach ($rejectedApplications as $app) {
+            $app->delete();
+        }
+
+        AuditLog::create([
+            'log_title' => 'All rejected scheduled quarter applications deleted',
+            'performed_by' => Auth::id(),
+            'details' => "Deleted $count records.",
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('systemsetting')->with('success', "All rejected scheduled quarter applications ($count) have been cleared successfully.");
+    }
+
+    public function clearRejectedFamilyApplications()
+    {
+        $rejectedApplications = QuarterApplication::where('quarter_type', 'Family')
+            ->whereHas('quarterAllocation', function ($query) {
+                $query->where('allocation_status', 'rejected');
+            })->get();
+
+        $count = $rejectedApplications->count();
+
+        foreach ($rejectedApplications as $app) {
+            $app->delete();
+        }
+
+        AuditLog::create([
+            'log_title' => 'All rejected family quarter applications deleted',
+            'performed_by' => Auth::id(),
+            'details' => "Deleted $count records.",
+            'date_performed' => Carbon::now()->toDateString(),
+            'time_performed' => Carbon::now()->toTimeString(),
+        ]);
+
+        return redirect()->route('systemsetting')->with('success', "All rejected family quarter applications ($count) have been cleared successfully.");
     }
 }
