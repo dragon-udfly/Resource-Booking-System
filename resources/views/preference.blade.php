@@ -75,7 +75,8 @@
         }
 
         .form-group input[type="password"],
-        .form-group input[type="text"] {
+        .form-group input[type="text"],
+        .form-group input[type="email"] {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid #ced4da;
@@ -117,37 +118,61 @@
                 </div>
 
                 <div class="form-container">
+                    <h3>Profile Details</h3>
+                    <form id="profile-update-form" action="{{ route('preference.profile.update') }}" method="POST">
+                        @csrf
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" name="email" id="email" value="{{ Auth::user()->email }}" required>
+                            @error('email')
+                                <span style="color: red; font-size: 0.9em;">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="form-group">
+                            <label for="contact_number">Contact Number</label>
+                            <input type="text" name="contact_number" id="contact_number"
+                                value="{{ Auth::user()->contact_number }}" required>
+                            @error('contact_number')
+                                <span style="color: red; font-size: 0.9em;">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <button type="button" class="btn submit-btn" onclick="confirmProfileUpdate()">Update Profile</button>
+                    </form>
+                </div>
+
+                <div class="form-container">
                     <h3>Change Password</h3>
-                    <form id="change-password-form" action="{{ route('password.change') }}" method="POST">
+                    <form id="password-change-form" action="{{ route('preference.changepassword') }}" method="POST">
                         @csrf
                         <div class="form-group">
                             <label for="new_passcode">New Password</label>
                             <div class="input-with-button">
-                                <input type="password" id="new_passcode" name="new_passcode" required>
-                                <button type="button" class="btn btn-back toggle-passcode-visibility"
-                                    data-target="new_passcode">Show</button>
+                                <input type="password" name="new_passcode" id="new_passcode" required>
+                                <button type="button" class="btn btn-secondary" onclick="generatePassword()">Generate</button>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="new_passcode_confirmation">Confirm New Password</label>
-                            <div class="input-with-button">
-                                <input type="password" id="new_passcode_confirmation" name="new_passcode_confirmation" required>
-                                <button type="button" class="btn btn-back toggle-passcode-visibility"
-                                    data-target="new_passcode_confirmation">Show</button>
-                            </div>
+                            <input type="password" name="new_passcode_confirmation" id="new_passcode_confirmation" required>
                         </div>
-                        <button type="submit" class="btn submit-btn">Save Changes</button>
+                        @error('new_passcode')
+                            <span style="color: red; font-size: 0.9em;">{{ $message }}</span>
+                        @enderror
+                        <button type="button" class="btn submit-btn" onclick="confirmPasswordChange()">Change Password</button>
                     </form>
                 </div>
             </div>
         </section>
 
-        <!-- Generic Modal Overlay -->
-        <div id="modal-overlay" class="modal-overlay">
+        <!-- Confirmation Modal -->
+        <div id="confirmation-modal" class="modal-overlay">
             <div class="modal-content">
-                <h3 id="modal-title"></h3>
-                <p id="modal-message"></p>
-                <div id="modal-buttons" class="modal-buttons"></div>
+                <h3 id="confirmation-title">Confirm Action</h3>
+                <p id="confirmation-message"></p>
+                <div class="modal-buttons">
+                    <button id="confirm-btn" class="btn submit-btn">Yes</button>
+                    <button id="cancel-btn" class="btn btn-back" onclick="closeConfirmationModal()">Cancel</button>
+                </div>
             </div>
         </div>
 
@@ -212,104 +237,152 @@
         }
     </style>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // --- START: Original Show/Hide Passcode Script ---
-            const toggleButtons = document.querySelectorAll('.toggle-passcode-visibility');
-            toggleButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const targetId = this.dataset.target;
-                    const targetInput = document.getElementById(targetId);
-                    if (targetInput.type === 'password') {
-                        targetInput.type = 'text';
-                        this.textContent = 'Hide';
-                    } else {
-                        targetInput.type = 'password';
-                        this.textContent = 'Show';
-                    }
+        // Modal Helper Functions
+        function showModal(title, message, buttons) {
+            document.getElementById('confirmation-title').textContent = title;
+            document.getElementById('confirmation-message').innerHTML = message; // Use innerHTML for lists
+            
+            const btnContainer = document.querySelector('.modal-buttons');
+            btnContainer.innerHTML = ''; // Clear existing buttons
+
+            buttons.forEach(btn => {
+                const buttonEl = document.createElement('button');
+                buttonEl.textContent = btn.text;
+                buttonEl.className = btn.class || 'btn'; // Default class
+                if (btn.id) buttonEl.id = btn.id; // Optional ID
+                
+                buttonEl.addEventListener('click', function(e) {
+                    if (btn.onClick) btn.onClick(e);
                 });
+                
+                btnContainer.appendChild(buttonEl);
             });
-            // --- END: Original Show/Hide Passcode Script ---
 
-            // --- START: New Modal and AJAX Script ---
-            const form = document.getElementById('change-password-form');
-            if (form) {
-                const modalOverlay = document.getElementById('modal-overlay');
-                const modalTitle = document.getElementById('modal-title');
-                const modalMessage = document.getElementById('modal-message');
-                const modalButtons = document.getElementById('modal-buttons');
+            const overlay = document.getElementById('confirmation-modal');
+            overlay.classList.add('active');
+            overlay.style.display = 'flex';
+        }
 
-                const showModal = (title, message, buttons) => {
-                    modalTitle.textContent = title;
-                    modalMessage.innerHTML = message;
-                    modalButtons.innerHTML = '';
-                    buttons.forEach(btn => {
-                        const buttonEl = document.createElement('button');
-                        buttonEl.textContent = btn.text;
-                        buttonEl.className = `btn ${btn.class}`;
-                        if (btn.style) buttonEl.style.cssText += btn.style;
-                        buttonEl.addEventListener('click', btn.onClick);
-                        modalButtons.appendChild(buttonEl);
-                    });
-                    modalOverlay.classList.add('active');
-                };
+        function closeConfirmationModal() {
+            const overlay = document.getElementById('confirmation-modal');
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+        }
 
-                const hideModal = () => {
-                    modalOverlay.classList.remove('active');
-                };
-
-                form.addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    const confirmButtons = [
-                        { text: 'Yes, Save Changes', class: 'submit-btn', onClick: () => performSubmit() },
-                        { text: 'Cancel', class: 'btn-back', onClick: hideModal }
-                    ];
-                    showModal('Confirm Passcode Change', 'Are you sure you want to change your passcode?', confirmButtons);
-                });
-
-                const performSubmit = async () => {
-                    showModal('Processing...', 'Saving new passcode...', []);
-                    const formData = new FormData(form);
-                    const url = form.action;
-
-                    try {
-                        const response = await fetch(url, {
-                            method: 'POST',
-                            headers: { 'X-CSRF-TOKEN': formData.get('_token'), 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                            body: formData
-                        });
-                        const responseText = await response.text();
-
-                        if (!response.ok) {
-                            let message = `Error: ${response.status} ${response.statusText}`;
-                            try {
-                                const result = JSON.parse(responseText);
-                                if (result.errors) {
-                                    message = '<ul style="text-align: left; margin: 0; padding-left: 20px;">';
-                                    for (const key in result.errors) { message += `<li>${result.errors[key][0]}</li>`; }
-                                    message += '</ul>';
-                                } else {
-                                    message = result.message || message;
-                                }
-                            } catch (e) { /* Ignore */ }
-                            showModal('Error', message, [{ text: 'OK', class: 'btn-back', onClick: hideModal }]);
-                        } else {
-                            form.reset();
-                            showModal('Success', JSON.parse(responseText).message, [{ text: 'OK', class: 'submit-btn', onClick: hideModal }]);
-                        }
-                    } catch (error) {
-                        console.error('Fetch error:', error);
-                        showModal('Request Failed', 'Could not connect to the server.', [{ text: 'OK', class: 'btn-back', onClick: hideModal }]);
-                    }
-                };
-
-                if (modalOverlay) {
-                    modalOverlay.addEventListener('click', function (event) {
-                        if (event.target === modalOverlay) {
-                            hideModal();
-                        }
-                    });
-                }
+        // Feature Functions
+        function generatePassword() {
+            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+            let password = "";
+            for (let i = 0; i < 12; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
             }
+            document.getElementById("new_passcode").value = password;
+            document.getElementById("new_passcode_confirmation").value = password;
+            
+            // Toggle visibility to show the generated password
+            const input = document.getElementById("new_passcode");
+            if (input.type === "password") {
+                input.type = "text";
+                document.getElementById("new_passcode_confirmation").type = "text";
+            }
+        }
+
+        function confirmProfileUpdate() {
+            showModal("Confirm Profile Update", "Are you sure you want to update your profile details?", [
+                { text: 'Yes, Save Changes', class: 'btn submit-btn', onClick: () => submitProfileForm() },
+                { text: 'Cancel', class: 'btn btn-back', onClick: closeConfirmationModal }
+            ]);
+        }
+
+        function submitProfileForm() {
+             performSubmit(document.getElementById('profile-update-form'));
+        }
+
+        function confirmPasswordChange() {
+            const password = document.getElementById('new_passcode').value;
+            const confirmPassword = document.getElementById('new_passcode_confirmation').value;
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+            if (password.length < 4) {
+                alert("Password must be at least 4 characters.");
+                return;
+            }
+
+            showModal("Confirm Password Change", "Are you sure you want to change your password?", [
+                 { text: 'Yes, Change Password', class: 'btn submit-btn', onClick: () => submitPasswordForm() },
+                 { text: 'Cancel', class: 'btn btn-back', onClick: closeConfirmationModal }
+            ]);
+        }
+        
+        function submitPasswordForm() {
+            performSubmit(document.getElementById('password-change-form'));
+        }
+
+        // AJAX Submission Logic
+        async function performSubmit(form) {
+            // Show processing state
+            showModal('Processing...', 'Please wait...', []);
+
+            const formData = new FormData(form);
+            const url = form.action;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+                
+                // Parse JSON response
+                let result;
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    result = await response.json();
+                } else {
+                    // Fallback if server returns text/html (e.g., error page)
+                    const text = await response.text();
+                    result = { message: text || response.statusText };
+                }
+
+                if (!response.ok) {
+                    let message = result.message || 'An error occurred.';
+                    if (result.errors) {
+                        message = '<ul style="text-align: left; margin: 0; padding-left: 20px;">';
+                        for (const key in result.errors) { 
+                            result.errors[key].forEach(err => {
+                                message += `<li>${err}</li>`;
+                            });
+                        }
+                        message += '</ul>';
+                    }
+                    showModal('Error', message, [{ text: 'OK', class: 'btn btn-back', onClick: closeConfirmationModal }]);
+                } else {
+                    form.reset();
+                    showModal('Success', result.message, [{ text: 'OK', class: 'btn submit-btn', onClick: closeConfirmationModal }]);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                showModal('Request Failed', 'Could not connect to the server.', [{ text: 'OK', class: 'btn btn-back', onClick: closeConfirmationModal }]);
+            }
+        }
+
+        // Close modal on outside click
+        document.addEventListener('DOMContentLoaded', function() {
+            const overlay = document.getElementById('confirmation-modal');
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    closeConfirmationModal();
+                }
+            });
         });
     </script>
 @endpush

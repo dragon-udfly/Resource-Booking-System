@@ -150,7 +150,7 @@
 
                 <div class="form-container">
                     <h3>Change Password</h3>
-                    <form id="change-password-form" action="{{ route('password.change') }}" method="POST">
+                    <form id="change-password-form" action="{{ route('preference.changepassword') }}" method="POST">
                         @csrf
                         <div class="form-group">
                             <label for="new_passcode">New Password</label>

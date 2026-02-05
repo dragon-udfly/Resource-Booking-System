@@ -117,7 +117,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/preference', function () {
         return view('preference');
     })->name('preference');
-    Route::post('/password/change', [UserController::class, 'changePassword'])->name('password.change');
+    Route::post('/preference/profile/update', [UserController::class, 'updateUserProfile'])->name('preference.profile.update');
+    Route::post('/preference/change-password', [UserController::class, 'changePassword'])->name('preference.changepassword');
 
     // Hall routes
     Route::get('/halls', [HallController::class, 'index'])->name('halls.index');
