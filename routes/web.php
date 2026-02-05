@@ -32,6 +32,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
         return view('adminpanel');
     })->name('admin');
 
+    Route::get('/adminpreference', function () {
+        return view('adminpreference');
+    })->name('adminpreference');
+
+    Route::post('/adminpreference/update', [UserController::class, 'updateAdminProfile'])->name('adminpreference.update');
+
     Route::get('/createaccount', [UserController::class, 'create'])->name('createaccount');
     Route::post('/createaccount', [UserController::class, 'store'])->name('createaccount.store');
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');

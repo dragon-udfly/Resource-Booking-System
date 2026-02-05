@@ -380,6 +380,58 @@ class UserController extends Controller
         }
     }
 
+    public function updateAdminProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|max:200',
+            'last_name' => 'required|string|max:200',
+            'nic_number' => 'required|string|max:50|unique:user,nic_number,' . $user->user_id . ',user_id',
+            'email' => 'required|string|email|max:200|unique:user,email,' . $user->user_id . ',user_id',
+            'contact_number' => 'required|string|max:10|unique:user,contact_number,' . $user->user_id . ',user_id',
+        ]);
+
+        if ($validator->fails()) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Validation failed.', 'errors' => $validator->errors()], 422);
+            }
+            return back()->withErrors($validator)->withInput();
+        }
+
+        try {
+            $user->update([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'nic_number' => $request->nic_number,
+                'email' => $request->email,
+                'contact_number' => $request->contact_number,
+                'modified_datetime' => Carbon::now(),
+            ]);
+
+            AuditLog::create([
+                'log_title' => 'Admin ' . $user->user_id . ' updated their profile details',
+                'performed_by' => $user->user_id,
+                'date_performed' => Carbon::now()->toDateString(),
+                'time_performed' => Carbon::now()->toTimeString(),
+            ]);
+
+            $successMessage = 'Profile details updated successfully.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => $successMessage]);
+            }
+            return back()->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            Log::error('Profile update failed for user ' . $user->user_id . ': ' . $e->getMessage());
+            $errorMessage = 'An unexpected error occurred while updating profile.';
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMessage], 500);
+            }
+            return back()->with('error', $errorMessage);
+        }
+    }
+
     public function changePassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
