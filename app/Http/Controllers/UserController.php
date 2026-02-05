@@ -67,26 +67,7 @@ class UserController extends Controller
         $user = Auth::user()->load('permissions');
         $quarterApplications = collect(); // Initialize as an empty collection
 
-        if ($user->hasPermissionTo('requester')) {
-            $hallBookings = HallBooking::with('hall')
-                ->where('filled_by_nic', $user->nic_number)
-                ->where('final_approval', 'pending')
-                ->orderBy('date_created', 'desc')
-                ->get();
-
-            $quarterApplications = QuarterApplication::with('quarterAllocation')
-                ->whereHas('quarterAllocation', function ($query) {
-                    $query->where('allocation_status', 'pending');
-                })
-                ->orderBy('date_created', 'desc')
-                ->get();
-
-            return view('dashboard', [
-                'user' => $user,
-                'requesterBookings' => $hallBookings,
-                'quarterApplications' => $quarterApplications
-            ]);
-        } else {
+        if ($user->hasPermissionTo('requester') || $user->hasPermissionTo('government_agent_approval') || $user->hasPermissionTo('additional_government_agent_approval') || $user->hasPermissionTo('administrative_officer_approval')) {
             $bookings = HallBooking::with('hall')
                 ->where('final_approval', 'pending')
                 ->orderBy('date_created', 'desc')
@@ -128,7 +109,13 @@ class UserController extends Controller
                 'bookings' => $bookings,
                 'familyQuarterApplications' => $familyQuarterApplications,
                 'scheduledQuarterApplications' => $scheduledQuarterApplications,
-                'quarterApplications' => collect(),
+            ]);
+        } else {
+            return view('dashboard', [
+                'user' => $user,
+                'bookings' => collect(),
+                'familyQuarterApplications' => collect(),
+                'scheduledQuarterApplications' => collect(),
             ]);
         }
     }

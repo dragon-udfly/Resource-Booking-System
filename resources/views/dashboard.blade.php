@@ -6,9 +6,7 @@
 @section('content')
     <!-- Cyan/Turquoise Banner Section -->
     <section class="banner">
-        @if(Auth::user()->hasPermissionTo('requester'))
-            @include('partials.requester_dashboard_layout', ['requesterBookings' => $requesterBookings, 'quarterApplications' => $quarterApplications])
-        @else
+        @if(Auth::user()->hasPermissionTo('requester') || Auth::user()->hasPermissionTo('government_agent_approval') || Auth::user()->hasPermissionTo('additional_government_agent_approval') || Auth::user()->hasPermissionTo('administrative_officer_approval'))
             <div class="page-header">
                 <h2 style="color: rgb(6, 4, 60); font-weight: bold">Pending Booking Approvals</h2>
                 <p>Review the pending applications.</p>
