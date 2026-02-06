@@ -254,7 +254,7 @@ class QuarterAllocationController extends Controller
 
             AuditLog::create([
                 'log_title' => 'GA Rejected Family Application',
-                'performed_by' => $user->id,
+                'performed_by' => $user->user_id,
                 'details' => "App ID: {$id} - Rejected",
                 'date_performed' => Carbon::now()->toDateString(),
                 'time_performed' => Carbon::now()->toTimeString(),
@@ -262,7 +262,7 @@ class QuarterAllocationController extends Controller
 
             DB::commit();
 
-            \Illuminate\Support\Facades\Log::info("[Quarter Allocation] Action: Rejected Family Application | ID: {$id} | User: {$user->id}");
+            Log::info("[Quarter Allocation] Action: Rejected Family Application | ID: {$id} | User: {$user->user_id}");
 
             // Send Email
             EmailController::sendEmail($application->email, 'quarter_cancelled', $application);
