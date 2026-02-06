@@ -1,57 +1,57 @@
-# Login System: පරිශීලක අත්පොත & ක්‍රියාවලි වාර්තාව
+# Login System: පරිශීලක මාර්ගෝපදේශය & ක්‍රියාවලි වාර්තාව
 
-## හැඳින්වීම (Introduction)
-මෙම ලේඛනය Resource Booking System හි **Login Process** (පිවිසුම් ක්‍රියාවලිය) විස්තර කරයි. එය Authentication (අවසර ලබා ගැනීම), Validation Rules (වලංගුකරණ රෙගුලාසි), සහ User Roles (පරිශීලක භූමිකාවන්) මත පදනම් වූ Redirection Logic විස්තර කරයි.
+## හැඳින්වීම
+මෙම ලේඛනය සම්පත් වෙන්කරවා ගැනීමේ පද්ධතිය (Resource Booking System) සඳහා **Login Process** ගෙනහැර දක්වයි. සත්‍යාපනය, වලංගු කිරීමේ නීති සහ පරිශීලක භූමිකාවන් මත පදනම් වූ යොමු කිරීමේ තර්කනය (redirection logic) එය විස්තර කරයි.
 
 ---
 
-## 1 වන අදියර: Login පිටුවට පිවිසීම
+## 1. පිවිසුම් පිටුවට පිවිසීම (Accessing the Login Page)
 **URL:** `/login`
 
-1.  **Navigation (ගමන් මග):**
-    *   Homepage හි ඇති "Log In" සබැඳිය (link) හරහා පරිශීලකයින්ට මෙම පිටුවට පිවිසිය හැක.
-    *   URL එක හරහා සෘජුවම පිවිසිය හැක.
-2.  **Interface (අතුරු මුහුණත):**
-    *   පෙර පිටුවට යාම සඳහා "Back" බොත්තමක් සහිත පිරිසිදු අතුරු මුහුණතක් මෙහි ඇත.
-    *   **NIC** සහ **Passcode** ඇතුළත් කිරීම සඳහා Input Fields ඇත.
+1.  **Navigation:**
+    *   මුල් පිටුවේ සංචාලන තීරුවේ (Homepage navigation bar) ඇති "Log In" සබැඳිය හරහා පරිශීලකයින්ට පිවිසුම් පිටුවට පිවිසිය හැකිය.
+    *   URL හරහා සෘජුව පිවිසීම.
+2.  **Interface:**
+    *   පෙර පිටුවට යාමට "Back" බොත්තමක් සහිත පිරිසිදු අතුරු මුහුණතක් ඇත.
+    *   **NIC** සහ **Passcode** සඳහා ආදාන ක්ෂේත්‍ර (Input fields).
 
-## 2 වන අදියර: Credentials & Submission
-**Form Fields (පිටුවේ ඇති කොටස්):**
+## 2. අක්තපත්‍ර & ඉදිරිපත් කිරීම (Credentials & Submission)
+**Form Fields:**
 
 1.  **NIC (National Identity Card) Number:**
-    *   *වර්ගය:* Text
-    *   *අවශ්‍යතාවය:* අනිවාර්යයි (Yes)
-    *   *විස්තරය:* නිලධාරියාගේ අනන්‍යතාවය තහවුරු කරන අංකය.
+    *   *වර්ගය:* පෙළ (Text)
+    *   *අවශ්‍යයි:* ඔව්
+    *   *විස්තරය:* නිලධාරියා සඳහා අනන්‍ය හැඳුනුම්කාරකය.
 2.  **Password:**
-    *   *වර්ගය:* Password
-    *   *අවශ්‍යතාවය:* අනිවාර්යයි (Yes)
-    *   *විස්තරය:* පරිශීලක ගිණුමට අදාළ ආරක්ෂිත මුරපදය.
+    *   *වර්ගය:* මුරපදය (Password)
+    *   *අවශ්‍යයි:* ඔව්
+    *   *විස්තරය:* පරිශීලක ගිණුම හා සම්බන්ධ ආරක්ෂිත මුරපදය.
 
 **Client-Side Validation:**
-*   JavaScript මගින් ඇතුළත් කරන දත්ත නිරීක්ෂණය කරනු ලැබේ.
-*   NIC සහ Password යන දෙකම ඇතුළත් කරන තෙක් **Login** බොත්තම **Disabled** (අක්‍රියව) පවතී.
-*   දත්ත ඇතුළත් කළ පසු, බොත්තම **Enabled** (සක්‍රිය) වන අතර එහි වර්ණය වෙනස් වේ.
+*   ජාවාස්ක්‍රිප්ට් ස්ක්‍රිප්ට් එකක් මගින් ආදාන ක්ෂේත්‍ර නිරීක්ෂණය කරයි.
+*   **Login** බොත්තම පෙරනිමියෙන් **අක්‍රීය** (disabled) කර ඇති අතර NIC සහ Password ක්ෂේත්‍ර දෙකෙහිම පෙළ අඩංගු වූ විට පමණක් **සක්‍රීය** (enabled) වේ.
+*   සක්‍රීය වූ විට බොත්තමෙහි දර්ශනය වෙනස් වේ (තද නිල්).
 
-## 3 වන අදියර: Redirection & Access Control
-පරිශීලකයාගේ **Role** එක මත පදනම්ව System එක ඔහු/ඇයව අදාළ පිටුවට යොමු කරයි:
+## 3. යොමු කිරීම & ප්‍රවේශ පාලනය (Redirection & Access Control)
+පරිශීලකයින්ට පවරා ඇති **Role** මත පදනම්ව පද්ධතිය ඔවුන්ව යොමු කරයි:
 
 *   **Admin Role:**
-    *   **Admin Dashboard** (`/admin`) වෙත යොමු කෙරේ.
+    *   **Admin Dashboard** (`/admin`) වෙත යොමු කරයි.
 *   **User/Officer Role:**
-    *   **User Dashboard** (`/dashboard`) වෙත යොමු කෙරේ.
+    *   **User Dashboard** (`/dashboard`) වෙත යොමු කරයි.
 
-## 4 වන අදියර: දෝෂ හැසිරවීම (Error Handling)
-Authentication අසාර්ථක වූ විට (වැරදි NIC හෝ Password):
-*    පරිශීලකයාව නැවත Login පිටුවට යොමු කෙරේ.
-*   දෝෂ පණිවිඩයක් දර්ශනය වේ: *"The provided credentials do not match our records."*
-*   පහසුව සඳහා NIC කොටසෙහි කලින් ඇතුළත් කළ අංකය එලෙසම පවතියි.
+## 4. දෝෂ හැසිරවීම (Error Handling)
+සත්‍යාපනය අසාර්ථක වුවහොත් (වැරදි NIC හෝ වැරදි මුරපදයක්):
+*    පරිශීලකයා නැවත පිවිසුම් පිටුවට හරවා යවනු ලැබේ.
+*   දෝෂ පණිවිඩයක් පෙන්වනු ලැබේ: *"The provided credentials do not match our records."*
+*   පහසුව සඳහා මීට පෙර ඇතුළත් කළ අගය NIC ක්ෂේත්‍රය විසින් තබා ගනී.
 
-## සාරාංශය (Summary Matrix)
+## සාරාංශ න්‍යාසය (Summary Matrix)
 
-| Feature | Details |
+| විශේෂාංගය | විස්තර |
 | :--- | :--- |
-| **Primary Key** | NIC Number |
-| **Security** | Hashed Passcode Verification |
-| **Role Handling** | Automatic Redirection (Admin vs. User) |
-| **Security Log** | Automatic Audit Log Entry |
-| **Error Feedback** | Standard Invalid Credentials Message |
+| **ප්‍රාථමික යතුර** | NIC Number |
+| **ආරක්ෂාව** | Hashed Passcode සත්‍යාපනය |
+| **භූමිකාව හැසිරවීම** | ස්වයංක්‍රීය යොමු කිරීම (Admin vs. User) |
+| **ආරක්ෂක ලොගය** | ස්වයංක්‍රීය Audit Log ඇතුළත් කිරීම |
+| **දෝෂ ප්‍රතිපෝෂණ** | සම්මත වැරදි අක්තපත්‍ර පණිවිඩය |
