@@ -41,17 +41,27 @@
             transition: background-color 0.3s ease;
         }
 
-        .home-btn { background-color: #6c757d; } /* Grey */
-        .back-btn { background-color: #007bff; } /* Blue */
-        
+        .home-btn {
+            background-color: #6c757d;
+        }
+
+        /* Grey */
+        .back-btn {
+            background-color: #007bff;
+        }
+
+        /* Blue */
+
         .btn:hover {
             opacity: 0.9;
         }
+
         /* New button styles for booking types */
         .book-quarter-btn {
             display: inline-block;
             padding: 12px 25px;
-            background-color: #25a309; /* Green for booking */
+            background-color: #25a309;
+            /* Green for booking */
             color: white;
             text-decoration: none;
             border-radius: 5px;
@@ -67,14 +77,16 @@
 
         /* Table styles */
         table {
-            width: 90%; /* Adjust table width */
+            width: 90%;
+            /* Adjust table width */
             margin: 20px auto;
             border-collapse: collapse;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             background-color: #f1f1f1
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 12px 15px;
             text-align: left;
@@ -93,7 +105,6 @@
         tr:hover {
             background-color: #f1f1f1;
         }
-
     </style>
 @endsection
 
@@ -103,16 +114,18 @@
             <a href="#" onclick="history.back(); return false;" class="btn back-btn">Back</a>
             <a href="{{ Auth::check() ? route('homepage') : route('home') }}" class="btn home-btn">Home</a>
         </div>
-        
+
         <div class="page-header">
             <h2>Book Quarters</h2>
-            <p>Applications for requesting accommodation in the government quarters administered by the Ministry of Public Administration in Vavuniya</p>
+            <p>Applications for requesting accommodation in the government quarters administered by the Ministry of Public
+                Administration in Vavuniya</p>
             <br />
             <p>Select a quarter type to proceed with booking or view available quarters.</p>
         </div>
 
         @if(session('success'))
-            <div class="alert alert-success" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+            <div class="alert alert-success"
+                style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
                 {{ session('success') }}
             </div>
         @endif
@@ -123,7 +136,8 @@
         </div>
 
         <div class="form-container">
-            <h2 style="text-align: center; color: rgb(6, 4, 60); font-weight: bold; margin-bottom: 20px;">Overview of Quarters</h2>
+            <h2 style="text-align: center; color: rgb(6, 4, 60); font-weight: bold; margin-bottom: 20px;">Overview of
+                Quarters</h2>
             <table id="quarters-overview">
                 <thead>
                     <tr>
@@ -151,9 +165,12 @@
                                 <td>{{ $quarter->new_quarter_no }}</td>
                                 <td>{{ $quarter->quarter_type }}</td>
                                 <td>{{ $quarter->status }}</td>
-                                <td>{{ $quarter->occupant_number }}</td>
-                                <th>{{ $quarter->allowed_gender }}</td>
-                                <td>{{ $quarter->occupant_number - ($quarter->current_occupant_number ?? 0) }}</td>
+                                @php
+                                    $maxOccupants = ($quarter->occupant_number == 0) ? 1 : $quarter->occupant_number;
+                                @endphp
+                                <td>{{ $maxOccupants }}</td>
+                                <td>{{ $quarter->allowed_gender }}</td>
+                                <td>{{ $maxOccupants - ($quarter->current_occupant_number ?? 0) }}</td>
                                 <td>{{ $quarter->special_notice }}</td>
                             </tr>
                         @endforeach

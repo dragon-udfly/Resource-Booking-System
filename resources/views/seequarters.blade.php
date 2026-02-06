@@ -120,7 +120,7 @@
                             <td>{{ $quarter->allowed_gender }}</td>
                             <td>{{ $quarter->special_notice }}</td>
                             @php
-                                $maxOccupants = ($quarter->quarter_type === 'Family' && $quarter->occupant_number == 0) ? 1 : $quarter->occupant_number;
+                                $maxOccupants = ($quarter->occupant_number == 0) ? 1 : $quarter->occupant_number;
                             @endphp
                             <td>{{ $maxOccupants }}</td>
                             <td>{{ $quarter->current_occupant_number }}</td>
