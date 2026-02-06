@@ -396,6 +396,29 @@
                 </div>
             </div>
         </div>
+        {{-- Processing Overlay --}}
+        <div id="processing-overlay"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; flex-direction: column;">
+            <div style="background: white; padding: 30px; border-radius: 8px; text-align: center;">
+                <div class="spinner"
+                    style="border: 4px solid #f3f3f3; border-top: 4px solid #007bff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px;">
+                </div>
+                <h3 style="margin: 0;">Processing...</h3>
+                <p style="margin-top: 10px; color: #666;">Please wait while we update the application status.</p>
+            </div>
+        </div>
+
+        <style>
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
     </section>
 @endsection
 
@@ -426,6 +449,10 @@
                 modalOverlay.classList.remove('active');
             };
 
+            const showProcessingOverlay = () => {
+                document.getElementById('processing-overlay').style.display = 'flex';
+            };
+
 
 
             // Cancel Allocation Button Handler
@@ -439,9 +466,9 @@
 
                     // Show modal to collect note
                     showModal('Cancel Allocation', `<div style="text-align: left; margin-bottom: 15px;">
-                                            <label for="modal-cancel-note" style="font-weight: bold; color: #dc3545; display: block; margin-bottom: 8px;">Reason for Cancellation (GA Note)*</label>
-                                            <textarea id="modal-cancel-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; resize: vertical;" rows="4" placeholder="Enter reason for cancellation..."></textarea>
-                                        </div>`, [
+                                                <label for="modal-cancel-note" style="font-weight: bold; color: #dc3545; display: block; margin-bottom: 8px;">Reason for Cancellation (GA Note)*</label>
+                                                <textarea id="modal-cancel-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; resize: vertical;" rows="4" placeholder="Enter reason for cancellation..."></textarea>
+                                            </div>`, [
                         {
                             text: 'Cancel Allocation',
                             class: 'btn btn-danger',
@@ -461,7 +488,15 @@
 
                                 setTimeout(() => {
                                     showModal('Confirm Cancellation', 'Are you sure you want to cancel this allocation? The status will change to rejected.', [
-                                        { text: 'Yes, Cancel', class: 'btn btn-danger', onClick: () => cancelAllocationForm.submit() },
+                                        {
+                                            text: 'Yes, Cancel',
+                                            class: 'btn btn-danger',
+                                            onClick: () => {
+                                                hideModal();
+                                                showProcessingOverlay();
+                                                cancelAllocationForm.submit();
+                                            }
+                                        },
                                         { text: 'No', class: 'btn btn-secondary', onClick: hideModal }
                                     ]);
                                 }, 100);
@@ -490,9 +525,9 @@
                     e.preventDefault();
 
                     showModal('Restore Application', `<div style="text-align: left; margin-bottom: 15px;">
-                                    <label for="modal-restore-note" style="font-weight: bold; color: #856404; display: block; margin-bottom: 8px;">Reason for Restoration (Mandatory)*</label>
-                                    <textarea id="modal-restore-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; resize: vertical;" rows="4" placeholder="Enter reason for restoring application..."></textarea>
-                                </div>`, [
+                                        <label for="modal-restore-note" style="font-weight: bold; color: #856404; display: block; margin-bottom: 8px;">Reason for Restoration (Mandatory)*</label>
+                                        <textarea id="modal-restore-note" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; resize: vertical;" rows="4" placeholder="Enter reason for restoring application..."></textarea>
+                                    </div>`, [
                         {
                             text: 'Restore Application',
                             class: 'btn btn-warning',
@@ -509,6 +544,7 @@
 
                                 // Set the note and submit
                                 restoreNoteInput.value = note;
+                                showProcessingOverlay();
                                 restoreForm.submit();
                             }
                         },

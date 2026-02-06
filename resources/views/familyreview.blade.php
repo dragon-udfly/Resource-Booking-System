@@ -592,17 +592,40 @@
             </form>
         </div>
 
-        {{-- Modal Overlay --}}
-        <div id="modal-overlay" class="modal-overlay">
-            <div class="modal-content">
-                <h3 id="modal-title"></h3>
-                <p id="modal-message"></p>
-                <div id="modal-buttons" class="modal-buttons">
-                    <!-- Buttons will be injected by JavaScript -->
-                </div>
+    <!-- Generic Modal Overlay -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <div id="modal-buttons" class="modal-buttons">
+                <!-- Buttons will be injected by JavaScript -->
             </div>
         </div>
-    </section>
+    </div>
+
+    {{-- Processing Overlay --}}
+    <div id="processing-overlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; flex-direction: column;">
+        <div style="background: white; padding: 30px; border-radius: 8px; text-align: center;">
+            <div class="spinner"
+                style="border: 4px solid #f3f3f3; border-top: 4px solid #007bff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px;">
+            </div>
+            <h3 style="margin: 0;">Processing...</h3>
+            <p style="margin-top: 10px; color: #666;">Please wait while we update the application status.</p>
+        </div>
+    </div>
+
+    <style>
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 @endsection
 
 @push('scripts')
@@ -631,6 +654,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const hideModal = () => {
         modalOverlay.classList.remove('active');
+    };
+
+    const showProcessingOverlay = () => {
+        document.getElementById('processing-overlay').style.display = 'flex';
+    };
+
+    const hideProcessingOverlay = () => {
+        document.getElementById('processing-overlay').style.display = 'none';
     };
 
         // Allocate Button Handler (for GA only)
@@ -709,8 +740,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         const performAllocation = async () => {
-            const loadingButtons = [];
-            showModal('Processing...', 'Submitting allocation, please wait...', loadingButtons);
+            // Updated to use new overlay
+            hideModal(); // Hide confirmation modal first
+            showProcessingOverlay(); // Show full screen spinner
 
             const formData = new FormData(form);
             // Manually append the action 'allocate' since it's not included in FormData when submitting via fetch/js
@@ -794,8 +826,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         const performRejection = async () => {
-            const loadingButtons = [];
-            showModal('Processing...', 'Submitting rejection, please wait...', loadingButtons);
+            // Updated to use new overlay
+            hideModal(); // Hide confirmation modal first
+            showProcessingOverlay(); // Show full screen spinner
 
             const formData = new FormData(form);
             // Append explicit action for clarity, though route handles it

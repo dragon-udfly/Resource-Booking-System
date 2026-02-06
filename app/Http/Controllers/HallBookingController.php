@@ -455,33 +455,7 @@ class HallBookingController extends Controller
 
             // Send Email Notification if Approved by GA
             if ($hallBooking->final_approval === 'approved') {
-                try {
-                    // Safe Config Check
-                    if (config('mail.mailers.smtp.host') && config('mail.mailers.smtp.username')) {
-                        \Illuminate\Support\Facades\Notification::route('mail', $hallBooking->applicant_email)
-                            ->notify(new \App\Notifications\HallBookingApprovedNotification($hallBooking));
-                        Log::info("[Hall Booking] Email Sent | ID: {$hallBooking->booking_id}");
-                    } else {
-                        Log::warning("[Hall Booking] Email Skipped: Missing SMTP Configuration | ID: {$hallBooking->booking_id}");
-                        AuditLog::create([
-                            'log_title' => 'Email Notification Failed (Missing Config) for Booking ' . $hallBooking->booking_id,
-                            'performed_by' => $user->user_id,
-                            'date_performed' => Carbon::now()->toDateString(),
-                            'time_performed' => Carbon::now()->toTimeString(),
-                        ]);
-                        // Flash warning but don't stop the process
-                        session()->flash('warning', 'Booking approved, but email notification could not be sent due to missing configuration.');
-                    }
-                } catch (\Exception $e) {
-                    Log::error("[Hall Booking] Email Failed | ID: {$hallBooking->booking_id} | Error: {$e->getMessage()}");
-                    AuditLog::create([
-                        'log_title' => 'Email Notification Failed for Booking ' . $hallBooking->booking_id,
-                        'performed_by' => $user->user_id,
-                        'date_performed' => Carbon::now()->toDateString(),
-                        'time_performed' => Carbon::now()->toTimeString(),
-                    ]);
-                    session()->flash('warning', 'Booking approved, but email notification failed. Check system logs.');
-                }
+                EmailController::sendEmail($hallBooking->applicant_email, 'hall_approved', $hallBooking);
             }
 
             return response()->json(['success' => true, 'message' => 'Booking approved successfully.']);
@@ -561,7 +535,7 @@ class HallBookingController extends Controller
                 ]);
 
                 // Send Cancellation Email
-                Mail::to($hallBooking->applicant_email)->send(new HallBookingCancelled($hallBooking, $request->reason));
+                EmailController::sendEmail($hallBooking->applicant_email, 'hall_cancelled', $hallBooking);
 
                 Log::info("[Hall Booking] Action: Cancelled by GA | ID: {$hallBooking->booking_id} | User: {$user->id} | Reason: {$request->reason}");
 
@@ -659,7 +633,7 @@ class HallBookingController extends Controller
                 ]);
 
                 // Send Re-Approval Email (Same as Approval)
-                Mail::to($hallBooking->applicant_email)->send(new HallBookingApproved($hallBooking));
+                EmailController::sendEmail($hallBooking->applicant_email, 'hall_approved', $hallBooking);
 
                 return response()->json(['success' => true, 'message' => 'Booking re-approved successfully.']);
             }

@@ -2,41 +2,39 @@
 
 namespace App\Mail;
 
-use App\Models\HallBooking;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Mail\Mailables\Attachment;
+use Illuminate\Queue\SerializesModels;
+use App\Models\QuarterApplication;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
-class HallBookingCancelled extends Mailable
+class QuarterAllocationCancelled extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $booking;
-    public $reason;
+    public $application;
     protected $pdfOutput;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(HallBooking $booking)
+    public function __construct(QuarterApplication $application)
     {
-        $this->booking = $booking;
-        $this->reason = $booking->reason_of_rejection ?? 'No reason provided';
+        $this->application = $application;
 
-        // Generate PDF
+        // Generate PDF in memory
         $data = [
-            'booking' => $this->booking,
-            'date' => now()->format('Y-m-d'),
-            'reason' => $this->reason
+            'application' => $this->application,
+            'allocation' => $this->application->quarterAllocation,
+            'date' => Carbon::now()->format('Y-m-d')
         ];
 
-        $pdf = Pdf::loadView('pdf.hall_booking_cancellation_letter', $data);
-        $this->pdfOutput = $pdf->output();
+        $this->pdfOutput = Pdf::loadView('pdf.quarter_cancellation_letter', $data)->output();
     }
 
     /**
@@ -45,7 +43,7 @@ class HallBookingCancelled extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Hall Booking Cancelled - ' . $this->booking->programme,
+            subject: 'Cancellation of Quarter Allocation Application',
         );
     }
 
@@ -55,19 +53,17 @@ class HallBookingCancelled extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.hall_booking_cancelled',
+            view: 'emails.quarter_cancelled',
         );
     }
 
     /**
      * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
     public function attachments(): array
     {
         return [
-            Attachment::fromData(fn() => $this->pdfOutput, 'Cancellation_Letter_' . $this->booking->booking_id . '.pdf')
+            Attachment::fromData(fn() => $this->pdfOutput, 'Quarter_Cancellation_Letter.pdf')
                 ->withMime('application/pdf'),
         ];
     }

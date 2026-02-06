@@ -174,6 +174,9 @@ class QuarterAllocationController extends Controller
 
             $successMessage = 'Family quarter allocated successfully to ' . $quarter->quarter_id;
 
+            // Send Email
+            EmailController::sendEmail($application->email, 'quarter_allocated', $application);
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
@@ -260,6 +263,9 @@ class QuarterAllocationController extends Controller
             DB::commit();
 
             \Illuminate\Support\Facades\Log::info("[Quarter Allocation] Action: Rejected Family Application | ID: {$id} | User: {$user->id}");
+
+            // Send Email
+            EmailController::sendEmail($application->email, 'quarter_cancelled', $application);
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -831,6 +837,9 @@ class QuarterAllocationController extends Controller
 
                 Log::info("[Quarter Allocation] Action: Allocated Scheduled Quarter | ID: {$id} | Quarter: {$quarter->quarter_id} | User: " . Auth::id());
 
+                // Send Email
+                EmailController::sendEmail($application->email, 'quarter_allocated', $application);
+
                 return response()->json(['status' => 'success', 'message' => 'Scheduled quarter allocated successfully!', 'redirect_url' => route('dashboard')]);
 
             } catch (\Exception $e) {
@@ -1001,6 +1010,9 @@ class QuarterAllocationController extends Controller
             ]);
 
             Log::info("[Quarter Allocation] Action: Rejected Scheduled Application | ID: {$id} | User: " . Auth::id());
+
+            // Send Email
+            EmailController::sendEmail($application->email, 'quarter_cancelled', $application);
 
             DB::commit();
 
@@ -1320,6 +1332,9 @@ class QuarterAllocationController extends Controller
 
             Log::info("[Quarter Allocation] Action: Cancelled Scheduled Allocation | ID: {$id} | User: " . Auth::id());
 
+            // Send Email
+            EmailController::sendEmail($application->email, 'quarter_cancelled', $application);
+
             return redirect()->back()->with('success', 'Scheduled Quarter allocation cancelled successfully!');
 
         } catch (\Exception $e) {
@@ -1394,6 +1409,9 @@ class QuarterAllocationController extends Controller
             DB::commit();
 
             Log::info("[Quarter Allocation] Action: Cancelled Family Allocation | ID: {$id} | User: " . Auth::id());
+
+            // Send Email
+            EmailController::sendEmail($application->email, 'quarter_cancelled', $application);
 
             return redirect()->back()->with('success', 'Family Quarter allocation cancelled successfully!');
 
