@@ -10,7 +10,7 @@
 
 | Name | Registration Number |Area|
 | :--- | :--- | :--- |
-| K.M.I.U. Perera | 2021/ICT/13 |System Design, Backend|
+| K.M.I.U. Perera | 2021/ICT/13 |System Architect & Design, Backend|
 | R.G.G.S. Sadhana | 2021/ICT/28 |Frontend|
 | M.Z.F. Zaheeda | 2021/ICT/37 |Database|
 | W.R.W.M.R.N.W.N.R. Nugegoda | 2021/ICT/67 |Frontend|
