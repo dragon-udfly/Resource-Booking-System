@@ -626,6 +626,7 @@
             }
         }
     </style>
+    </section>
 @endsection
 
 @push('scripts')
