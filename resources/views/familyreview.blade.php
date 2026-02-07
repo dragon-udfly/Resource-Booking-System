@@ -580,8 +580,8 @@
                     @if(Auth::user()->hasPermissionTo('requester'))
                         {{-- Requester can delete only if is_ao_verified=0, is_aga_verified=0, allocation_status=pending --}}
                         @php
-                            $canRequesterDelete = optional($application->quarterAllocation)->is_ao_verified != 1 
-                                               && optional($application->quarterAllocation)->is_aga_verified != 1
+                            $canRequesterDelete = optional($application->quarterAllocation)->is_ao_verified == 2 
+                                               && optional($application->quarterAllocation)->is_aga_verified == 2
                                                && optional($application->quarterAllocation)->allocation_status === 'pending';
                         @endphp
                         <button type="button" id="delete-button" class="btn btn-danger" @if(!$canRequesterDelete) disabled style="opacity: 0.5; cursor: not-allowed;" @endif>Delete</button>
