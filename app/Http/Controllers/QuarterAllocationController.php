@@ -349,17 +349,34 @@ class QuarterAllocationController extends Controller
                     'time_performed' => Carbon::now()->toTimeString(),
                 ]);
             } elseif ($action === 'Delete' && $user->hasPermissionTo('administrative_officer_approval')) {
-                $quarterAllocation->is_ao_verified = null;
-                $quarterAllocation->is_aga_verified = null;
-                $quarterAllocation->allocation_status = 'pending';
-                $successMessage = 'Verification reset successfully.';
-                AuditLog::create([
-                    'log_title' => 'AO Reset Family Application Verification',
-                    'performed_by' => $user->id,
-                    'details' => "App ID: {$id} - Verification reset",
-                    'date_performed' => Carbon::now()->toDateString(),
-                    'time_performed' => Carbon::now()->toTimeString(),
-                ]);
+                // Status check: Application must be pending
+                if ($quarterAllocation->allocation_status !== 'pending') {
+                    return redirect()->back()->with('error', 'Cannot delete application: Status must be pending.');
+                }
+
+                DB::beginTransaction();
+                try {
+                    // Actual Record Deletion (AO Power)
+                    $quarterAllocation->delete();
+                    if ($application->familyQuarterApplication) {
+                        $application->familyQuarterApplication->delete();
+                    }
+                    $application->delete();
+
+                    AuditLog::create([
+                        'log_title' => 'Family Quarter Application Deleted (via Form)',
+                        'performed_by' => $user->id,
+                        'details' => "App ID: {$id} deleted by AO.",
+                        'date_performed' => Carbon::now()->toDateString(),
+                        'time_performed' => Carbon::now()->toTimeString(),
+                    ]);
+
+                    DB::commit();
+                    return redirect()->route('dashboard')->with('success', 'Application deleted successfully.');
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    return redirect()->back()->with('error', 'Failed to delete application: ' . $e->getMessage());
+                }
             } elseif ($action === 'Cancel' && $user->hasPermissionTo('requester')) {
                 if ($quarterAllocation->is_ao_verified === 0 && $quarterAllocation->is_aga_verified === 0 && $quarterAllocation->allocation_status === 'pending') {
                     $quarterAllocation->allocation_status = 'cancelled';
