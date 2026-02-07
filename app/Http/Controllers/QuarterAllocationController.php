@@ -378,18 +378,34 @@ class QuarterAllocationController extends Controller
                     return redirect()->back()->with('error', 'Failed to delete application: ' . $e->getMessage());
                 }
             } elseif ($action === 'Cancel' && $user->hasPermissionTo('requester')) {
-                if ($quarterAllocation->is_ao_verified === 0 && $quarterAllocation->is_aga_verified === 0 && $quarterAllocation->allocation_status === 'pending') {
-                    $quarterAllocation->allocation_status = 'cancelled';
-                    $successMessage = 'Application cancelled successfully.';
-                    AuditLog::create([
-                        'log_title' => 'Requester Cancelled Family Application',
-                        'performed_by' => $user->id,
-                        'details' => "App ID: {$id} - Cancelled",
-                        'date_performed' => Carbon::now()->toDateString(),
-                        'time_performed' => Carbon::now()->toTimeString(),
-                    ]);
+                // Requester can only delete if neither AO nor AGA has verified it (status must be pending)
+                // and the overall status is still pending.
+                if ($quarterAllocation->is_ao_verified == 2 && $quarterAllocation->is_aga_verified == 2 && $quarterAllocation->allocation_status === 'pending') {
+                    DB::beginTransaction();
+                    try {
+                        // Full Deletion for Requester (as requested: "delete operation")
+                        $quarterAllocation->delete();
+                        if ($application->familyQuarterApplication) {
+                            $application->familyQuarterApplication->delete();
+                        }
+                        $application->delete();
+
+                        AuditLog::create([
+                            'log_title' => 'Requester Deleted Family Application',
+                            'performed_by' => $user->id,
+                            'details' => "App ID: {$id} deleted by requester.",
+                            'date_performed' => Carbon::now()->toDateString(),
+                            'time_performed' => Carbon::now()->toTimeString(),
+                        ]);
+
+                        DB::commit();
+                        return redirect()->route('dashboard')->with('success', 'Application deleted successfully.');
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                        return redirect()->back()->with('error', 'Failed to delete application: ' . $e->getMessage());
+                    }
                 } else {
-                    return redirect()->back()->with('error', 'Cannot cancel application. Conditions not met.');
+                    return redirect()->back()->with('error', 'Cannot delete application: It has already been reviewed or processed.');
                 }
             }
 
@@ -1467,10 +1483,10 @@ class QuarterAllocationController extends Controller
             // Role-based validation
             if (Auth::user()->hasPermissionTo('requester')) {
                 // Requester: Must meet all conditions
-                if ($quarterAllocation->is_ao_verified != 0) {
+                if ($quarterAllocation->is_ao_verified != 2) {
                     return response()->json(['success' => false, 'message' => 'Cannot delete: Application has been verified by Administrative Officer.'], 400);
                 }
-                if ($quarterAllocation->is_aga_verified != 0) {
+                if ($quarterAllocation->is_aga_verified != 2) {
                     return response()->json(['success' => false, 'message' => 'Cannot delete: Application has been verified by Additional Government Agent.'], 400);
                 }
                 if ($quarterAllocation->allocation_status !== 'pending') {
@@ -1544,10 +1560,10 @@ class QuarterAllocationController extends Controller
             // Role-based validation
             if (Auth::user()->hasPermissionTo('requester')) {
                 // Requester: Must meet all conditions
-                if ($quarterAllocation->is_ao_verified != 0) {
+                if ($quarterAllocation->is_ao_verified != 2) {
                     return response()->json(['success' => false, 'message' => 'Cannot delete: Application has been verified by Administrative Officer.'], 400);
                 }
-                if ($quarterAllocation->is_aga_verified != 0) {
+                if ($quarterAllocation->is_aga_verified != 2) {
                     return response()->json(['success' => false, 'message' => 'Cannot delete: Application has been verified by Additional Government Agent.'], 400);
                 }
                 if ($quarterAllocation->allocation_status !== 'pending') {
