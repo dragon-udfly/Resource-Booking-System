@@ -100,9 +100,24 @@ class QuarterAllocationController extends Controller
         }
 
         $user = Auth::user();
+        $action = $request->input('action');
 
-        // Authorization check
+        // --- Dispatch based on action ---
+        // This ensures the same route/entry point can handle all review actions
+
+        if ($action === 'reject') {
+            return $this->rejectFamilyQuarter($request, $id);
+        }
+
+        if (in_array($action, ['Submit', 'Delete', 'Cancel'])) {
+            return $this->updateFamilyQuarterReview($request, $id);
+        }
+
+        // Default 'allocate' logic (Only GA)
         if (!$user->hasPermissionTo('government_agent_approval')) {
+            if ($request->ajax()) {
+                return response()->json(['status' => 'error', 'message' => 'You do not have permission to allocate quarters.'], 403);
+            }
             return redirect()->back()->with('error', 'You do not have permission to allocate quarters.');
         }
 
