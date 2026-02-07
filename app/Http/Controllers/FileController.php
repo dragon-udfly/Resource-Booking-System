@@ -50,6 +50,12 @@ class FileController extends Controller
     private function loadDocumentsFrom($directory, &$documents)
     {
         if (File::exists($directory)) {
+            // Get the web-accessible path relative to the public root
+            $publicPath = realpath(public_path());
+            $absDirectory = realpath($directory);
+            $webPath = str_replace([$publicPath, DIRECTORY_SEPARATOR], ['', '/'], $absDirectory);
+            $webBase = '/' . trim($webPath, '/') . '/';
+
             $files = File::files($directory);
 
             foreach ($files as $file) {
@@ -58,6 +64,9 @@ class FileController extends Controller
 
                     // Convert Markdown to HTML
                     $htmlContent = Str::markdown($content);
+
+                    // Fix relative image paths (e.g., src="./images/..." -> src="/docs/system/images/...")
+                    $htmlContent = str_replace('src="./', 'src="' . $webBase, $htmlContent);
 
                     // Create a readable title from the filename
                     $filename = $file->getFilenameWithoutExtension();

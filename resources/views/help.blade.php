@@ -147,6 +147,16 @@
             line-height: 1.6;
         }
 
+        .accordion-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
         .icon {
             transition: transform 0.3s ease;
         }
