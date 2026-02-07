@@ -32,7 +32,7 @@
     }
 </style>
 
-<footer class="footer">
+<footer class="footer" title="Use help for user manuals.">
     <p>&copy; {{ date('Y') }} District Secretariat, Vavuniya. All Rights Reserved.</p>
     <div class="footer-links">
         <a href="{{ route('help') }}">Help</a>
