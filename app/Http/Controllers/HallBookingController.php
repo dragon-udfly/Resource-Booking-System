@@ -498,6 +498,11 @@ class HallBookingController extends Controller
 
             Log::info("[Hall Booking] Action: {$role_action} | ID: {$hallBooking->booking_id} | User: {$user->id}");
 
+            // Send Email Notification if Rejected by GA
+            if ($hallBooking->final_approval === 'rejected') {
+                EmailController::sendEmail($hallBooking->applicant_email, 'hall_cancelled', $hallBooking);
+            }
+
             return response()->json(['success' => true, 'message' => 'Booking rejected successfully.']);
         }
 
