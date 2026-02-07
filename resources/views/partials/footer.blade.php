@@ -5,7 +5,7 @@
         width: 100%;
         color: white;
         text-align: center;
-        padding-top: 20px;
+        padding-top: 5px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -13,11 +13,11 @@
     }
 
     .footer p {
-        margin: 5px 0;
+        margin: 3px 0;
     }
 
     .footer-links {
-        margin-top: 10px;
+        margin-top: 5px;
     }
 
     .footer-links a {
