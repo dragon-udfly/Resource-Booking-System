@@ -185,7 +185,7 @@ class QuarterAllocationController extends Controller
 
             DB::commit();
 
-            \Illuminate\Support\Facades\Log::info("[Quarter Allocation] Action: Allocated Family Quarter | ID: {$id} | Quarter: {$quarter->quarter_id} | User: {$user->id}");
+            Log::info("[Quarter Allocation] Action: Allocated Family Quarter | ID: {$id} | Quarter: {$quarter->quarter_id} | User: {$user->id}");
 
             $successMessage = 'Family quarter allocated successfully to ' . $quarter->quarter_id;
 
@@ -639,7 +639,7 @@ class QuarterAllocationController extends Controller
             ]);
 
             DB::commit();
-            \Illuminate\Support\Facades\Log::info("[Quarter Allocation] Action: Scheduled Quarter Application Submitted | ID: {$quarterApplication->application_id}");
+            Log::info("[Quarter Allocation] Action: Scheduled Quarter Application Submitted | ID: {$quarterApplication->application_id}");
             return redirect()->route('bookquarter')->with('success', 'Scheduled quarter application submitted successfully!');
 
         } catch (\Exception $e) {
@@ -833,6 +833,7 @@ class QuarterAllocationController extends Controller
                     $applicantGender = strtolower(trim($application->gender));
 
                     if ($quarterGender !== $applicantGender) {
+                        DB::rollBack();
                         return response()->json([
                             'status' => 'error',
                             'message' => "Gender Mismatch: This quarter is reserved for " . ucfirst($quarterGender) . "s, but the applicant is " . ucfirst($applicantGender) . "."
@@ -843,12 +844,14 @@ class QuarterAllocationController extends Controller
                 // Availability Check
                 // Available if Unallocated OR current < max
                 if ($quarter->status !== 'Unallocated' && ($quarter->current_occupant_number >= $quarter->occupant_number)) {
+                    DB::rollBack();
                     return response()->json(['status' => 'error', 'message' => 'The selected quarter is no longer available (Full Capacity).'], 422);
                 }
 
                 $quarterAllocation = $application->quarterAllocation;
 
                 if (!$quarterAllocation) {
+                    DB::rollBack();
                     return response()->json(['status' => 'error', 'message' => 'Allocation record not found.'], 404);
                 }
 
@@ -1294,7 +1297,7 @@ class QuarterAllocationController extends Controller
 
             DB::commit();
 
-            \Illuminate\Support\Facades\Log::info("[Quarter Allocation] Action: Restored Application | ID: {$id} | User: " . Auth::id());
+            Log::info("[Quarter Allocation] Action: Restored Application | ID: {$id} | User: " . Auth::id());
 
             return redirect()->back()->with('success', 'Application successfully restored to pending status!');
 
