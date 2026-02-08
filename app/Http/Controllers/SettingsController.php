@@ -33,10 +33,7 @@ class SettingsController extends Controller
             $subject = $request->subject;
             $body = $request->input('email-body');
 
-            Mail::raw($body, function ($message) use ($toEmail, $subject) {
-                $message->to($toEmail)
-                    ->subject($subject);
-            });
+            Mail::to($toEmail)->send(new \App\Mail\SimpleMail($subject, $body));
 
             return redirect()->back()->with('success', 'Test email sent successfully to ' . $toEmail);
         } catch (\Exception $e) {
