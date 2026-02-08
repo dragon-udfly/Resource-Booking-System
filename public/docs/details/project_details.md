@@ -29,11 +29,6 @@
 
 ---
 
-### Project Coordination & Requirements
-* **Officer Name:** Mr. S.Aravinthan
-* **Designation:** Administrative Officer
-* **Role:** Key Stakeholder & Requirement Lead
-
 ### Institutional Information
 **Department of Physical Science** <br>
 **Faculty of Applied Science** <br>
