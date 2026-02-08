@@ -14,7 +14,7 @@
 | R.G.G.S. Sadhana | 2021/ICT/28 |Frontend|
 | M.Z.F. Zaheeda | 2021/ICT/37 |Database|
 | W.R.W.M.R.N.W.N.R. Nugegoda | 2021/ICT/67 |Frontend|
-| V. Thanuharan | 2021/ICT/104 |Backend API & Documentation|
+| V. Thanuharan | 2021/ICT/104 |Backend Routes & Documentation|
 | W.P.T.D. Sunilaka | 2021/ICT/118 |Testing|
 
 ---
