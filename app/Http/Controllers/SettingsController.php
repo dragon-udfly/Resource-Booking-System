@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Mail\SimpleMail;
+use App\Models\User;
 
 class SettingsController extends Controller
 {
@@ -29,11 +31,11 @@ class SettingsController extends Controller
         ]);
 
         try {
-            $toEmail = $request->test_email;
-            $subject = $request->subject;
+            $toEmail = $request->input('test_email');
+            $subject = $request->input('subject');
             $body = $request->input('email-body');
 
-            Mail::to($toEmail)->send(new \App\Mail\SimpleMail($subject, $body));
+            Mail::to($toEmail)->send(new SimpleMail($subject, $body));
 
             return redirect()->back()->with('success', 'Test email sent successfully to ' . $toEmail);
         } catch (\Exception $e) {
@@ -447,7 +449,7 @@ class SettingsController extends Controller
         }
 
         // Cache User IDs for validation
-        $validUserIds = \App\Models\User::pluck('user_id')->flip()->toArray();
+        $validUserIds = User::pluck('user_id', 'user_id')->toArray();
 
         DB::beginTransaction();
         try {
@@ -526,7 +528,7 @@ class SettingsController extends Controller
 
     public function restoreOfficers(Request $request)
     {
-        return $this->handleSpecificRestore($request, 'user', \App\Models\User::class);
+        return $this->handleSpecificRestore($request, 'user', User::class);
     }
 
     public function restoreGradeSalary(Request $request)
