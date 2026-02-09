@@ -194,7 +194,9 @@ class SettingsController extends Controller
         $dbHost = env('DB_HOST');
 
         // Base command structure
-        $baseCommand = "\"{$mysqldumpPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" \"{$dbName}\"";
+        // Added --replace to use REPLACE INTO instead of INSERT INTO (prevents duplicate key errors)
+        // Added --add-drop-table to ensure tables are dropped before creation
+        $baseCommand = "\"{$mysqldumpPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" \"{$dbName}\" --replace --add-drop-table";
 
         try {
             // If no specific tables requested, dump the whole database
@@ -299,7 +301,8 @@ class SettingsController extends Controller
 
         // 4. Executing Restore Command
         // mysql -u [user] -p[password] [database_name] < [filename.sql]
-        $command = "\"{$mysqlPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" \"{$dbName}\" < \"{$filePath}\"";
+        // Added 2>&1 to capture stderr in output
+        $command = "\"{$mysqlPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" \"{$dbName}\" < \"{$filePath}\" 2>&1";
 
         try {
             exec($command, $output, $returnVar);
@@ -319,8 +322,9 @@ class SettingsController extends Controller
 
                 return redirect()->back()->with('success_modal', 'Database restored successfully.');
             } else {
-                Log::error("Database restore failed. Return Var: {$returnVar}");
-                return redirect()->back()->with('error_modal', 'Database restore failed. Check system logs.');
+                $errorOutput = implode("\n", $output);
+                Log::error("Database restore failed. Return Var: {$returnVar}. Output: {$errorOutput}");
+                return redirect()->back()->with('error_modal', 'Database restore failed. Check system logs for details.');
             }
         } catch (\Exception $e) {
             Log::error("Database restore exception: " . $e->getMessage());
