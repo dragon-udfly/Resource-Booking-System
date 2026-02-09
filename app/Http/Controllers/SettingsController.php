@@ -263,7 +263,7 @@ class SettingsController extends Controller
         }
 
         // 2. Integrity Check (Simple content scan)
-        $content = file_get_contents($file->getRealPath(), false, null, 0, 10000); // Read first 10KB
+        $content = file_get_contents($file->getRealPath(), false, null, 0, 100000); // Read first 100KB
         $criticalTables = ['hall', 'quarters', 'user', 'quarter_application'];
         $foundTables = 0;
 
@@ -280,8 +280,9 @@ class SettingsController extends Controller
         // User asked for "confirmed table and column integrity".
         // A strict check might be too restrictive for partial backups (e.g. restoring just Halls).
         // Let's check if it looks like a dump at all.
-        if ($foundTables === 0 && stripos($content, 'MySQL dump') === false) {
-            return redirect()->back()->with('error_modal', 'Invalid backup file. critical table definitions or MySQL dump header not found.');
+        // Updated to check for 'MariaDB dump' as well since environment might be MariaDB
+        if ($foundTables === 0 && stripos($content, 'MySQL dump') === false && stripos($content, 'MariaDB dump') === false) {
+            return redirect()->back()->with('error_modal', 'Invalid backup file. critical table definitions or MySQL/MariaDB dump header not found.');
         }
 
         // 3. Prepare for Restoration
@@ -566,7 +567,7 @@ class SettingsController extends Controller
     private function importSql($file, $tableName)
     {
         // Integrity Check: Look for CREATE TABLE or INSERT INTO specific table
-        $content = file_get_contents($file->getRealPath(), false, null, 0, 10000);
+        $content = file_get_contents($file->getRealPath(), false, null, 0, 100000);
         // Checking for table name quoted or unquoted
         $pattern = "/(CREATE TABLE|INSERT INTO)\s+[`\"]?{$tableName}[`\"]?/i";
 
@@ -586,7 +587,7 @@ class SettingsController extends Controller
         $dbHost = env('DB_HOST');
         $filePath = $file->getRealPath();
 
-        $command = "\"{$mysqlPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" \"{$dbName}\" < \"{$filePath}\"";
+        $command = "\"{$mysqlPath}\" --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" \"{$dbName}\" < \"{$filePath}\" 2>&1";
 
         try {
             exec($command, $output, $returnVar);
@@ -600,7 +601,8 @@ class SettingsController extends Controller
                 ]);
                 return redirect()->back()->with('success_modal', "Table '{$tableName}' restored successfully from SQL.");
             }
-            return redirect()->back()->with('error_modal', "Restore failed. Return Code: {$returnVar}");
+            $errorOutput = implode("\n", $output);
+            return redirect()->back()->with('error_modal', "Restore failed. Return Code: {$returnVar}. Output: {$errorOutput}");
         } catch (\Exception $e) {
             return redirect()->back()->with('error_modal', "Exception: " . $e->getMessage());
         }
