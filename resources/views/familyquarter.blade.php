@@ -81,6 +81,7 @@
             border: 1px solid #ced4da;
             border-radius: 4px;
             font-size: 1em;
+            resize: vertical;
         }
 
         .form-section-title {
