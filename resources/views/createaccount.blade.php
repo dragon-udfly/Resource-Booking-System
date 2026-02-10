@@ -172,25 +172,26 @@
                 @csrf
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="first_name">First Name <span class="required">*</span></label>
-                        <input type="text" id="first_name" name="first_name" placeholder="Enter first name" required>
+                        <label for="input_first_name">First Name <span class="required">*</span></label>
+                        <input type="text" id="input_first_name" name="first_name" placeholder="Enter first name" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="last_name">Last Name <span class="required">*</span></label>
-                        <input type="text" id="last_name" name="last_name" placeholder="Enter last name" required>
+                        <label for="input_last_name">Last Name <span class="required">*</span></label>
+                        <input type="text" id="input_last_name" name="last_name" placeholder="Enter last name" required>
                     </div>
                     <div class="form-group">
-                        <label for="designation">Designation(Type designation correctly) <span
+                        <label for="input_designation">Designation(Type designation correctly) <span
                                 class="required">*</span></label>
-                        <input type="text" id="designation" name="designation" placeholder="Enter designation" required>
+                        <input type="text" id="input_designation" name="designation" placeholder="Enter designation"
+                            required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="email">Email Address <span class="required">*</span></label>
-                        <input type="email" id="email" name="email" placeholder="Enter email address" required
+                        <label for="input_email">Email Address <span class="required">*</span></label>
+                        <input type="email" id="input_email" name="email" placeholder="Enter email address" required
                             value="{{ old('email') }}">
                         @error('email')
                             <div style="color: #dc3545; font-size: 0.875em; margin-top: 5px;">{{ $message }}</div>
@@ -200,8 +201,8 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="contact_number">Phone Number <span class="required">*</span></label>
-                        <input type="tel" id="contact_number" name="contact_number" placeholder="Enter phone number"
+                        <label for="input_contact_number">Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="input_contact_number" name="contact_number" placeholder="Enter phone number"
                             required value="{{ old('contact_number') }}">
                         @error('contact_number')
                             <div style="color: #dc3545; font-size: 0.875em; margin-top: 5px;">{{ $message }}</div>
@@ -209,8 +210,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="nic_number">NIC Number <span class="required">*</span></label>
-                        <input type="text" id="nic_number" name="nic_number" placeholder="Enter NIC number" required
+                        <label for="input_nic_number">NIC Number <span class="required">*</span></label>
+                        <input type="text" id="input_nic_number" name="nic_number" placeholder="Enter NIC number" required
                             value="{{ old('nic_number') }}">
                         @error('nic_number')
                             <div style="color: #dc3545; font-size: 0.875em; margin-top: 5px;">{{ $message }}</div>
@@ -220,50 +221,50 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="passcode">Passcode <span class="required">*</span></label>
-                        <input type="password" id="passcode" name="passcode" placeholder="Enter passcode" required>
+                        <label for="input_passcode">Passcode <span class="required">*</span></label>
+                        <input type="password" id="input_passcode" name="passcode" placeholder="Enter passcode" required>
                     </div>
                 </div>
                 <p id="p_p" style="color:#ff0000">Permissions</p><br />
                 <div id="permissions" class="form-row">
                     <div id="permission1" class="form-group checkbox-group">
-                        <input type="checkbox" id="view_officers" name="permissions[]" value="view_officers">
-                        <label for="view_officers">View Officers</label>
+                        <input type="checkbox" id="input_view_officers" name="permissions[]" value="view_officers">
+                        <label for="input_view_officers">View Officers</label>
                     </div>
                     <div id="permission2" class="form-group checkbox-group">
-                        <input type="checkbox" id="view_halls" name="permissions[]" value="view_halls">
-                        <label for="view_halls">View Halls</label>
+                        <input type="checkbox" id="input_view_halls" name="permissions[]" value="view_halls">
+                        <label for="input_view_halls">View Halls</label>
                     </div>
                     <div id="permission3" class="form-group checkbox-group">
-                        <input type="checkbox" id="view_quarters" name="permissions[]" value="view_quarters">
-                        <label for="view_quarters">View Quarters</label>
+                        <input type="checkbox" id="input_view_quarters" name="permissions[]" value="view_quarters">
+                        <label for="input_view_quarters">View Quarters</label>
                     </div>
                     <div id="permission4" class="form-group checkbox-group">
-                        <input type="checkbox" id="view_audit_log" name="permissions[]" value="view_audit_log">
-                        <label for="view_audit_log">View Audit Log</label>
+                        <input type="checkbox" id="input_view_audit_log" name="permissions[]" value="view_audit_log">
+                        <label for="input_view_audit_log">View Audit Log</label>
                     </div>
                     <div id="permission5" class="form-group checkbox-group">
-                        <input type="checkbox" id="administrative_officer_approval" name="permissions[]"
+                        <input type="checkbox" id="input_administrative_officer_approval" name="permissions[]"
                             value="administrative_officer_approval">
-                        <label for="administrative_officer_approval">Administrative Officer Approval</label>
+                        <label for="input_administrative_officer_approval">Administrative Officer Approval</label>
                     </div>
                     <div id="permission6" class="form-group checkbox-group">
-                        <input type="checkbox" id="additional_government_agent_approval" name="permissions[]"
+                        <input type="checkbox" id="input_additional_government_agent_approval" name="permissions[]"
                             value="additional_government_agent_approval">
-                        <label for="additional_government_agent_approval">Additional Government Agent Approval</label>
+                        <label for="input_additional_government_agent_approval">Additional Government Agent Approval</label>
                     </div>
                     <div id="permission7" class="form-group checkbox-group">
-                        <input type="checkbox" id="government_agent_approval" name="permissions[]"
+                        <input type="checkbox" id="input_government_agent_approval" name="permissions[]"
                             value="government_agent_approval">
-                        <label for="government_agent_approval">Government Agent Approval</label>
+                        <label for="input_government_agent_approval">Government Agent Approval</label>
                     </div>
                     <div id="permission8" class="form-group checkbox-group">
-                        <input type="checkbox" id="account_setting" name="permissions[]" value="account_setting">
-                        <label for="account_setting">Preference</label>
+                        <input type="checkbox" id="input_account_setting" name="permissions[]" value="account_setting">
+                        <label for="input_account_setting">Preference</label>
                     </div>
                     <div id="permission9" class="form-group checkbox-group">
-                        <input type="checkbox" id="requester" name="permissions[]" value="requester">
-                        <label for="requester">Requester</label>
+                        <input type="checkbox" id="input_requester" name="permissions[]" value="requester">
+                        <label for="input_requester">Requester</label>
                     </div>
                 </div>
 
