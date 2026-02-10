@@ -419,7 +419,7 @@
                         <div class="form-group">
                             <label for="ao_note">Administrative Officer Note:</label>
                             <textarea name="ao_note" id="ao_note" rows="3" class="form-control"
-                                style="width: 100%;">{{ optional($application->quarterAllocation)->ao_note ?? '' }}</textarea>
+                                style="width: 100%; resize: vertical;">{{ optional($application->quarterAllocation)->ao_note ?? '' }}</textarea>
                         </div>
                     </div>
                 @else
@@ -459,7 +459,7 @@
                         <div class="form-group">
                             <label for="aga_note">Additional Government Agent Note:</label>
                             <textarea name="aga_note" id="aga_note" rows="3" class="form-control"
-                                style="width: 100%;">{{ optional($application->quarterAllocation)->aga_note ?? '' }}</textarea>
+                                style="width: 100%; resize: vertical;">{{ optional($application->quarterAllocation)->aga_note ?? '' }}</textarea>
                         </div>
                     </div>
                 @else
@@ -497,7 +497,7 @@
                         <div class="form-group">
                             <label for="ga_note">Government Agent Note:</label>
                             <textarea name="ga_note" id="ga_note" rows="3" class="form-control"
-                                style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em;"
+                                style="width: 100%; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em; resize: vertical;"
                                 placeholder="Review notice for Government Agent">{{ old('ga_note', optional($application->quarterAllocation)->ga_note ?? '') }}</textarea>
                         </div>
                     </div>
