@@ -692,4 +692,51 @@ class SettingsController extends Controller
             return redirect()->back()->with('error_modal', "CSV Import Failed: " . $e->getMessage());
         }
     }
+
+    public function clearDatabase()
+    {
+        try {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+            // 1. Truncate Business Tables
+            $tables = [
+                'hall',
+                'hall_booking',
+                'quarters',
+                'quarter_application',
+                'scheduled_quarter_application',
+                'family_quarter_application',
+                'marking_family_quarter',
+                'grade_salary_settings',
+                'marking_scheme',
+                'memos',
+            ];
+
+            foreach ($tables as $table) {
+                DB::table($table)->truncate();
+            }
+
+            // 2. Clear Users except Admin 'admin001'
+            DB::table('user_permissions')->where('user_id', '!=', 'admin001')->delete();
+            DB::table('user')->where('user_id', '!=', 'admin001')->delete();
+
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+            // 3. Log Action
+            \App\Models\AuditLog::create([
+                'log_title' => 'Database Cleared',
+                'details' => 'All business data cleared. Admin and Audit Log preserved.',
+                'performed_by' => auth()->id(),
+                'date_performed' => date('Y-m-d'),
+                'time_performed' => date('H:i:s'),
+            ]);
+
+            return redirect()->back()->with('success_modal', 'Database cleared successfully. All records have been removed except the Admin account and Audit Logs.');
+
+        } catch (\Exception $e) {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            Log::error('Database Clear Failed: ' . $e->getMessage());
+            return redirect()->back()->with('error_modal', 'Failed to clear database: ' . $e->getMessage());
+        }
+    }
 }
