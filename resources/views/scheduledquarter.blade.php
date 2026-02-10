@@ -11,7 +11,8 @@
         }
 
         .page-header h2 {
-            font-size: 1.8em; /* Adjusted for long title */
+            font-size: 1.8em;
+            /* Adjusted for long title */
             margin-bottom: 10px;
         }
 
@@ -36,20 +37,26 @@
             transition: background-color 0.3s ease;
         }
 
-        .home-btn { background-color: #6c757d; }
-        .back-btn { background-color: #007bff; }
-        
+        .home-btn {
+            background-color: #6c757d;
+        }
+
+        .back-btn {
+            background-color: #007bff;
+        }
+
         .btn:hover {
             opacity: 0.9;
         }
-        
+
         .form-container {
             background-color: #fff;
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             width: 90%;
-            max-width: 1200px; /* Increased max-width */
+            max-width: 1200px;
+            /* Increased max-width */
             margin-top: 20px;
         }
 
@@ -84,8 +91,9 @@
             border: 1px solid #ced4da;
             border-radius: 4px;
             font-size: 1em;
+            resize: vertical;
         }
-        
+
         .form-section-title {
             font-size: 1.5em;
             font-weight: bold;
@@ -118,7 +126,8 @@
         </div>
 
         @if ($errors->any())
-            <div class="alert alert-danger" style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+            <div class="alert alert-danger"
+                style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
                 <strong>Whoops!</strong> There were some problems with your input.<br><br>
                 <ul>
                     @foreach ($errors->all() as $error)
@@ -182,13 +191,15 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="permanent_address">6. Permanent Address: <span class="required">*</span></label>
-                        <textarea id="permanent_address" name="permanent_address" placeholder="with Grama Niladhari Division:" maxlength="1200" required></textarea>
+                        <textarea id="permanent_address" name="permanent_address"
+                            placeholder="with Grama Niladhari Division:" maxlength="1200" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="temporary_address">7. Temporary Address: </label>
-                        <textarea id="temporary_address" name="temporary_address" placeholder="with Grama Niladhari Division:" maxlength="1200"></textarea>
+                        <textarea id="temporary_address" name="temporary_address"
+                            placeholder="with Grama Niladhari Division:" maxlength="1200"></textarea>
                     </div>
-                </div> 
+                </div>
 
                 <div class="form-row">
                     <div class="form-group">
@@ -199,47 +210,58 @@
                         <label for="email">9. Email Address: </label>
                         <input type="email" id="email" name="email">
                     </div>
-                </div> 
+                </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="monthly_salary">10.  Monthly Salary (excluding allowances): <span class="required">*</span></label>
+                        <label for="monthly_salary">10. Monthly Salary (excluding allowances): <span
+                                class="required">*</span></label>
                         <input type="number" id="monthly_salary" name="monthly_salary" required>
                     </div>
                     <div class="form-group">
-                        <label for="date_of_assumption_of_duties">11.  Date of Assumption of Duties in Vavuniya: <span class="required">*</span></label>
+                        <label for="date_of_assumption_of_duties">11. Date of Assumption of Duties in Vavuniya: <span
+                                class="required">*</span></label>
                         <input type="date" id="date_of_assumption_of_duties" name="date_of_assumption_of_duties" required>
                     </div>
                 </div>
 
-                <h3 class="form-section-title">B)  Special Reasons for Priority Request</h3>
-                <div class="form-row">
-                   <div class="form-group">
-                        <label for="sq_transfered_officer_priority_request">1. Are you a transferred officer? (Provide descripiton, if available)</label>
-                        <textarea id="sq_transfered_officer_priority_request" name="sq_transfered_officer_priority_request" placeholder="Enter description" maxlength="2000" cols="50", rows="7"></textarea>
-                    </div>
-                </div> 
+                <h3 class="form-section-title">B) Special Reasons for Priority Request</h3>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="sq_night_duty_priority_request">2. Are you frequently called for night duty? (Provide descripiton, if available)</label>
-                        <textarea id="sq_night_duty_priority_request" name="sq_night_duty_priority_request" placeholder="Enter description" maxlength="2000" cols="50", rows="7"></textarea>
+                        <label for="sq_transfered_officer_priority_request">1. Are you a transferred officer? (Provide
+                            descripiton, if available)</label>
+                        <textarea id="sq_transfered_officer_priority_request" name="sq_transfered_officer_priority_request"
+                            placeholder="Enter description" maxlength="2000" cols="50" , rows="7"></textarea>
                     </div>
-                </div> 
+                </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="sq_other_special_reason_priority_request">3. Any other special reason? (Provide descripiton, if available)</label>
-                        <textarea id="sq_other_special_reason_priority_request" name="sq_other_special_reason_priority_request" placeholder="Enter description" maxlength="2000" cols="50", rows="7"></textarea>
+                        <label for="sq_night_duty_priority_request">2. Are you frequently called for night duty? (Provide
+                            descripiton, if available)</label>
+                        <textarea id="sq_night_duty_priority_request" name="sq_night_duty_priority_request"
+                            placeholder="Enter description" maxlength="2000" cols="50" , rows="7"></textarea>
                     </div>
-                </div> 
-                
-                <h3 class="form-section-title">C)  Property Ownership Within 5 km of Vavuniya Town </h3>
+                </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="sq_property_ownership_details">1. Do you or your spouse own any house or land within a 5 km radius of Vavuniya town? If yes, provide details. </label>
-                        <textarea id="sq_property_ownership_details" name="sq_property_ownership_details" placeholder="Enter description" maxlength="2000" cols="50", rows="10"></textarea>
+                        <label for="sq_other_special_reason_priority_request">3. Any other special reason? (Provide
+                            descripiton, if available)</label>
+                        <textarea id="sq_other_special_reason_priority_request"
+                            name="sq_other_special_reason_priority_request" placeholder="Enter description" maxlength="2000"
+                            cols="50" , rows="7"></textarea>
                     </div>
                 </div>
 
-                <h3 class="form-section-title">D) Requester Details (Enter details to add this application to system)</h3> 
+                <h3 class="form-section-title">C) Property Ownership Within 5 km of Vavuniya Town </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sq_property_ownership_details">1. Do you or your spouse own any house or land within a 5
+                            km radius of Vavuniya town? If yes, provide details. </label>
+                        <textarea id="sq_property_ownership_details" name="sq_property_ownership_details"
+                            placeholder="Enter description" maxlength="2000" cols="50" , rows="10"></textarea>
+                    </div>
+                </div>
+
+                <h3 class="form-section-title">D) Requester Details (Enter details to add this application to system)</h3>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="filled_by_nic">Requester Officer's NIC <span class="required">*</span></label>
@@ -250,9 +272,11 @@
                         <input type="tel" id="filled_by_phone" name="filled_by_phone" required>
                     </div>
                 </div>
-                 <div class="form-group" style="margin-top: 20px; display: flex; align-items: center;">
-                    <input type="checkbox" id="confirm_details" name="confirm_details" required style="width: 20px; height: 20px; margin-right: 15px; cursor: pointer;">
-                    <label for="confirm_details" style="margin-bottom: 0; cursor: pointer;">I filled this form with applicant details. All details filled here are correct.</label>
+                <div class="form-group" style="margin-top: 20px; display: flex; align-items: center;">
+                    <input type="checkbox" id="confirm_details" name="confirm_details" required
+                        style="width: 20px; height: 20px; margin-right: 15px; cursor: pointer;">
+                    <label for="confirm_details" style="margin-bottom: 0; cursor: pointer;">I filled this form with
+                        applicant details. All details filled here are correct.</label>
                 </div>
 
                 <div class="button-group">
@@ -267,7 +291,7 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const bookingForm = document.getElementById('scheduled-quarter-form'); // Updated form ID
             const requesterOverlay = document.getElementById('requester-overlay');
             const requesterMessage = document.getElementById('requester-message');
@@ -298,7 +322,7 @@
                 isAwaitingConfirmation = false;
             }
 
-            requesterConfirmBtn.addEventListener('click', function() {
+            requesterConfirmBtn.addEventListener('click', function () {
                 if (isAwaitingConfirmation) {
                     bookingForm.submit(); // This submits the form to the controller
                 } else {
@@ -307,15 +331,15 @@
             });
 
             requesterCancelBtn.addEventListener('click', hideOverlay);
-            
-            requesterOverlay.addEventListener('click', function(event) {
+
+            requesterOverlay.addEventListener('click', function (event) {
                 if (event.target === requesterOverlay) {
                     hideOverlay();
                 }
             });
 
             // --- Modified Submit Event Listener ---
-            bookingForm.addEventListener('submit', function(event) {
+            bookingForm.addEventListener('submit', function (event) {
                 event.preventDefault(); // Prevent default submission
 
                 const form = event.target;
@@ -351,26 +375,26 @@
                         contact_number: contactNumber
                     })
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        // Handle HTTP errors (e.g., 404, 500)
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Verification successful, show confirmation prompt
-                        showOverlay('Requester verified. Are you sure you want to submit this application?', true);
-                    } else {
-                        // Verification failed, show error message from backend
-                        showOverlay(data.message || 'Requester verification failed. Please check the details.', false);
-                    }
-                })
-                .catch(error => {
-                    console.error('Verification Fetch Error:', error);
-                    showOverlay('An error occurred during verification. Please try again. (Details: ' + error.message + ')', false);
-                });
+                    .then(response => {
+                        if (!response.ok) {
+                            // Handle HTTP errors (e.g., 404, 500)
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Verification successful, show confirmation prompt
+                            showOverlay('Requester verified. Are you sure you want to submit this application?', true);
+                        } else {
+                            // Verification failed, show error message from backend
+                            showOverlay(data.message || 'Requester verification failed. Please check the details.', false);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Verification Fetch Error:', error);
+                        showOverlay('An error occurred during verification. Please try again. (Details: ' + error.message + ')', false);
+                    });
             });
         });
     </script>
