@@ -40,6 +40,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/createaccount', [UserController::class, 'create'])->name('createaccount');
     Route::post('/createaccount', [UserController::class, 'store'])->name('createaccount.store');
+    Route::delete('/users/clear', [UserController::class, 'clearUsers'])->name('users.clear');
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
@@ -91,7 +92,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/auditlog', [UserController::class, 'showAuditLog'])->name('auditlog');
     Route::delete('/auditlog/clear', [UserController::class, 'clearAuditLog'])->name('auditlog.clear');
 
-    Route::delete('/users/clear', [UserController::class, 'clearUsers'])->name('users.clear');
+
     Route::delete('/bookings/clear', [HallBookingController::class, 'clearBookings'])->name('bookings.clear');
     Route::delete('/bookings/clear-rejected', [HallBookingController::class, 'clearRejectedBookings'])->name('bookings.clearRejected');
     Route::delete('/quarters/scheduled/clear-rejected', [QuarterAllocationController::class, 'clearRejectedScheduledApplications'])->name('quarters.scheduled.clearRejected');
