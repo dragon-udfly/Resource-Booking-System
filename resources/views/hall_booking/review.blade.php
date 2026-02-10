@@ -343,7 +343,25 @@
             };
         }
 
-        // ... showConfirmModal, closeConfirmModal ...
+        function showConfirmModal(message, onConfirm) {
+            document.getElementById('confirm-modal-message').textContent = message;
+            document.getElementById('confirm-modal').style.display = 'flex';
+
+            // Set up the Yes button
+            const yesBtn = document.getElementById('confirm-modal-yes-btn');
+            // Clone to remove previous event listeners
+            const newYesBtn = yesBtn.cloneNode(true);
+            yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+
+            newYesBtn.addEventListener('click', function () {
+                closeConfirmModal();
+                if (onConfirm) onConfirm();
+            });
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').style.display = 'none';
+        }
 
         function toggleRejectionReason() {
             // ... existing ...
