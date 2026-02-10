@@ -183,6 +183,7 @@
             border: 1px solid #ced4da;
             border-radius: 4px;
             font-size: 14px;
+            resize: vertical;
         }
 
         .row {
@@ -480,7 +481,8 @@
                 <button class="close-btn" onclick="closeModal('confirmClearSentModal')">&times;</button>
             </div>
             <div class="modal-body">
-                Are you sure you want to clear all <strong>RESOLVED</strong> memos from your outbox? Pending memos will not be cleared.
+                Are you sure you want to clear all <strong>RESOLVED</strong> memos from your outbox? Pending memos will not
+                be cleared.
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('confirmClearSentModal')">Cancel</button>
@@ -497,7 +499,8 @@
                 <button class="close-btn" onclick="closeModal('confirmClearReadModal')">&times;</button>
             </div>
             <div class="modal-body">
-                Are you sure you want to clear all <strong>RESOLVED</strong> memos from your inbox? Pending memos will not be cleared.
+                Are you sure you want to clear all <strong>RESOLVED</strong> memos from your inbox? Pending memos will not
+                be cleared.
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('confirmClearReadModal')">Cancel</button>
@@ -625,7 +628,7 @@
             }, 5000); // Poll every 5 seconds
 
             // --- Real-time Polling for Outbox (Status Updates) ---
-            setInterval(function() {
+            setInterval(function () {
                 fetch('{{ route("memo.fetch_outbox") }}')
                     .then(response => response.text())
                     .then(html => {
