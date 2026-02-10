@@ -98,6 +98,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/quarters/scheduled/clear-rejected', [QuarterAllocationController::class, 'clearRejectedScheduledApplications'])->name('quarters.scheduled.clearRejected');
     Route::delete('/quarters/family/clear-rejected', [QuarterAllocationController::class, 'clearRejectedFamilyApplications'])->name('quarters.family.clearRejected');
     Route::delete('/memos/clear-history', [App\Http\Controllers\MemoController::class, 'clearRespondedMemos'])->name('memos.clearResponded');
+    Route::delete('/settings/clear-database', [App\Http\Controllers\SettingsController::class, 'clearDatabase'])->name('settings.clear.database');
 
     Route::get('/quarters', [QuarterController::class, 'index'])->name('quarters.index');
     Route::get('/quarters/{quarter}/edit', [QuarterController::class, 'edit'])->name('quarters.edit');
