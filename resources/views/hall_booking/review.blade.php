@@ -203,7 +203,7 @@
                                     <label for="rejection_reason"
                                         style="font-weight: bold; display: block; margin-bottom: 5px;">Rejection Reason:</label>
                                     <textarea id="rejection_reason" name="rejection_reason" rows="3"
-                                        style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;"></textarea>
+                                        style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; resize: vertical;"></textarea>
                                 </div>
                                 <button type="button" onclick="submitDecision('ga')" class="btn btn-primary"
                                     style="background-color: #007bff; color: white; padding: 10px 20px; border: none; cursor: pointer;">Finalize
