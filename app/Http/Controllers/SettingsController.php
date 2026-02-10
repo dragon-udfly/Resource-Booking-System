@@ -707,6 +707,7 @@ class SettingsController extends Controller
                 'scheduled_quarter_application',
                 'family_quarter_application',
                 'marking_family_quarter',
+                'quarter_allocation',
                 'grade_salary_settings',
                 'marking_scheme',
                 'memos',
