@@ -248,15 +248,19 @@
                             <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
                                 <form action="{{ route('settings.backup.halls') }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                                    <button type="submit" class="btn-save"
+                                        style="background-color: #28a745;">Backup</button>
                                 </form>
-                                <form action="{{ route('settings.restore.halls') }}" method="POST" enctype="multipart/form-data" 
-                                      onsubmit="return confirm('WARNING: This will replace all Hall data and cannot be undone. Are you sure?');">
+                                <form action="{{ route('settings.restore.halls') }}" method="POST"
+                                    enctype="multipart/form-data"
+                                    onsubmit="return confirm('WARNING: This will replace all Hall data and cannot be undone. Are you sure?');">
                                     @csrf
-                                    <label for="restore_halls" class="btn-save" style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
+                                    <label for="restore_halls" class="btn-save"
+                                        style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
                                         Restore
                                     </label>
-                                    <input type="file" name="backup_file" id="restore_halls" accept=".sql,.csv" style="display: none;" onchange="this.form.submit()">
+                                    <input type="file" name="backup_file" id="restore_halls" accept=".sql,.csv"
+                                        style="display: none;" onchange="this.form.submit()">
                                 </form>
                             </div>
                         </td>
@@ -269,15 +273,19 @@
                             <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
                                 <form action="{{ route('settings.backup.quarters') }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                                    <button type="submit" class="btn-save"
+                                        style="background-color: #28a745;">Backup</button>
                                 </form>
-                                <form action="{{ route('settings.restore.quarters') }}" method="POST" enctype="multipart/form-data" 
-                                      onsubmit="return confirm('WARNING: This will replace all Quarter data and cannot be undone. Are you sure?');">
+                                <form action="{{ route('settings.restore.quarters') }}" method="POST"
+                                    enctype="multipart/form-data"
+                                    onsubmit="return confirm('WARNING: This will replace all Quarter data and cannot be undone. Are you sure?');">
                                     @csrf
-                                    <label for="restore_quarters" class="btn-save" style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
+                                    <label for="restore_quarters" class="btn-save"
+                                        style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
                                         Restore
                                     </label>
-                                    <input type="file" name="backup_file" id="restore_quarters" accept=".sql,.csv" style="display: none;" onchange="this.form.submit()">
+                                    <input type="file" name="backup_file" id="restore_quarters" accept=".sql,.csv"
+                                        style="display: none;" onchange="this.form.submit()">
                                 </form>
                             </div>
                         </td>
@@ -290,15 +298,19 @@
                             <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
                                 <form action="{{ route('settings.backup.officers') }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                                    <button type="submit" class="btn-save"
+                                        style="background-color: #28a745;">Backup</button>
                                 </form>
-                                <form action="{{ route('settings.restore.officers') }}" method="POST" enctype="multipart/form-data" 
-                                      onsubmit="return confirm('WARNING: This will replace all Officer data and cannot be undone. Are you sure?');">
+                                <form action="{{ route('settings.restore.officers') }}" method="POST"
+                                    enctype="multipart/form-data"
+                                    onsubmit="return confirm('WARNING: This will replace all Officer data and cannot be undone. Are you sure?');">
                                     @csrf
-                                    <label for="restore_officers" class="btn-save" style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
+                                    <label for="restore_officers" class="btn-save"
+                                        style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
                                         Restore
                                     </label>
-                                    <input type="file" name="backup_file" id="restore_officers" accept=".sql,.csv" style="display: none;" onchange="this.form.submit()">
+                                    <input type="file" name="backup_file" id="restore_officers" accept=".sql,.csv"
+                                        style="display: none;" onchange="this.form.submit()">
                                 </form>
                             </div>
                         </td>
@@ -345,15 +357,19 @@
                             <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
                                 <form action="{{ route('settings.backup.gradesalary') }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                                    <button type="submit" class="btn-save"
+                                        style="background-color: #28a745;">Backup</button>
                                 </form>
-                                <form action="{{ route('settings.restore.gradesalary') }}" method="POST" enctype="multipart/form-data" 
-                                      onsubmit="return confirm('WARNING: This will replace all Grade Salary settings and cannot be undone. Are you sure?');">
+                                <form action="{{ route('settings.restore.gradesalary') }}" method="POST"
+                                    enctype="multipart/form-data"
+                                    onsubmit="return confirm('WARNING: This will replace all Grade Salary settings and cannot be undone. Are you sure?');">
                                     @csrf
-                                    <label for="restore_gradesalary" class="btn-save" style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
+                                    <label for="restore_gradesalary" class="btn-save"
+                                        style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
                                         Restore
                                     </label>
-                                    <input type="file" name="backup_file" id="restore_gradesalary" accept=".sql,.csv" style="display: none;" onchange="this.form.submit()">
+                                    <input type="file" name="backup_file" id="restore_gradesalary" accept=".sql,.csv"
+                                        style="display: none;" onchange="this.form.submit()">
                                 </form>
                             </div>
                         </td>
@@ -366,15 +382,19 @@
                             <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
                                 <form action="{{ route('settings.backup.markingscheme') }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                                    <button type="submit" class="btn-save"
+                                        style="background-color: #28a745;">Backup</button>
                                 </form>
-                                <form action="{{ route('settings.restore.markingscheme') }}" method="POST" enctype="multipart/form-data" 
-                                      onsubmit="return confirm('WARNING: This will replace all Marking Scheme data and cannot be undone. Are you sure?');">
+                                <form action="{{ route('settings.restore.markingscheme') }}" method="POST"
+                                    enctype="multipart/form-data"
+                                    onsubmit="return confirm('WARNING: This will replace all Marking Scheme data and cannot be undone. Are you sure?');">
                                     @csrf
-                                    <label for="restore_markingscheme" class="btn-save" style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
+                                    <label for="restore_markingscheme" class="btn-save"
+                                        style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
                                         Restore
                                     </label>
-                                    <input type="file" name="backup_file" id="restore_markingscheme" accept=".sql,.csv" style="display: none;" onchange="this.form.submit()">
+                                    <input type="file" name="backup_file" id="restore_markingscheme" accept=".sql,.csv"
+                                        style="display: none;" onchange="this.form.submit()">
                                 </form>
                             </div>
                         </td>
@@ -387,15 +407,19 @@
                             <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
                                 <form action="{{ route('settings.backup.memos') }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="btn-save" style="background-color: #28a745;">Backup</button>
+                                    <button type="submit" class="btn-save"
+                                        style="background-color: #28a745;">Backup</button>
                                 </form>
-                                <form action="{{ route('settings.restore.memos') }}" method="POST" enctype="multipart/form-data" 
-                                      onsubmit="return confirm('WARNING: This will replace all Memos and cannot be undone. Are you sure?');">
+                                <form action="{{ route('settings.restore.memos') }}" method="POST"
+                                    enctype="multipart/form-data"
+                                    onsubmit="return confirm('WARNING: This will replace all Memos and cannot be undone. Are you sure?');">
                                     @csrf
-                                    <label for="restore_memos" class="btn-save" style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
+                                    <label for="restore_memos" class="btn-save"
+                                        style="background-color: #ffc107; color: #000; cursor: pointer; margin: 0; font-weight: bold; padding: 12px 25px;">
                                         Restore
                                     </label>
-                                    <input type="file" name="backup_file" id="restore_memos" accept=".sql,.csv" style="display: none;" onchange="this.form.submit()">
+                                    <input type="file" name="backup_file" id="restore_memos" accept=".sql,.csv"
+                                        style="display: none;" onchange="this.form.submit()">
                                 </form>
                             </div>
                         </td>
@@ -493,6 +517,18 @@
                                 @method('DELETE')
                                 <button type="submit" class="btn-danger"
                                     data-confirm="Are you sure you want to clear all non-admin user records? This action cannot be undone.">Clear</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Clear all business data from the database. (Preserves Admin 'admin001' and Audit Logs)</td>
+                        <td style="text-align: center;">
+                            <form id="clear-database-form" action="{{ route('settings.clear.database') }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-danger"
+                                    data-confirm="WARNING: Are you sure you want to clear the entire database? This will delete all Halls, Quarters, Applications, Memos, and Officers (except Admin). This action cannot be undone.">Clear
+                                    DB</button>
                             </form>
                         </td>
                     </tr>
