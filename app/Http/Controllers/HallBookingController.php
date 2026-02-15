@@ -649,14 +649,35 @@ class HallBookingController extends Controller
 
     public function showHistory()
     {
-        $bookings = HallBooking::where('final_approval', '!=', 'pending')
-            ->orderBy('date_created', 'desc')
-            ->get();
-
         $user = Auth::user();
-        $canManageBookings = $user->hasPermissionTo('administrative_officer_approval') ||
+
+        // Authorization Check: Only Approvers or Requesters can access history
+        $hasAccess = $user->hasPermissionTo('administrative_officer_approval') ||
+            $user->hasPermissionTo('additional_government_agent_approval') ||
+            $user->hasPermissionTo('government_agent_approval') ||
+            $user->hasPermissionTo('requester');
+
+        if (!$hasAccess) {
+            return view('history', [
+                'bookings' => collect(),
+                'canManageBookings' => false,
+            ]);
+        }
+
+        $query = HallBooking::where('final_approval', '!=', 'pending');
+
+        $isApprover = $user->hasPermissionTo('administrative_officer_approval') ||
             $user->hasPermissionTo('additional_government_agent_approval') ||
             $user->hasPermissionTo('government_agent_approval');
+
+        if (!$isApprover) {
+            // Must be a requester at this point due to the check above
+            $query->where('filled_by_nic', $user->nic_number);
+        }
+
+        $bookings = $query->orderBy('date_created', 'desc')->get();
+
+        $canManageBookings = $isApprover;
 
         return view('history', [
             'bookings' => $bookings,
