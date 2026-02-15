@@ -63,7 +63,7 @@ class HallBookingController extends Controller
                 },
             ],
             'event_duration' => 'required|numeric',
-            'paid_status' => 'required|string',
+            'paid_status' => 'required|in:Paid,Not Required,Pending',
             'is_emergency_booking' => 'required|boolean',
             'filled_by_nic' => 'required|string|max:50',
             'filled_by_phone' => 'required|string|max:50',
@@ -208,7 +208,7 @@ class HallBookingController extends Controller
             'event_time' => 'required|date_format:H:i',
             'participants' => 'required|integer',
             'event_duration' => 'required|numeric',
-            'paid_status' => 'required|string',
+            'paid_status' => 'required|in:Paid,Not Required,Pending',
             'is_emergency_booking' => 'required|boolean',
             'hall_id' => [
                 'required',
