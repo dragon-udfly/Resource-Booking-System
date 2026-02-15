@@ -319,7 +319,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>1. Description of Children:</label>
-                    <p>{{ $application->familyQuarterApplication?->f_children_details_description ?? 'N/A' }}</p>
+                    <p>{!! nl2br(e($application->familyQuarterApplication?->f_children_details_description ?? 'N/A')) !!}</p>
                 </div>
             </div>
 
