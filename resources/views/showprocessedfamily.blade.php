@@ -570,7 +570,15 @@
         </div>
 
         {{-- Modal Overlay --}}
+        <div id="modal-overlay" class="modal-overlay">
+            <div class="modal-content">
+                <h3 id="modal-title"></h3>
+                <p id="modal-message"></p>
+                <div id="modal-buttons" class="modal-buttons">
+                    <!-- Buttons will be injected by JavaScript -->
+                </div>
             </div>
+        </div>
         </div>
     </div>
 
