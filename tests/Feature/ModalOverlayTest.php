@@ -135,7 +135,26 @@ class ModalOverlayTest extends TestCase
      */
     public function test_dashboard_overlay_presence()
     {
-        $this->actingAs($this->admin);
+        // Require a regular user with requester permission to access dashboard
+        $user = User::create([
+            'user_id' => 'USR-TEST-OVERLAY',
+            'first_name' => 'Overlay',
+            'last_name' => 'User',
+            'email' => 'overlay_user@test.com',
+            'password' => bcrypt('password'),
+            'role' => 'user',
+            'designation' => 'Tester',
+            'nic_number' => 'OVERLAY-NIC',
+            'contact_number' => '0779998888',
+            'passcode' => '1234',
+            'created_datetime' => now(),
+        ]);
+        UserPermission::create([
+            'user_id' => $user->user_id,
+            'requester' => 1,
+        ]);
+
+        $this->actingAs($user);
 
         $response = $this->get(route('dashboard'));
 
