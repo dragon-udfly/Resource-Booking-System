@@ -51,6 +51,21 @@ class QuarterController extends Controller
             'current_occupant_number' => 'nullable|integer',
         ]);
 
+        // Custom validation for occupant numbers
+        $validator->after(function ($validator) use ($request) {
+            $allowed = $request->occupant_number ?? 0;
+            // Treating 0 as 1 based on view logic, or maybe just 0 means unlimited? 
+            // View says: $maxOccupants = ($quarter->occupant_number == 0) ? 1 : $quarter->occupant_number;
+            // So if input is 0, allowed is 1. If input is 5, allowed is 5.
+            $maxAllowed = ($allowed == 0) ? 1 : $allowed;
+
+            $current = $request->current_occupant_number ?? 0;
+
+            if ($current > $maxAllowed) {
+                $validator->errors()->add('current_occupant_number', 'Current occupant number cannot exceed the allowed occupant number.');
+            }
+        });
+
         if ($validator->fails()) {
             Log::error('Quarter creation validation failed', $validator->errors()->toArray());
             if ($request->wantsJson()) {
@@ -169,6 +184,17 @@ class QuarterController extends Controller
             'special_notice' => 'nullable|string',
             'current_occupant_number' => 'nullable|integer',
         ]);
+
+        // Custom validation for occupant numbers
+        $validator->after(function ($validator) use ($request) {
+            $allowed = $request->occupant_number ?? 0;
+            $maxAllowed = ($allowed == 0) ? 1 : $allowed;
+            $current = $request->current_occupant_number ?? 0;
+
+            if ($current > $maxAllowed) {
+                $validator->errors()->add('current_occupant_number', 'Current occupant number cannot exceed the allowed occupant number.');
+            }
+        });
 
         if ($validator->fails()) {
             if ($request->wantsJson()) {
