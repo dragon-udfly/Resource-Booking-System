@@ -1170,10 +1170,33 @@ class QuarterAllocationController extends Controller
 
     public function showQuarterHistory()
     {
-        $processedApplications = QuarterAllocation::with(['quarterApplication', 'quarter'])
-            ->where('allocation_status', '!=', 'pending')
-            ->orderBy('updated_at', 'desc')
-            ->get();
+        $user = Auth::user();
+
+        // Authorization Check: Only Approvers or Requesters can access history
+        $hasAccess = $user->hasPermissionTo('administrative_officer_approval') ||
+            $user->hasPermissionTo('additional_government_agent_approval') ||
+            $user->hasPermissionTo('government_agent_approval') ||
+            $user->hasPermissionTo('requester');
+
+        if (!$hasAccess) {
+            return response()->json([]);
+        }
+
+        $query = QuarterAllocation::with(['quarterApplication', 'quarter'])
+            ->where('allocation_status', '!=', 'pending');
+
+        $isApprover = $user->hasPermissionTo('administrative_officer_approval') ||
+            $user->hasPermissionTo('additional_government_agent_approval') ||
+            $user->hasPermissionTo('government_agent_approval');
+
+        if (!$isApprover) {
+            // Must be a requester at this point due to the check above
+            $query->whereHas('quarterApplication', function ($q) use ($user) {
+                $q->where('nic', $user->nic_number);
+            });
+        }
+
+        $processedApplications = $query->orderBy('updated_at', 'desc')->get();
 
         return response()->json($processedApplications);
     }
