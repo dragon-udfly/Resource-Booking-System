@@ -136,7 +136,7 @@
         .modal-overlay.active .modal-content { transform: scale(1); }
         .modal-content h3 { margin-top: 0; color: #333; }
         .modal-content p { margin-bottom: 20px; color: #555; }
-        .modal-buttons { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+        .modal-buttons { display: flex; justify-content: center; gap: 40px; margin-top: 20px; }
         .btn-secondary { background-color: #6c757d; color: white; }
 
     </style>
