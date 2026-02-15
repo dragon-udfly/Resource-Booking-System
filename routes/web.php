@@ -122,20 +122,27 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/preference/profile/update', [UserController::class, 'updateUserProfile'])->name('preference.profile.update');
     Route::post('/preference/change-password', [UserController::class, 'changePassword'])->name('preference.changepassword');
 
+    // Requester/User specific routes
+    Route::middleware(['user'])->group(function () {
+        Route::get('/dashboard', [UserController::class, 'showDashboard'])->name('dashboard');
+        Route::get('/seeauditlog', [UserController::class, 'seeAuditLog'])->name('seeauditlog');
+
+        Route::get('/history', [HallBookingController::class, 'showHistory'])->name('history');
+        Route::get('/history/quarters', [QuarterAllocationController::class, 'showQuarterHistory'])->name('history.quarters');
+
+        // Requester Booking Management Routes
+        Route::patch('/hall-bookings/{hallBooking}', [HallBookingController::class, 'updateBooking'])->name('hall_bookings.update_by_requester');
+        Route::delete('/hall-bookings/{hallBooking}', [HallBookingController::class, 'destroyBooking'])->name('hall_bookings.destroy_by_requester');
+        Route::get('/hall-bookings/{hallBooking}/download', [HallBookingController::class, 'downloadPDF'])->name('hall_bookings.download');
+    });
+
     // Hall routes
     Route::get('/halls', [HallController::class, 'index'])->name('halls.index');
     Route::get('/seehalls', [HallController::class, 'seeHalls'])->name('seehalls');
     Route::get('/seeofficers', [UserController::class, 'seeOfficers'])->name('seeofficers');
 
-    Route::get('/dashboard', [UserController::class, 'showDashboard'])->name('dashboard');
-    Route::get('/seeauditlog', [UserController::class, 'seeAuditLog'])->name('seeauditlog');
-
-    // Requester Booking Management Routes
-    Route::patch('/hall-bookings/{hallBooking}', [HallBookingController::class, 'updateBooking'])->name('hall_bookings.update_by_requester');
-    Route::delete('/hall-bookings/{hallBooking}', [HallBookingController::class, 'destroyBooking'])->name('hall_bookings.destroy_by_requester');
-    Route::get('/hall-bookings/{hallBooking}/download', [HallBookingController::class, 'downloadPDF'])->name('hall_bookings.download');
-
     // Approval Routes
+    // ... kept outside as admins need these
     Route::post('/hall-bookings/{hallBooking}/approve', [HallBookingController::class, 'approve'])->name('hall_bookings.approve');
     Route::post('/hall-bookings/{hallBooking}/reject', [HallBookingController::class, 'reject'])->name('hall_bookings.reject');
     Route::get('/hall-bookings/{hallBooking}/review', [HallBookingController::class, 'review'])->name('hall_bookings.review');
@@ -160,8 +167,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/processed-application/scheduled/{id}', [QuarterAllocationController::class, 'showProcessedScheduled'])->name('history.view_scheduled');
     Route::get('/processed-application/family/{id}', [QuarterAllocationController::class, 'showProcessedFamily'])->name('history.view_family');
 
-    Route::get('/history', [HallBookingController::class, 'showHistory'])->name('history');
-    Route::get('/history/quarters', [QuarterAllocationController::class, 'showQuarterHistory'])->name('history.quarters');
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
     // Internal Memo Routes
@@ -191,7 +196,3 @@ Route::get('/api/halls/available', [HallController::class, 'getAvailableHalls'])
 Route::get('/hall-overview', [HallController::class, 'showOverview'])->name('halls.overview');
 Route::get('/hallschedule', [HallBookingController::class, 'showSchedule'])->name('halls.schedule');
 
-// temporary hidden
-Route::get('/developers', function () {
-    return view('developers');
-});
