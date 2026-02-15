@@ -243,7 +243,7 @@
                         <select id="paid_status" name="paid_status" required>
                             <option value="Not Required" @if(old('paid_status') == 'Not Required') selected @endif>Not
                                 Required</option>
-                            <option value="Yes" @if(old('paid_status') == 'Yes') selected @endif>Yes</option>
+                            <option value="Paid" @if(old('paid_status') == 'Paid') selected @endif>Paid</option>
                             <option value="Pending" @if(old('paid_status') == 'Pending') selected @endif>Pending</option>
                         </select>
                     </div>
